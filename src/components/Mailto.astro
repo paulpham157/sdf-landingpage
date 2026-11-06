@@ -8,10 +8,9 @@ interface Props {
 
 const { subject, class: className } = Astro.props;
 const [local, domain] = site.email.split("@");
-const localLabel = local.replaceAll("-", "\u2011");
 const href = subject
   ? `mailto:${site.email}?subject=${encodeURIComponent(subject)}`
   : `mailto:${site.email}`;
 ---
 
-<a class:list={["mailto", className]} href={href}>{localLabel}@<wbr />{domain}</a>
+<a class:list={["mailto", className]} href={href}>{local}@<wbr />{domain}</a>

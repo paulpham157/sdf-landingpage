@@ -29,7 +29,7 @@ function isCurrent(href: string) {
         <span class="brand-tag">Independent referee</span>
       </span>
     </a>
-    <nav class="primary-nav" aria-label="Primary">
+    <nav class="primary-nav primary-nav-bar" aria-label="Primary">
       {
         links.map((link) => (
           <a href={link.href} aria-current={isCurrent(link.href)}>
@@ -38,12 +38,24 @@ function isCurrent(href: string) {
         ))
       }
     </nav>
-    <a
-      class="button header-cta"
-      href="/design-partners"
-      aria-current={pathname === "/design-partners" ? "page" : undefined}
-    >
-      Become a design partner
-    </a>
+    <details class="nav-disclosure">
+      <summary class="nav-summary">Menu</summary>
+      <nav class="primary-nav" aria-label="Primary">
+        {
+          links.map((link) => (
+            <a href={link.href} aria-current={isCurrent(link.href)}>
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+    {
+      pathname !== "/design-partners" && (
+        <a class="button header-cta" href="/design-partners">
+          Become a design partner
+        </a>
+      )
+    }
   </div>
 </header>

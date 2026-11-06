@@ -69,15 +69,15 @@ const breadcrumbs = [
             Coding agents you run
             <select name="agents" required>
               <option value="">Select</option>
-              <option>Two</option>
-              <option>Three</option>
-              <option>Four</option>
-              <option>Five or more</option>
-              <option>Not two yet</option>
+              <option>Two agents</option>
+              <option>Three agents</option>
+              <option>Four agents</option>
+              <option>Five or more agents</option>
+              <option>Not two agents yet</option>
             </select>
           </label>
           <fieldset class="span-2">
-            <legend>Which conversation</legend>
+            <legend>Hosted Team or Enterprise</legend>
             <div class="choices">
               <label><input type="radio" name="plan" value="hosted" required /> Hosted Team</label>
               <label><input type="radio" name="plan" value="enterprise" /> Enterprise</label>
@@ -137,7 +137,7 @@ const breadcrumbs = [
       `Company: ${read("company")}`,
       `Role: ${read("role")}`,
       `Coding agents: ${read("agents")}`,
-      `Conversation: ${planLabel}`,
+      `Plan: ${planLabel}`,
       `Baseline: ${read("baseline") || "(none)"}`,
       `Note: ${read("message") || "(none)"}`,
       "",
