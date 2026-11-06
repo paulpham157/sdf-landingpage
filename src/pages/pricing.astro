@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { compareRows, faqs, pricingIntro, tiers } from "../data/site";
+import { compareRows, faqs, marketAnchorNote, marketAnchors, pricingIntro, tiers } from "../data/site";
+
+const anchorsFor = (id: string) => marketAnchors.filter((anchor) => anchor.context === id);
 
 const title = "Pricing — Software Decision Fabric";
 const description =
@@ -35,8 +37,24 @@ const description =
                   </div>
                 ))}
                 <div class="is-anchor">
-                  <dt>Market anchor, not an SDF price</dt>
-                  <dd>{tier.marketAnchor}</dd>
+                  <dt>Coding-agent list price, not an SDF price</dt>
+                  <dd>
+                    {
+                      anchorsFor(tier.id).map((anchor) => (
+                        <p class="anchor-figure">
+                          <strong>{anchor.product}.</strong> {anchor.figure}{" "}
+                          {anchor.sources.map((source, index) => (
+                            <>
+                              {index > 0 && " · "}
+                              <a href={source.url} rel="noopener noreferrer">
+                                {source.label}
+                              </a>
+                            </>
+                          ))}
+                        </p>
+                      ))
+                    }
+                  </dd>
                 </div>
               </dl>
               <a class="button" href={tier.href}>
@@ -50,7 +68,7 @@ const description =
       <div class="compare-scroll">
         <table class="compare">
           <caption>
-            Hosted Team compared with Enterprise. SDF dollar amounts are not published. The last row is other companies' public list prices, not SDF prices.
+            Hosted Team compared with Enterprise. SDF dollar amounts are not published. The last row quotes coding-agent list prices from the linked pages. Those products are not SDF, and they are not verification or evaluation prices.
           </caption>
           <thead>
             <tr>
@@ -77,11 +95,25 @@ const description =
               <td><span class="unpublished">Not published</span></td>
             </tr>
             <tr class="anchor-row">
-              <th scope="row">Market anchor, not an SDF price</th>
+              <th scope="row">Coding-agent list price, not an SDF price</th>
               {tiers.map((tier) => (
                 <td>
                   <span class="cell-note">Not an SDF price.</span>
-                  {tier.marketAnchor}
+                  <ul class="anchor-inline">
+                    {anchorsFor(tier.id).map((anchor) => (
+                      <li>
+                        <strong>{anchor.product}.</strong> {anchor.figure}{" "}
+                        {anchor.sources.map((source, index) => (
+                          <>
+                            {index > 0 && " · "}
+                            <a href={source.url} rel="noopener noreferrer">
+                              {source.label}
+                            </a>
+                          </>
+                        ))}
+                      </li>
+                    ))}
+                  </ul>
                 </td>
               ))}
             </tr>
@@ -104,34 +136,35 @@ const description =
   <section class="section" aria-labelledby="anchor-title">
     <div class="wrap">
       <aside class="anchor-panel">
-        <p class="anchor-flag">Not SDF pricing</p>
-        <h2 id="anchor-title">Market anchors, for context only</h2>
-        <p>
-          These public list prices show how coding-agent products are sold today. They are not SDF prices, not quotes, and not something SDF resells. SDF dollar amounts stay blank until design partners validate them.
-        </p>
+        <p class="anchor-flag">{marketAnchorNote.kicker}</p>
+        <h2 id="anchor-title">{marketAnchorNote.title}</h2>
+        <p>{marketAnchorNote.body}</p>
         <ul class="anchor-list">
-          <li>
-            <span>OpenHands</span>
-            <span>$500/mo for 10 users</span>
-            <span>Beside Hosted Team</span>
-          </li>
-          <li>
-            <span>Factory</span>
-            <span>$60 + seats</span>
-            <span>Beside Hosted Team</span>
-          </li>
-          <li>
-            <span>Factory</span>
-            <span>$25k/yr fee</span>
-            <span>Beside Enterprise</span>
-          </li>
-          <li>
-            <span>Ona</span>
-            <span>$60k/yr commit (AWS listings)</span>
-            <span>Beside Enterprise</span>
-          </li>
+          {
+            marketAnchors.map((anchor) => (
+              <li>
+                <span class="anchor-product">{anchor.product}</span>
+                <span class="anchor-context">
+                  {anchor.context === "hosted"
+                    ? "Context only, next to Hosted Team"
+                    : "Context only, next to Enterprise"}
+                </span>
+                <p class="anchor-figure">{anchor.figure}</p>
+                <p class="anchor-sources">
+                  {anchor.sources.map((source, index) => (
+                    <>
+                      {index > 0 && " · "}
+                      <a href={source.url} rel="noopener noreferrer">
+                        {source.label}
+                      </a>
+                    </>
+                  ))}
+                </p>
+              </li>
+            ))
+          }
         </ul>
-        <p class="anchor-again">Again: not SDF pricing.</p>
+        <p class="anchor-again">{marketAnchorNote.again}</p>
       </aside>
     </div>
   </section>

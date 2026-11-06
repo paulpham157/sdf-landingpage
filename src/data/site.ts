@@ -13,10 +13,13 @@ export const site = {
     "SDF runs live only on a toy fixture. We are onboarding 3 to 5 design partners.",
 } as const;
 
+/** Public name of the wedge metric. Do not paraphrase this on the site. */
+export const wedgeMetric = "Cost per Accepted Outcome";
+
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "SDF is the independent referee for coding agents. It verifies every agent attempt against your acceptance criteria and shows the cost of each accepted outcome, across every agent you run.",
+    "SDF is the independent referee for coding agents. It verifies every agent attempt against your acceptance criteria and shows Cost per Accepted Outcome, across every agent you run.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Become a design partner",
@@ -65,8 +68,8 @@ export const pillars = [
     body: "Evidence is re-runnable and revision-bound. Security and finance can check it without trusting us or the agent.",
   },
   {
-    title: "Cost per acceptable outcome",
-    body: "Compare agents on what you actually got: cost per accepted task, not seats or tokens.",
+    title: "Cost per Accepted Outcome",
+    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens.",
   },
 ] as const;
 
@@ -87,7 +90,6 @@ export const tiers = [
     evidence: "Evidence Report per task",
     deployment: "Hosted by SDF",
     identity: "Team roles",
-    marketAnchor: "OpenHands $500/mo for 10 users; Factory $60 + seats",
     cta: "Join the design-partner program",
     href: "/design-partners?plan=hosted",
   },
@@ -100,7 +102,6 @@ export const tiers = [
     evidence: "Signed Evidence Reports and export for audit",
     deployment: "Hosted, your VPC, or self-hosted",
     identity: "SSO (SAML/OIDC), SCIM",
-    marketAnchor: "Factory $25k/yr fee; Ona $60k/yr commit (AWS listings)",
     cta: "Talk to us",
     href: "/design-partners?plan=enterprise",
   },
@@ -134,7 +135,7 @@ export const faqs = [
   },
   {
     q: "Are the OpenHands, Factory, and Ona figures SDF prices?",
-    a: "No. They are market anchors from public listings, shown so you can see how other products are priced. SDF dollar amounts are not published.",
+    a: "No. They are coding-agent list prices, shown so you can see how those products are sold. OpenHands, Factory, and Ona sell agents. SDF grades that work and does not sell an agent. The figures are not SDF prices, and they are not prices for a verification, evaluation, or control-plane product. SDF dollar amounts are not published.",
   },
 ] as const;
 
@@ -143,7 +144,7 @@ export const onePager = {
   sections: [
     {
       title: "Problem",
-      body: "Coding agents grade their own work. Teams running several agents can't prove which work shipped or what each accepted result cost.",
+      body: "Coding agents grade their own work. Teams running several agents can't prove which work shipped, or the Cost per Accepted Outcome.",
     },
     {
       title: "Solution",
@@ -151,7 +152,7 @@ export const onePager = {
     },
     {
       title: "Outcome",
-      body: "One number to manage agent spend: cost per acceptable outcome, comparable across agents.",
+      body: "One number to manage agent spend: Cost per Accepted Outcome, comparable across agents.",
     },
     {
       title: "Who it's for",
@@ -162,13 +163,69 @@ export const onePager = {
       body: "Hosted Team (workspace fee plus verified Attempts) and Enterprise (annual platform fee, VPC or self-host, SSO/SCIM). Dollar amounts are unpublished until design partners validate them.",
     },
   ],
-  cta: "Become one of 3 to 5 design partners and baseline your cost per accepted task before and after SDF.",
+  cta: "Become one of 3 to 5 design partners and baseline Cost per Accepted Outcome before and after SDF.",
 } as const;
 
 export const closing = {
   heading: "Become a design partner",
-  body: "We're onboarding 3 to 5 platform teams already running two or more agents. Measure your cost per accepted task before and after SDF. Apply to be a design partner.",
+  body: "We're onboarding 3 to 5 platform teams already running two or more agents. Measure Cost per Accepted Outcome before and after SDF. Apply to be a design partner.",
 } as const;
+
+/**
+ * Public list prices for coding agents. Not SDF prices, and not peers in
+ * verification or evaluation. Each figure is tied to the page it came from.
+ */
+export const marketAnchorNote = {
+  kicker: "Not SDF pricing",
+  title: "Coding-agent list prices, for context only",
+  body: "OpenHands, Factory, and Ona sell coding agents. Those are the products SDF independently grades, not verification, evaluation, or control-plane peers. The figures below are their public list prices, shown only so a buyer can see how those products are sold. They are not SDF prices. SDF dollar amounts stay unpublished until design partners validate them.",
+  again: "Again: coding-agent list prices, not SDF prices.",
+} as const;
+
+export const marketAnchors = [
+  {
+    id: "openhands-teams",
+    product: "OpenHands",
+    context: "hosted",
+    figure:
+      "$500/month for up to 10 users, plus $50/month per extra seat. The Teams plan is also capped at 5,000 sessions per month.",
+    sources: [{ label: "openhands.dev/pricing", url: "https://www.openhands.dev/pricing" }],
+  },
+  {
+    id: "factory-teams",
+    product: "Factory",
+    context: "hosted",
+    figure: "Teams is $60/month per team, plus $40/month per seat, up to 10 seats.",
+    sources: [{ label: "factory.com/pricing", url: "https://factory.com/pricing" }],
+  },
+  {
+    id: "factory-enterprise",
+    product: "Factory",
+    context: "enterprise",
+    figure:
+      "AWS Marketplace lists an Enterprise Platform fee of $25,000 for 12 months, plus usage-based Standard Tokens and Premium Tokens at $1.00 per unit. factory.com does not publish a dollar price for Business or Enterprise.",
+    sources: [
+      {
+        label: "AWS Marketplace",
+        url: "https://aws.amazon.com/marketplace/pp/prodview-2lln5juxh6ujs",
+      },
+      { label: "factory.com/pricing", url: "https://factory.com/pricing" },
+    ],
+  },
+  {
+    id: "ona-annual",
+    product: "Ona",
+    context: "enterprise",
+    figure:
+      "AWS Marketplace lists a $60,000 Annual Commit for 12 months. That listing does not define what one unit covers. The same page says Ona also sells custom pricing via private offer.",
+    sources: [
+      {
+        label: "AWS Marketplace",
+        url: "https://aws.amazon.com/marketplace/pp/prodview-vn4wpn7u4afrq",
+      },
+    ],
+  },
+] as const;
 
 export const graphNodes = [
   { title: "Objective", detail: "Acceptance criteria, linked to the business goal" },

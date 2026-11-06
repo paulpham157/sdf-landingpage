@@ -2,7 +2,7 @@
 
 Marketing site for [softwaredecisionfabric.tech](https://softwaredecisionfabric.tech/).
 
-SDF is the independent referee for coding agents. This site follows the draft v0 landing, pricing, and one-pager: vendor-neutral verification, evidence a team can re-run, and cost per acceptable outcome. It is written for the design-partner program. SDF runs live only on a toy fixture, so the pages do not show customer logos, testimonials, case studies, result metrics, or SDF dollar prices.
+SDF is the independent referee for coding agents. This site follows the draft v0 landing, pricing, and one-pager: vendor-neutral verification, evidence a team can re-run, and Cost per Accepted Outcome. It is written for the design-partner program. SDF runs live only on a toy fixture, so the pages do not show customer logos, testimonials, case studies, result metrics, or SDF dollar prices.
 
 ## Run locally
 
@@ -30,7 +30,7 @@ npm run preview
 | Path | Page |
 | --- | --- |
 | `/` | Landing: hero, problem, four steps, three commitments, design-partner close |
-| `/pricing` | Hosted Team and Enterprise. Amounts say “Not published.” OpenHands, Factory, and Ona figures are labeled as market anchors, not SDF prices |
+| `/pricing` | Hosted Team and Enterprise. Amounts say “Not published.” OpenHands, Factory, and Ona figures are cited coding-agent list prices, not SDF prices |
 | `/blog` | Blog index. Posts come from `src/content/blog` |
 | `/blog/…` | One post. Drafts are not built |
 | `/one-pager` | The same brief on one sheet. Use **Print or save as PDF** |
@@ -116,7 +116,8 @@ The site is static HTML, CSS, and a small amount of page-specific JavaScript (th
 ## What the copy will not claim
 
 - SDF prices. Both tiers say the amount is not published. The shape (workspace fee, verified Attempts, Enterprise platform fee) is described without numbers.
-- Market anchors. OpenHands ($500/mo for 10 users), Factory ($60 + seats and a $25k/yr fee), and Ona ($60k/yr commit on AWS listings) appear only on the pricing page, in a section and a table row that say they are not SDF prices.
+- Market anchors. OpenHands, Factory, and Ona appear only on the pricing page, with links to the public pages the figures come from. They are coding-agent list prices, not SDF prices and not verification or evaluation prices. The hosted tier stays Hosted Team.
+- The wedge metric. Public copy uses Cost per Accepted Outcome. It does not also say “cost per acceptable outcome,” “cost per accepted task,” or “cost of each accepted outcome.”
 - Customers. There are no logos, testimonials, case studies, or performance metrics. The Evidence Report is a labeled mock (`SAMPLE-TOY-001` on workspace `toy-fixture`). Blog posts marked Sample are specimens, including the social quotations, which are not live posts.
 - Social citations. A quoted post always shows the author and a permalink. It is not treated as a customer result.
 - A company address, team photos, or a legal entity name. None of those were invented.

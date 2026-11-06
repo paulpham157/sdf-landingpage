@@ -45,6 +45,10 @@ const sample = read("sample-evidence-report/index.html");
 const partners = read("design-partners/index.html");
 
 for (const page of pages) {
+  assert(!page.html.includes("acceptable outcome"), `${page.file} still says acceptable outcome`);
+  assert(!page.html.includes("accepted task"), `${page.file} still says accepted task`);
+  assert(!page.html.includes("cost per accepted outcome"), `${page.file} uses a lowercase paraphrase of Cost per Accepted Outcome`);
+  assert(!page.html.includes("Hosted Pro"), `${page.file} renames Hosted Team`);
   assert(includes(page.html, "toy fixture"), `${page.file} does not mention the toy fixture`);
   assert(includes(page.html, "Placeholder mailbox"), `${page.file} does not mark the mailbox as a placeholder`);
   assert(!includes(page.html, "testimonial"), `${page.file} contains a testimonial claim`);
@@ -68,6 +72,9 @@ assert(
   includes(home, "onboarding 3 to 5 platform teams already running two or more agents"),
   "Home is missing the closing CTA",
 );
+assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
+assert(!home.toLowerCase().includes("acceptable outcome"), "Home still says acceptable outcome");
+assert(!home.includes("accepted task"), "Home still says accepted task");
 assert(!home.includes("$"), "Home must not contain dollar amounts");
 assert(!includes(home, "OpenHands"), "Home must not show market-anchor prices");
 assert(!/\bOna\b/.test(home), "Home must not show the Ona anchor");
@@ -75,17 +82,30 @@ assert(!/\bOna\b/.test(home), "Home must not show the Ona anchor");
 assert(includes(pricing, "Not published"), "Pricing must leave SDF amounts unpublished");
 assert(includes(pricing, "never per seat"), "Pricing is missing the price shape");
 assert(includes(pricing, "OpenHands"), "Pricing is missing the OpenHands anchor");
-assert(includes(pricing, "$500/mo for 10 users"), "Pricing is missing the OpenHands figure");
-assert(includes(pricing, "$60 + seats"), "Pricing is missing the Factory seat figure");
-assert(includes(pricing, "$25k/yr fee"), "Pricing is missing the Factory annual figure");
-assert(includes(pricing, "$60k/yr commit (AWS listings)"), "Pricing is missing the Ona figure");
+assert(includes(pricing, "$500/month for up to 10 users, plus $50/month per extra seat"), "Pricing is missing the OpenHands figure");
+assert(includes(pricing, "5,000 sessions per month"), "Pricing is missing the OpenHands session cap");
+assert(includes(pricing, "https://www.openhands.dev/pricing"), "Pricing is missing the OpenHands source");
+assert(includes(pricing, "$60/month per team, plus $40/month per seat, up to 10 seats"), "Pricing is missing the Factory Teams figure");
+assert(includes(pricing, "https://factory.com/pricing"), "Pricing is missing the Factory source");
+assert(includes(pricing, "$25,000 for 12 months"), "Pricing is missing the Factory Enterprise platform fee");
+assert(includes(pricing, "https://aws.amazon.com/marketplace/pp/prodview-2lln5juxh6ujs"), "Pricing is missing the Factory AWS source");
+assert(includes(pricing, "$60,000 Annual Commit for 12 months"), "Pricing is missing the Ona figure");
+assert(includes(pricing, "does not define what one unit covers"), "Pricing must say the Ona unit is undefined");
+assert(includes(pricing, "private offer"), "Pricing must mention Ona's private offer");
+assert(includes(pricing, "https://aws.amazon.com/marketplace/pp/prodview-vn4wpn7u4afrq"), "Pricing is missing the Ona source");
+assert(includes(pricing, "coding-agent list prices"), "Pricing must frame the anchors as coding-agent list prices");
+assert(includes(pricing, "not verification, evaluation, or control-plane peers"), "Pricing must say these are not category peers");
+assert(includes(pricing, "Hosted Team"), "Pricing must keep the Hosted Team name");
+assert(!includes(pricing, "Hosted Pro"), "Pricing must not rename Hosted Team to Hosted Pro");
+assert(!includes(pricing, "$60 + seats"), "Pricing still uses the old Factory shorthand");
+assert(!includes(pricing, "$500/mo for 10 users"), "Pricing still uses the old OpenHands shorthand");
 assert(includes(pricing, "Not SDF pricing"), "Market anchors are not labeled as other companies' prices");
 assert(includes(pricing, "not an SDF price"), "The comparison row does not say the anchors are not SDF prices");
 assert(includes(pricing, "Why not per seat?"), "Pricing is missing the FAQ");
 assert(includes(pricing, "SSO (SAML/OIDC), SCIM"), "Pricing is missing Enterprise identity");
 
 assert(includes(onePager, "SDF: the independent referee for coding agents"), "One-pager headline drifted");
-assert(includes(onePager, "cost per acceptable outcome"), "One-pager is missing the outcome");
+assert(onePager.includes("Cost per Accepted Outcome"), "One-pager is missing Cost per Accepted Outcome");
 assert(!onePager.includes("$"), "One-pager must not carry dollar figures");
 assert(!includes(onePager, "OpenHands"), "One-pager must not present market anchors");
 

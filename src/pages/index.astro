@@ -11,11 +11,11 @@ import {
   problem,
   site,
   steps,
+  wedgeMetric,
 } from "../data/site";
 
 const title = "SDF — Know which agent work actually shipped";
-const description =
-  "SDF is the independent referee for coding agents. It verifies every attempt against your acceptance criteria and shows the cost of each accepted outcome.";
+const description = `SDF is the independent referee for coding agents. It verifies every attempt against your acceptance criteria and shows ${wedgeMetric}.`;
 
 const jsonLd = {
   "@context": "https://schema.org",
@@ -124,7 +124,7 @@ const jsonLd = {
   <section class="section" id="commitments" aria-labelledby="pillar-title">
     <div class="wrap">
       <p class="kicker">§ 03 — Three commitments</p>
-      <h2 id="pillar-title">Vendor-neutral, verifiable, and measured on the outcome.</h2>
+      <h2 id="pillar-title">Vendor-neutral, verifiable, {wedgeMetric}.</h2>
       <div class="pillars">
         {
           pillars.map((pillar, index) => (
