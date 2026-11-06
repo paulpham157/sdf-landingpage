@@ -1,0 +1,156 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Mailto from "../components/Mailto.astro";
+import { closing, site } from "../data/site";
+import { graph, webPage } from "../lib/seo";
+
+const title = "Become a design partner — Software Decision Fabric";
+const description =
+  "SDF is onboarding 3 to 5 platform teams already running two or more coding agents. The form opens an email draft. It does not submit to a server.";
+const path = "/design-partners";
+const jsonLd = graph(webPage({ title, description, path }));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Design partners", href: path },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+>
+  <section class="page-hero">
+    <div class="wrap narrow">
+      <p class="kicker">Design partners</p>
+      <h1>{closing.heading}</h1>
+      <p class="lede">{closing.body}</p>
+      <p>
+        Tell us how you run agents today. There is no form backend on this site. The button opens an email draft to the mailbox below. Nothing is stored here, and nothing is sent until you send the draft yourself.
+      </p>
+      <p class="contact-fallback">
+        {site.emailIsPlaceholder && <span class="footer-label">Placeholder mailbox</span>}
+        <Mailto subject="SDF design partner" />
+      </p>
+    </div>
+  </section>
+
+  <section class="section first" aria-labelledby="form-title">
+    <div class="wrap narrow">
+      <h2 id="form-title">Open an email draft</h2>
+      <form
+        id="partner-form"
+        action={`mailto:${site.email}?subject=${encodeURIComponent("SDF design partner")}`}
+        method="post"
+        enctype="text/plain"
+        data-email={site.email}
+        data-subject="SDF design partner"
+      >
+        <div class="form-grid">
+          <label>
+            Name
+            <input name="name" type="text" autocomplete="name" required />
+          </label>
+          <label>
+            Work email
+            <input name="email" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Company
+            <input name="company" type="text" autocomplete="organization" required />
+          </label>
+          <label>
+            Role
+            <input name="role" type="text" autocomplete="organization-title" required />
+          </label>
+          <label>
+            Coding agents you run
+            <select name="agents" required>
+              <option value="">Select</option>
+              <option>Two agents</option>
+              <option>Three agents</option>
+              <option>Four agents</option>
+              <option>Five or more agents</option>
+              <option>Not two agents yet</option>
+            </select>
+          </label>
+          <fieldset class="span-2">
+            <legend>Hosted Team or Enterprise</legend>
+            <div class="choices">
+              <label><input type="radio" name="plan" value="hosted" required /> Hosted Team</label>
+              <label><input type="radio" name="plan" value="enterprise" /> Enterprise</label>
+              <label><input type="radio" name="plan" value="unsure" /> Not sure yet</label>
+            </div>
+          </fieldset>
+          <label class="span-2">
+            What do you want to baseline?
+            <textarea name="baseline" rows="4" placeholder="Cost per Accepted Outcome, which agents, what “done” means today."></textarea>
+          </label>
+          <label class="span-2">
+            Anything else
+            <span class="field-hint">Optional</span>
+            <textarea name="message" rows="4"></textarea>
+          </label>
+        </div>
+        <div class="cta-row">
+          <button type="submit" class="button">Open email draft</button>
+        </div>
+        <p id="form-status" role="status"></p>
+      </form>
+      <noscript>
+        <p>
+          JavaScript is off, so the form will hand the fields to your email app directly. If that does not work, write to the mailbox above and include your name, company, role, how many agents you run, and whether you want Hosted Team or Enterprise.
+        </p>
+      </noscript>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>("#partner-form");
+  const status = document.querySelector<HTMLElement>("#form-status");
+
+  const allowedPlans = new Set(["hosted", "enterprise", "unsure"]);
+  const plan = new URLSearchParams(window.location.search).get("plan");
+  if (form && plan && allowedPlans.has(plan)) {
+    const input = form.querySelector<HTMLInputElement>(`input[name="plan"][value="${plan}"]`);
+    if (input) input.checked = true;
+  }
+
+  form?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    if (!form.reportValidity()) return;
+
+    const data = new FormData(form);
+    const read = (key: string) => String(data.get(key) ?? "").trim();
+    const planValue = read("plan");
+    const planLabel =
+      planValue === "hosted" ? "Hosted Team" : planValue === "enterprise" ? "Enterprise" : "Not sure yet";
+
+    const body = [
+      "SDF design-partner note",
+      "",
+      `Name: ${read("name")}`,
+      `Work email: ${read("email")}`,
+      `Company: ${read("company")}`,
+      `Role: ${read("role")}`,
+      `Coding agents: ${read("agents")}`,
+      `Plan: ${planLabel}`,
+      `Baseline: ${read("baseline") || "(none)"}`,
+      `Note: ${read("message") || "(none)"}`,
+      "",
+      "Draft created in the browser from softwaredecisionfabric.tech.",
+      "The website did not store this and did not send it to an SDF server.",
+    ].join("\n");
+
+    const email = form.dataset.email ?? "";
+    const subject = form.dataset.subject ?? "SDF design partner";
+    window.location.href = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+    if (status) {
+      status.textContent = `Opening an email draft to ${email}. If nothing opens, use Copy address and paste it into your mail. Nothing was sent to an SDF server.`;
+    }
+  });
+</script>

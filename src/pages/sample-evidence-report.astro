@@ -1,0 +1,187 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import DecisionChain from "../components/DecisionChain.astro";
+import { site } from "../data/site";
+import { graph, webPage } from "../lib/seo";
+
+const title = "Sample Evidence Report (mock) — Software Decision Fabric";
+const description =
+  "A stylized mock of an SDF Evidence Report. Not a customer report and not a live result. SDF runs live only on a toy fixture.";
+
+const checks = [
+  {
+    name: "Tests named in the acceptance criteria",
+    result: "PASS",
+    bound: "sample-c0ffee1",
+  },
+  {
+    name: "Diff adds no new secret or credential",
+    result: "PASS",
+    bound: "sample-c0ffee1",
+  },
+  {
+    name: "Verdict revision is the submitted revision",
+    result: "PASS",
+    bound: "sample-c0ffee1",
+  },
+];
+
+const sampleNodes = [
+  { title: "Objective", detail: "Specimen task, linked to a stated goal" },
+  { title: "Attempt", detail: "SAMPLE-TOY-001" },
+  { title: "Evidence", detail: "Three independent checks" },
+  { title: "Verdict", detail: "PASS at sample-c0ffee1" },
+  { title: "Cost", detail: "Dollars left blank on purpose" },
+];
+const path = "/sample-evidence-report";
+const jsonLd = graph(webPage({ title, description, path }));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Sample Evidence Report", href: path },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+>
+  <article class="report wrap">
+    <p class="sample-banner" role="note">
+      <strong>Sample.</strong> This is a stylized mock of an Evidence Report. It is not a customer report, not a signed audit, and not a live result. {site.status}
+    </p>
+
+    <header class="report-head">
+      <div>
+        <p class="kicker">Evidence Report</p>
+        <h1>Format specimen</h1>
+        <p class="lede tight">
+          What a filed attempt looks like when SDF has checked it. Every field below is invented for the layout. Nothing here shipped for a customer.
+        </p>
+      </div>
+      <p class="sample-stamp" aria-hidden="true">Sample</p>
+    </header>
+
+    <dl class="meta-grid">
+      <div>
+        <dt>Report ID</dt>
+        <dd>SAMPLE-TOY-001</dd>
+      </div>
+      <div>
+        <dt>Workspace</dt>
+        <dd>toy-fixture</dd>
+      </div>
+      <div>
+        <dt>Agent</dt>
+        <dd>Example Agent (bring your own)</dd>
+      </div>
+      <div>
+        <dt>Classification</dt>
+        <dd>Mock · not for audit</dd>
+      </div>
+    </dl>
+
+    <section class="report-block">
+      <h2>Objective</h2>
+      <p>
+        Add retry with backoff to the outbound webhook client, linked to the business goal “fewer dropped deliveries.”
+      </p>
+      <h3>Acceptance criteria, declared before the attempt</h3>
+      <ol class="criteria">
+        <li>Unit tests cover timeout, HTTP 429, and the success path.</li>
+        <li>The diff does not add a secret or credential.</li>
+        <li>The accepted change is bound to one code revision.</li>
+      </ol>
+    </section>
+
+    <section class="report-block">
+      <h2>Route</h2>
+      <p>
+        The task is handed to an agent you already pay for. SDF does not sell that agent and does not resell its tokens. In this specimen the agent is named Example Agent so the slot is visible.
+      </p>
+    </section>
+
+    <section class="report-block">
+      <h2>Independent checks</h2>
+      <p>The agent cannot sign these. Each line is tied to the same revision as the verdict.</p>
+      <div class="table-scroll">
+        <table class="checks">
+          <caption>Specimen checks for SAMPLE-TOY-001. Results are part of the mock.</caption>
+          <thead>
+            <tr>
+              <th scope="col">Check</th>
+              <th scope="col">Result</th>
+              <th scope="col">Bound to</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              checks.map((check) => (
+                <tr>
+                  <th scope="row">{check.name}</th>
+                  <td><strong class="verdict">{check.result}</strong></td>
+                  <td><code>{check.bound}</code></td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="report-block">
+      <h2>Verdict</h2>
+      <p class="verdict-line">
+        <strong class="verdict">PASS</strong>
+        <span>tied to revision <code>sample-c0ffee1</code></span>
+      </p>
+      <p>
+        A PASS on a real report means the independent checks held for that revision. This PASS is a picture of that sentence. It is not evidence that any real task passed.
+      </p>
+    </section>
+
+    <section class="report-block">
+      <h2>Cost record</h2>
+      <p>
+        Tokens, time, and invoice cost are stored on the attempt so you can compute Cost per Accepted Outcome. This sample leaves the amounts blank. SDF prices are not set, and a mock must not invent a result.
+      </p>
+      <dl class="cost-blank">
+        <div>
+          <dt>Agent-reported usage</dt>
+          <dd>Recorded, not shown</dd>
+        </div>
+        <div>
+          <dt>Attempt cost</dt>
+          <dd>Filled from your own agent invoice</dd>
+        </div>
+        <div>
+          <dt>Cost per Accepted Outcome</dt>
+          <dd>The field you manage</dd>
+        </div>
+        <div>
+          <dt>SDF price</dt>
+          <dd>Not published</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="report-block">
+      <h2>Decision Graph excerpt</h2>
+      <DecisionChain
+        nodes={sampleNodes}
+        caption="Specimen links only. A live graph is append-only and can be audited. This drawing is not an export and it is not signed."
+      />
+    </section>
+
+    <footer class="report-foot">
+      <p>
+        Enterprise reports can be signed and exported. This page has no signature, no export file, and no customer behind it.
+      </p>
+      <p>
+        <a class="button" href="/design-partners">Become a design partner</a>
+      </p>
+    </footer>
+  </article>
+</BaseLayout>

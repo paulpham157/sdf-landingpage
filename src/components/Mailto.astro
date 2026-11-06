@@ -1,0 +1,49 @@
+---
+import { site } from "../data/site";
+
+interface Props {
+  subject?: string;
+  class?: string;
+}
+
+const { subject, class: className } = Astro.props;
+const [local, domain] = site.email.split("@");
+const href = subject
+  ? `mailto:${site.email}?subject=${encodeURIComponent(subject)}`
+  : `mailto:${site.email}`;
+---
+
+<span class="mailto-line">
+  <a class:list={["mailto", className]} href={href}>{local}@<wbr />{domain}</a>
+  <button type="button" class="button button-secondary copy-address" data-address={site.email}>
+    Copy address
+  </button>
+</span>
+
+<script>
+  const buttons = document.querySelectorAll<HTMLButtonElement>(".copy-address");
+  for (const button of buttons) {
+    button.addEventListener("click", async () => {
+      const address = button.dataset.address ?? "";
+      const original = "Copy address";
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(address);
+        copied = true;
+      } catch {
+        const field = document.createElement("textarea");
+        field.value = address;
+        field.setAttribute("readonly", "");
+        field.className = "copy-fallback-field";
+        document.body.append(field);
+        field.select();
+        copied = document.execCommand("copy");
+        field.remove();
+      }
+      button.textContent = copied ? "Copied" : "Copy failed";
+      window.setTimeout(() => {
+        button.textContent = original;
+      }, 2000);
+    });
+  }
+</script>

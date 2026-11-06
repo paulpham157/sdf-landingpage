@@ -1,0 +1,73 @@
+---
+/**
+ * Attribution card for a social post. It does not call oEmbed or any network API.
+ * The quote, the author, and the permalink are always in the HTML.
+ *
+ * In an MDX post:
+ *
+ *   import SocialCitation from "../../components/SocialCitation.astro";
+ *
+ *   <SocialCitation
+ *     platform="x"
+ *     author="Ada Lovelace"
+ *     handle="ada"
+ *     date="2026-10-02"
+ *     url="https://x.com/ada/status/1"
+ *   >
+ *     Quoted text.
+ *   </SocialCitation>
+ *
+ * `platform` is `x` (or `twitter`), `linkedin`, or `generic` for any other URL.
+ * Set `sample` on specimen quotations that are not live posts.
+ */
+import { resolveCitation } from "../lib/citation";
+
+interface Props {
+  platform: string;
+  author: string;
+  handle?: string;
+  date?: string | Date;
+  url: string;
+  quote?: string;
+  sample?: boolean;
+}
+
+const { quote, ...rest } = Astro.props;
+const view = resolveCitation(rest);
+const quoted = quote?.trim() ?? "";
+const hasSlot = Astro.slots.has("default");
+if (!quoted && !hasSlot) {
+  throw new Error(`Citation of ${view.href} needs quoted text.`);
+}
+---
+
+<figure class="citation">
+  <figcaption class="citation-kicker">
+    <span class="citation-platform">{view.platformLabel}</span>
+    <span class="citation-author">
+      {view.author}{view.handle && <span class="citation-handle"> @{view.handle}</span>}
+    </span>
+    {
+      view.dateLabel && view.dateTime && (
+        <time class="citation-date" datetime={view.dateTime}>
+          {view.dateLabel}
+        </time>
+      )
+    }
+  </figcaption>
+  <blockquote cite={view.sample ? undefined : view.href}>
+    {quoted ? <p>{quoted}</p> : <slot />}
+  </blockquote>
+  <p class="citation-meta">
+    {
+      view.sample ? (
+        <code class="citation-permalink">{view.href}</code>
+      ) : (
+        <a class="citation-permalink" href={view.href} rel="noopener noreferrer">
+          {view.href}
+        </a>
+      )
+    }
+  </p>
+  {view.sample && <p class="citation-sample">Sample quotation. Not a live post.</p>}
+</figure>

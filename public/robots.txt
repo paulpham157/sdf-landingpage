@@ -1,0 +1,7 @@
+# All crawlers are treated the same. Draft posts are not built, so they have no URL.
+User-agent: *
+Allow: /
+Disallow: /404
+Disallow: /404.html
+
+Sitemap: https://softwaredecisionfabric.tech/sitemap-index.xml

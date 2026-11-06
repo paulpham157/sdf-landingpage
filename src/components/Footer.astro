@@ -1,0 +1,37 @@
+---
+import Mailto from "./Mailto.astro";
+import { site } from "../data/site";
+---
+
+<footer class="site-footer">
+  <div class="wrap footer-grid">
+    <div>
+      <p class="footer-name">Software Decision Fabric</p>
+      <p class="footer-tag">{site.tagline}</p>
+      <p class="footer-status">{site.status}</p>
+    </div>
+    <nav aria-label="Footer">
+      <ul>
+        <li><a href="/">Overview</a></li>
+        <li><a href="/pricing">Pricing</a></li>
+        <li><a href="/blog">Blog</a></li>
+        <li><a href="/one-pager">One-pager</a></li>
+        <li><a href="/sample-evidence-report">Sample Evidence Report</a></li>
+        <li><a href="/design-partners">Design partners</a></li>
+      </ul>
+    </nav>
+    <div>
+      <p class="footer-label">Contact</p>
+      <p>
+        <Mailto class="footer-email" />
+      </p>
+      <p class="footer-note">
+        {site.emailIsPlaceholder && "Placeholder mailbox. "}This website does not store a message or submit it to a server. The link opens an email draft.
+      </p>
+    </div>
+  </div>
+  <div class="wrap footer-end">
+    <p>© {new Date().getFullYear()} Software Decision Fabric</p>
+    <p>{site.url.replace("https://", "")}</p>
+  </div>
+</footer>

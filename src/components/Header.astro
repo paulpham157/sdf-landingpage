@@ -1,0 +1,61 @@
+---
+import Seal from "./Seal.astro";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+const links = [
+  { href: "/#how-it-works", label: "How it works" },
+  { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
+  { href: "/one-pager", label: "One-pager" },
+  { href: "/sample-evidence-report", label: "Sample report" },
+];
+
+function isCurrent(href: string) {
+  if (href.startsWith("/#")) return undefined;
+  if (href === "/blog") {
+    return pathname === "/blog" || pathname.startsWith("/blog/") ? "page" : undefined;
+  }
+  return pathname === href ? "page" : undefined;
+}
+---
+
+<header class="site-header">
+  <div class="wrap header-bar">
+    <a class="brand" href="/" aria-current={pathname === "/" ? "page" : undefined}>
+      <Seal />
+      <span class="brand-text">
+        <span class="brand-name">Software Decision Fabric</span>
+        <span class="brand-tag">Independent referee</span>
+      </span>
+    </a>
+    <nav class="primary-nav primary-nav-bar" aria-label="Primary">
+      {
+        links.map((link) => (
+          <a href={link.href} aria-current={isCurrent(link.href)}>
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+    <details class="nav-disclosure">
+      <summary class="nav-summary">Menu</summary>
+      <nav class="primary-nav" aria-label="Primary">
+        {
+          links.map((link) => (
+            <a href={link.href} aria-current={isCurrent(link.href)}>
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
+    </details>
+    {
+      pathname !== "/design-partners" && (
+        <a class="button header-cta" href="/design-partners">
+          Become a design partner
+        </a>
+      )
+    }
+  </div>
+</header>

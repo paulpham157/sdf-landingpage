@@ -1,0 +1,132 @@
+---
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import { site } from "../data/site";
+import { breadcrumbList, type Crumb } from "../lib/seo";
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;
+  jsonLd?: object;
+  breadcrumbs?: Crumb[];
+  /** Site-relative or absolute image. Defaults to the site social card. */
+  image?: string;
+  imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
+  ogType?: string;
+  published?: Date;
+  robots?: string;
+}
+
+function schemaNodes(value: object | undefined) {
+  if (!value) return [];
+  const record = value as Record<string, unknown>;
+  if (Array.isArray(record["@graph"])) return record["@graph"] as Record<string, unknown>[];
+  const { "@context": _context, ...rest } = record;
+  return [rest];
+}
+
+const {
+  title,
+  description,
+  path,
+  jsonLd,
+  image,
+  imageAlt,
+  imageWidth,
+  imageHeight,
+  ogType = "website",
+  published,
+  robots = "index, follow",
+  breadcrumbs = [],
+} = Astro.props;
+const structured = [...schemaNodes(jsonLd), ...(breadcrumbs.length ? [breadcrumbList(breadcrumbs)] : [])];
+const structuredData = structured.length
+  ? { "@context": "https://schema.org", "@graph": structured }
+  : undefined;
+const canonical = new URL(path, Astro.site).href;
+const ogImage = image
+  ? image.startsWith("http://") || image.startsWith("https://")
+    ? image
+    : new URL(image, Astro.site).href
+  : new URL("/og.png", Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#f3efe4" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap-index.xml" />
+    <meta property="og:type" content={ogType} />
+    {published && <meta property="article:published_time" content={published.toISOString()} />}
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    {
+      imageWidth && imageHeight ? (
+        <>
+          <meta property="og:image:width" content={String(imageWidth)} />
+          <meta property="og:image:height" content={String(imageHeight)} />
+        </>
+      ) : (
+        !image && (
+          <>
+            <meta property="og:image:width" content="1200" />
+            <meta property="og:image:height" content="630" />
+          </>
+        )
+      )
+    }
+    <meta property="og:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+    <meta name="twitter:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+    <Header />
+    <p class="status-bar">
+      <span class="wrap status-inner">{site.status}</span>
+    </p>
+    {
+      breadcrumbs.length > 0 && (
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol class="wrap">
+            {breadcrumbs.map((crumb, index) => (
+              <li>
+                {index < breadcrumbs.length - 1 ? (
+                  <a href={crumb.href}>{crumb.name}</a>
+                ) : (
+                  <span aria-current="page">{crumb.name}</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

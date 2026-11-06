@@ -1,0 +1,149 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { compareRows, faqs, marketAnchorNote, marketAnchors, pricingIntro, tiers } from "../data/site";
+import { faqPage, graph, webPage } from "../lib/seo";
+
+const title = "Pricing — Software Decision Fabric";
+const description =
+  "SDF is priced per workspace and per verified outcome, never per seat. Hosted Team and Enterprise dollar amounts are unpublished until design partners validate them.";
+const path = "/pricing";
+const jsonLd = graph(webPage({ title, description, path }), faqPage(faqs));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Pricing", href: path },
+];
+---
+
+<BaseLayout title={title} description={description} path={path} jsonLd={jsonLd} breadcrumbs={breadcrumbs}>
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Pricing</p>
+      <h1>{pricingIntro.lede}</h1>
+      <p class="lede">{pricingIntro.unpublished}</p>
+    </div>
+  </section>
+
+  <section class="section first" aria-labelledby="compare-title">
+    <div class="wrap">
+      <h2 id="compare-title" class="sr-only">Hosted Team and Enterprise</h2>
+      <p class="scroll-hint">On a narrow screen, each plan is a separate block. The wide comparison is a table.</p>
+
+      <div class="tier-cards">
+        {
+          tiers.map((tier) => (
+            <article class="tier">
+              <h3>{tier.name}</h3>
+              <p class="unpublished">Amount not published</p>
+              <dl>
+                {compareRows.map((row) => (
+                  <div>
+                    <dt>{row.label}</dt>
+                    <dd>{tier[row.key]}</dd>
+                  </div>
+                ))}
+              </dl>
+              <a class="button" href={tier.href}>
+                {tier.cta}
+              </a>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="compare-scroll">
+        <table class="compare">
+          <caption>
+            Hosted Team compared with Enterprise. SDF dollar amounts are not published. Coding-agent list prices are in the section below. Those products are not SDF, and they are not verification or evaluation prices.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col"><span class="sr-only">Feature</span></th>
+              {tiers.map((tier) => (
+                <th scope="col">{tier.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              compareRows.map((row) => (
+                <tr>
+                  <th scope="row">{row.label}</th>
+                  {tiers.map((tier) => (
+                    <td>{tier[row.key]}</td>
+                  ))}
+                </tr>
+              ))
+            }
+            <tr>
+              <th scope="row">Amount</th>
+              <td><span class="unpublished">Not published</span></td>
+              <td><span class="unpublished">Not published</span></td>
+            </tr>
+            <tr>
+              <th scope="row">Next step</th>
+              {tiers.map((tier) => (
+                <td>
+                  <a class="button" href={tier.href}>
+                    {tier.cta}
+                  </a>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="anchor-title">
+    <div class="wrap">
+      <aside class="anchor-panel">
+        <p class="anchor-flag">{marketAnchorNote.kicker}</p>
+        <h2 id="anchor-title">{marketAnchorNote.title}</h2>
+        <p>{marketAnchorNote.body}</p>
+        <ul class="anchor-list">
+          {
+            marketAnchors.map((anchor) => (
+              <li>
+                <span class="anchor-product">{anchor.product}</span>
+                <span class="anchor-context">
+                  {anchor.context === "hosted"
+                    ? "Context only, next to Hosted Team"
+                    : "Context only, next to Enterprise"}
+                </span>
+                <p class="anchor-figure">{anchor.figure}</p>
+                <p class="anchor-sources">
+                  {anchor.sources.map((source, index) => (
+                    <>
+                      {index > 0 && " · "}
+                      <a href={source.url} rel="noopener noreferrer">
+                        {source.label}
+                      </a>
+                    </>
+                  ))}
+                </p>
+              </li>
+            ))
+          }
+        </ul>
+        <p class="anchor-again">{marketAnchorNote.again}</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="wrap faq-wrap">
+      <h2 id="faq-title">Questions</h2>
+      <div class="faq">
+        {
+          faqs.map((item) => (
+            <article>
+              <h3>{item.q}</h3>
+              <p>{item.a}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

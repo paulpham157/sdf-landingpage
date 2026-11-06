@@ -1,0 +1,80 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { formatPostDate, isoDate, publishedPosts } from "../../lib/blog";
+import { graph, webPage } from "../../lib/seo";
+import { site } from "../../data/site";
+
+const posts = await publishedPosts();
+const title = "Blog — Software Decision Fabric";
+const description =
+  "Notes on independent verification for coding agents: evidence, the Decision Graph, and Cost per Accepted Outcome. Sample posts are labeled.";
+
+const path = "/blog";
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Blog", href: path },
+];
+const jsonLd = graph(
+  webPage({ title, description, path }),
+  {
+    "@type": "Blog",
+    name: "SDF notes",
+    description,
+    url: `${site.url}/blog`,
+    blogPost: posts.map((post) => ({
+      "@type": "BlogPosting",
+      headline: post.data.title,
+      description: post.data.summary,
+      datePublished: isoDate(post.data.date),
+      url: `${site.url}/blog/${post.id}`,
+    })),
+  },
+);
+---
+
+<BaseLayout title={title} description={description} path={path} jsonLd={jsonLd} breadcrumbs={breadcrumbs}>
+  <section class="page-hero">
+    <div class="wrap narrow">
+      <p class="kicker">Blog</p>
+      <h1 class="post-title">Notes from the referee</h1>
+      <p class="lede">
+        Verification, the Decision Graph, and Cost per Accepted Outcome. Pieces marked Sample are specimens of this format. They are not customer stories and they are not results.
+      </p>
+    </div>
+  </section>
+
+  <section class="section first" aria-labelledby="post-list-title">
+    <div class="wrap narrow">
+      <h2 id="post-list-title" class="sr-only">Posts</h2>
+      {
+        posts.length === 0 ? (
+          <p>No posts yet.</p>
+        ) : (
+          <ol class="post-list">
+            {posts.map((post) => (
+              <li>
+                <p class="post-meta">
+                  <time datetime={isoDate(post.data.date)}>{formatPostDate(post.data.date)}</time>
+                  {post.data.sample && <span class="post-sample">Sample</span>}
+                </p>
+                <h3>
+                  <a href={`/blog/${post.id}`}>{post.data.title}</a>
+                </h3>
+                <p>{post.data.summary}</p>
+                {
+                  post.data.tags.length > 0 && (
+                    <ul class="tag-list">
+                      {post.data.tags.map((tag) => (
+                        <li>{tag}</li>
+                      ))}
+                    </ul>
+                  )
+                }
+              </li>
+            ))}
+          </ol>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
