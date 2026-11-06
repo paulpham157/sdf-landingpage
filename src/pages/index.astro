@@ -13,28 +13,27 @@ import {
   steps,
   wedgeMetric,
 } from "../data/site";
+import { graph, webPage } from "../lib/seo";
 
 const title = "SDF — Know which agent work actually shipped";
 const description = `SDF is the independent referee for coding agents. It verifies every attempt against your acceptance criteria and shows ${wedgeMetric}.`;
 
-const jsonLd = {
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "Organization",
-      name: site.name,
-      alternateName: site.shortName,
-      url: site.url,
-      description: site.tagline,
-    },
-    {
-      "@type": "WebSite",
-      name: site.name,
-      url: `${site.url}/`,
-      description,
-    },
-  ],
-};
+const jsonLd = graph(
+  {
+    "@type": "Organization",
+    name: site.name,
+    alternateName: site.shortName,
+    url: site.url,
+    description: site.tagline,
+  },
+  {
+    "@type": "WebSite",
+    name: site.name,
+    url: `${site.url}/`,
+    description,
+  },
+  webPage({ title, description, path: "/" }),
+);
 ---
 
 <BaseLayout title={title} description={description} path="/" jsonLd={jsonLd}>

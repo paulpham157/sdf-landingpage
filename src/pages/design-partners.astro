@@ -2,13 +2,26 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Mailto from "../components/Mailto.astro";
 import { closing, site } from "../data/site";
+import { graph, webPage } from "../lib/seo";
 
 const title = "Become a design partner — Software Decision Fabric";
 const description =
   "SDF is onboarding 3 to 5 platform teams already running two or more coding agents. The form opens an email draft. It does not submit to a server.";
+const path = "/design-partners";
+const jsonLd = graph(webPage({ title, description, path }));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Design partners", href: path },
+];
 ---
 
-<BaseLayout title={title} description={description} path="/design-partners">
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+>
   <section class="page-hero">
     <div class="wrap narrow">
       <p class="kicker">Design partners</p>

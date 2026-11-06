@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import DecisionChain from "../components/DecisionChain.astro";
 import { site } from "../data/site";
+import { graph, webPage } from "../lib/seo";
 
 const title = "Sample Evidence Report (mock) — Software Decision Fabric";
 const description =
@@ -32,9 +33,21 @@ const sampleNodes = [
   { title: "Verdict", detail: "PASS at sample-c0ffee1" },
   { title: "Cost", detail: "Dollars left blank on purpose" },
 ];
+const path = "/sample-evidence-report";
+const jsonLd = graph(webPage({ title, description, path }));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Sample Evidence Report", href: path },
+];
 ---
 
-<BaseLayout title={title} description={description} path="/sample-evidence-report">
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+>
   <article class="report wrap">
     <p class="sample-banner" role="note">
       <strong>Sample.</strong> This is a stylized mock of an Evidence Report. It is not a customer report, not a signed audit, and not a live result. {site.status}

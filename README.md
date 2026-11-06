@@ -109,7 +109,9 @@ The site is static HTML, CSS, and a small amount of page-specific JavaScript (th
 8. Confirm the placeholder mailbox, or change it, before announcing the page.
 9. No analytics script is included.
 
-`public/_headers` is copied into `dist/` and sets a few response headers on Cloudflare Pages and Netlify (`nosniff`, referrer policy, frame denial, an asset cache for `/_astro/*`).
+`public/_headers` is copied into `dist/` and sets response headers on Cloudflare Pages and Netlify (`nosniff`, referrer policy, frame denial, a Content-Security-Policy, and an asset cache for `/_astro/*`).
+
+The CSP is `default-src 'self'` with scripts, styles, images, and fonts limited to this origin. `form-action` allows this origin and `mailto:`. There is no `'unsafe-inline'` or `'unsafe-eval'`: Astro is configured not to inline stylesheets or script chunks. JSON-LD is a `application/ld+json` block, which browsers do not execute as script. `/llms.txt` and `/llms-full.txt` restate the public facts for answer engines. Draft posts are not built. `robots.txt` disallows `/404` and treats every crawler the same.
 
 `public/robots.txt` allows crawling and points at the generated sitemap, `https://softwaredecisionfabric.tech/sitemap-index.xml`. Each page sets a title, description, canonical URL, and Open Graph / Twitter card tags. The default social image is `public/og.png`.
 

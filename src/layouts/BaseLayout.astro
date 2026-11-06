@@ -3,12 +3,14 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { site } from "../data/site";
+import { breadcrumbList, type Crumb } from "../lib/seo";
 
 interface Props {
   title: string;
   description: string;
   path: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: object;
+  breadcrumbs?: Crumb[];
   /** Site-relative or absolute image. Defaults to the site social card. */
   image?: string;
   imageAlt?: string;
@@ -16,6 +18,15 @@ interface Props {
   imageHeight?: number;
   ogType?: string;
   published?: Date;
+  robots?: string;
+}
+
+function schemaNodes(value: object | undefined) {
+  if (!value) return [];
+  const record = value as Record<string, unknown>;
+  if (Array.isArray(record["@graph"])) return record["@graph"] as Record<string, unknown>[];
+  const { "@context": _context, ...rest } = record;
+  return [rest];
 }
 
 const {
@@ -29,7 +40,13 @@ const {
   imageHeight,
   ogType = "website",
   published,
+  robots = "index, follow",
+  breadcrumbs = [],
 } = Astro.props;
+const structured = [...schemaNodes(jsonLd), ...(breadcrumbs.length ? [breadcrumbList(breadcrumbs)] : [])];
+const structuredData = structured.length
+  ? { "@context": "https://schema.org", "@graph": structured }
+  : undefined;
 const canonical = new URL(path, Astro.site).href;
 const ogImage = image
   ? image.startsWith("http://") || image.startsWith("https://")
@@ -46,6 +63,7 @@ const ogImage = image
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <meta name="robots" content={robots} />
     <link rel="canonical" href={canonical} />
     <meta name="theme-color" content="#f3efe4" />
     <meta name="color-scheme" content="light" />
@@ -80,7 +98,8 @@ const ogImage = image
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <meta name="twitter:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
+    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>
@@ -91,6 +110,23 @@ const ogImage = image
         <a href="/design-partners">Become a design partner</a>
       </span>
     </p>
+    {
+      breadcrumbs.length > 0 && (
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <ol class="wrap">
+            {breadcrumbs.map((crumb, index) => (
+              <li>
+                {index < breadcrumbs.length - 1 ? (
+                  <a href={crumb.href}>{crumb.name}</a>
+                ) : (
+                  <span aria-current="page">{crumb.name}</span>
+                )}
+              </li>
+            ))}
+          </ol>
+        </nav>
+      )
+    }
     <main id="main" tabindex="-1">
       <slot />
     </main>

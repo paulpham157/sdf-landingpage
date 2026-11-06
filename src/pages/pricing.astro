@@ -1,15 +1,22 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { compareRows, faqs, marketAnchorNote, marketAnchors, pricingIntro, tiers } from "../data/site";
+import { faqPage, graph, webPage } from "../lib/seo";
 
 const anchorsFor = (id: string) => marketAnchors.filter((anchor) => anchor.context === id);
 
 const title = "Pricing — Software Decision Fabric";
 const description =
   "SDF is priced per workspace and per verified outcome, never per seat. Hosted Team and Enterprise dollar amounts are unpublished until design partners validate them.";
+const path = "/pricing";
+const jsonLd = graph(webPage({ title, description, path }), faqPage(faqs));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "Pricing", href: path },
+];
 ---
 
-<BaseLayout title={title} description={description} path="/pricing">
+<BaseLayout title={title} description={description} path={path} jsonLd={jsonLd} breadcrumbs={breadcrumbs}>
   <section class="page-hero">
     <div class="wrap">
       <p class="kicker">Pricing</p>

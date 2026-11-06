@@ -2,13 +2,26 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Seal from "../components/Seal.astro";
 import { onePager, site } from "../data/site";
+import { graph, webPage } from "../lib/seo";
 
 const title = "One-pager — Software Decision Fabric";
 const description =
   "SDF is the independent referee for coding agents. A one-page brief: the problem, the control plane, Cost per Accepted Outcome, and the design-partner invitation.";
+const path = "/one-pager";
+const jsonLd = graph(webPage({ title, description, path }));
+const breadcrumbs = [
+  { name: "Overview", href: "/" },
+  { name: "One-pager", href: path },
+];
 ---
 
-<BaseLayout title={title} description={description} path="/one-pager">
+<BaseLayout
+  title={title}
+  description={description}
+  path={path}
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+>
   <div class="doc-toolbar no-print wrap">
     <p>A single page for a meeting. Print it, or save it as a PDF from the print dialog.</p>
     <button type="button" id="print-one-pager">Print or save as PDF</button>

@@ -101,6 +101,7 @@ assert(!includes(pricing, "$60 + seats"), "Pricing still uses the old Factory sh
 assert(!includes(pricing, "$500/mo for 10 users"), "Pricing still uses the old OpenHands shorthand");
 assert(includes(pricing, "Not SDF pricing"), "Market anchors are not labeled as other companies' prices");
 assert(includes(pricing, "not an SDF price"), "The comparison row does not say the anchors are not SDF prices");
+assert(includes(pricing, '"@type":"FAQPage"'), "Pricing FAQ is missing FAQPage structured data");
 assert(includes(pricing, "Why not per seat?"), "Pricing is missing the FAQ");
 assert(includes(pricing, "SSO (SAML/OIDC), SCIM"), "Pricing is missing Enterprise identity");
 
@@ -117,10 +118,63 @@ assert(includes(sample, "Not published") || includes(sample, "not published"), "
 
 assert(includes(partners, "mailto:design-partners@softwaredecisionfabric.tech"), "Design-partner page is missing the mailto");
 assert(includes(partners, "email draft"), "Design-partner page does not explain the mailto behavior");
-assert(includes(partners, "SDF server"), "Design-partner page does not say the site does not submit to a server");
+assert(
+  includes(partners, "does not submit to a server") || includes(partners, "Nothing is stored here"),
+  "Design-partner page does not say the site does not submit to a server",
+);
+assert(/<script type="module" src="\/_astro\//.test(partners), "Design-partner script should be an external file");
+assert(!/<script type="module">/.test(partners), "Inline module scripts would require script-src unsafe-inline");
+assert(!/<style[\s>]/.test(partners), "Inline style tags would require style-src unsafe-inline");
+assert(!/ style="/.test(partners), "Inline style attributes would require style-src-attr unsafe-inline");
+
+const titles = new Map();
+const descriptions = new Map();
+for (const page of pages) {
+  const title = page.html.match(/<title>([^<]*)<\/title>/)?.[1];
+  const description = page.html.match(/name="description" content="([^"]*)"/)?.[1];
+  assert(title && title.length > 0, `${page.file} has an empty title`);
+  assert(description && description.length > 0, `${page.file} has an empty description`);
+  assert(page.html.includes('rel="canonical" href="https://softwaredecisionfabric.tech'), `${page.file} canonical is not on the production host`);
+  assert(page.html.includes('property="og:title"'), `${page.file} is missing og:title`);
+  assert(page.html.includes('name="twitter:card"'), `${page.file} is missing a Twitter card`);
+  titles.set(title, (titles.get(title) ?? 0) + 1);
+  descriptions.set(description, (descriptions.get(description) ?? 0) + 1);
+}
+for (const [title, count] of titles) {
+  assert(count === 1, `Duplicate title: ${title}`);
+}
+for (const [description, count] of descriptions) {
+  assert(count === 1, `Duplicate description: ${description}`);
+}
+const notFound = read("404.html");
+assert(includes(notFound, 'content="noindex, follow"'), "404 should be noindex");
 
 const robots = readFileSync(join(dist, "robots.txt"), "utf8");
 assert(includes(robots, "sitemap-index.xml"), "robots.txt is missing the sitemap");
+assert(includes(robots, "Disallow: /404"), "robots.txt should keep the 404 out of the crawl");
+assert(!/User-agent: (?!\*)/.test(robots), "robots.txt should not privilege a named crawler");
+
+const headers = readFileSync(join(dist, "_headers"), "utf8");
+assert(includes(headers, "Content-Security-Policy:"), "Missing Content-Security-Policy");
+assert(includes(headers, "script-src 'self'"), "CSP should allow only same-origin scripts");
+assert(includes(headers, "style-src 'self'"), "CSP should allow only same-origin styles");
+assert(includes(headers, "form-action 'self' mailto:"), "CSP should allow the mailto form");
+assert(includes(headers, "frame-ancestors 'none'"), "CSP should deny framing");
+assert(!headers.includes("unsafe-inline"), "CSP should not need unsafe-inline");
+assert(!headers.includes("unsafe-eval"), "CSP should not need unsafe-eval");
+
+const llms = readFileSync(join(dist, "llms.txt"), "utf8");
+const llmsFull = readFileSync(join(dist, "llms-full.txt"), "utf8");
+for (const file of [llms, llmsFull]) {
+  assert(file.includes("Cost per Accepted Outcome"), "llms text dropped the metric name");
+  assert(file.includes("Hosted Team"), "llms text dropped Hosted Team");
+  assert(!file.includes("Hosted Pro"), "llms text renamed the hosted tier");
+  assert(file.includes("placeholder"), "llms text must keep the mailbox as a placeholder");
+  assert(!file.includes("testimonial"), "llms text invented social proof");
+}
+assert(llmsFull.includes("https://www.openhands.dev/pricing"), "llms-full is missing the OpenHands source");
+assert(llmsFull.includes("https://factory.com/pricing"), "llms-full is missing the Factory source");
+assert(llmsFull.includes("https://aws.amazon.com/marketplace/pp/prodview-vn4wpn7u4afrq"), "llms-full is missing the Ona source");
 
 const sitemap = readFileSync(join(dist, "sitemap-index.xml"), "utf8");
 assert(sitemap.includes("sitemap"), "sitemap index looks empty");
@@ -155,6 +209,8 @@ assert(!note.includes("$"), "Sample note must not invent prices");
 
 const cite = read("blog/cite-the-source/index.html");
 assert(includes(cite, "specimen of the blog"), "Citation sample is not labeled as a sample");
+assert(cite.includes('"@type":"BlogPosting"'), "Blog post is missing BlogPosting structured data");
+assert(cite.includes("article:published_time"), "Blog post is missing article:published_time");
 assert(includes(cite, "https://x.com/sdf_sample/status/1001"), "X citation is missing its permalink");
 assert(includes(cite, "https://www.linkedin.com/posts/sdf-sample_activity-1001"), "LinkedIn citation is missing its permalink");
 assert(includes(cite, "https://example.com/notes/sample-decision-graph"), "Generic citation is missing its permalink");
