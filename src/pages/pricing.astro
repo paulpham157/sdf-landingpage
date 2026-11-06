@@ -1,0 +1,154 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { compareRows, faqs, pricingIntro, tiers } from "../data/site";
+
+const title = "Pricing — Software Decision Fabric";
+const description =
+  "SDF is priced per workspace and per verified outcome, never per seat. Hosted Team and Enterprise dollar amounts are unpublished until design partners validate them.";
+---
+
+<BaseLayout title={title} description={description} path="/pricing">
+  <section class="page-hero">
+    <div class="wrap">
+      <p class="kicker">Pricing</p>
+      <h1>{pricingIntro.lede}</h1>
+      <p class="lede">{pricingIntro.unpublished}</p>
+    </div>
+  </section>
+
+  <section class="section first" aria-labelledby="compare-title">
+    <div class="wrap">
+      <h2 id="compare-title" class="sr-only">Hosted Team and Enterprise</h2>
+      <p class="scroll-hint">On a narrow screen, each plan is a separate block. The wide comparison is a table.</p>
+
+      <div class="tier-cards">
+        {
+          tiers.map((tier) => (
+            <article class="tier">
+              <h3>{tier.name}</h3>
+              <p class="unpublished">Amount not published</p>
+              <dl>
+                {compareRows.map((row) => (
+                  <div>
+                    <dt>{row.label}</dt>
+                    <dd>{tier[row.key]}</dd>
+                  </div>
+                ))}
+                <div class="is-anchor">
+                  <dt>Market anchor, not an SDF price</dt>
+                  <dd>{tier.marketAnchor}</dd>
+                </div>
+              </dl>
+              <a class="button" href={tier.href}>
+                {tier.cta}
+              </a>
+            </article>
+          ))
+        }
+      </div>
+
+      <div class="compare-scroll">
+        <table class="compare">
+          <caption>
+            Hosted Team compared with Enterprise. SDF dollar amounts are not published. The last row is other companies' public list prices, not SDF prices.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col"> </th>
+              {tiers.map((tier) => (
+                <th scope="col">{tier.name}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              compareRows.map((row) => (
+                <tr>
+                  <th scope="row">{row.label}</th>
+                  {tiers.map((tier) => (
+                    <td>{tier[row.key]}</td>
+                  ))}
+                </tr>
+              ))
+            }
+            <tr>
+              <th scope="row">Amount</th>
+              <td><span class="unpublished">Not published</span></td>
+              <td><span class="unpublished">Not published</span></td>
+            </tr>
+            <tr class="anchor-row">
+              <th scope="row">Market anchor, not an SDF price</th>
+              {tiers.map((tier) => (
+                <td>
+                  <span class="cell-note">Not an SDF price.</span>
+                  {tier.marketAnchor}
+                </td>
+              ))}
+            </tr>
+            <tr>
+              <th scope="row">Next step</th>
+              {tiers.map((tier) => (
+                <td>
+                  <a class="button" href={tier.href}>
+                    {tier.cta}
+                  </a>
+                </td>
+              ))}
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="anchor-title">
+    <div class="wrap">
+      <aside class="anchor-panel">
+        <p class="anchor-flag">Not SDF pricing</p>
+        <h2 id="anchor-title">Market anchors, for context only</h2>
+        <p>
+          These public list prices show how coding-agent products are sold today. They are not SDF prices, not quotes, and not something SDF resells. SDF dollar amounts stay blank until design partners validate them.
+        </p>
+        <ul class="anchor-list">
+          <li>
+            <span>OpenHands</span>
+            <span>$500/mo for 10 users</span>
+            <span>Beside Hosted Team</span>
+          </li>
+          <li>
+            <span>Factory</span>
+            <span>$60 + seats</span>
+            <span>Beside Hosted Team</span>
+          </li>
+          <li>
+            <span>Factory</span>
+            <span>$25k/yr fee</span>
+            <span>Beside Enterprise</span>
+          </li>
+          <li>
+            <span>Ona</span>
+            <span>$60k/yr commit (AWS listings)</span>
+            <span>Beside Enterprise</span>
+          </li>
+        </ul>
+        <p class="anchor-again">Again: not SDF pricing.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="faq-title">
+    <div class="wrap faq-wrap">
+      <h2 id="faq-title">Questions</h2>
+      <div class="faq">
+        {
+          faqs.map((item) => (
+            <article>
+              <h3>{item.q}</h3>
+              <p>{item.a}</p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </section>
+</BaseLayout>

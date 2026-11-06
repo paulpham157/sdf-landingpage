@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://softwaredecisionfabric.tech/sitemap-index.xml

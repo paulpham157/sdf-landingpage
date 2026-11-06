@@ -1,0 +1,27 @@
+---
+interface Node {
+  title: string;
+  detail: string;
+}
+
+interface Props {
+  nodes: readonly Node[];
+  caption: string;
+}
+
+const { nodes, caption } = Astro.props;
+---
+
+<figure class="chain">
+  <ol>
+    {
+      nodes.map((node) => (
+        <li>
+          <span class="chain-title">{node.title}</span>
+          <span class="chain-detail">{node.detail}</span>
+        </li>
+      ))
+    }
+  </ol>
+  <figcaption>{caption}</figcaption>
+</figure>

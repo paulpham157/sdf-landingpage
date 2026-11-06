@@ -1,0 +1,57 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Seal from "../components/Seal.astro";
+import { onePager, site } from "../data/site";
+
+const title = "One-pager — Software Decision Fabric";
+const description =
+  "SDF is the independent referee for coding agents. A one-page brief: the problem, the control plane, cost per acceptable outcome, and the design-partner invitation.";
+---
+
+<BaseLayout title={title} description={description} path="/one-pager">
+  <div class="doc-toolbar no-print wrap">
+    <p>A single page for a meeting. Print it, or save it as a PDF from the print dialog.</p>
+    <button type="button" id="print-one-pager">Print or save as PDF</button>
+  </div>
+
+  <article class="sheet wrap" aria-labelledby="one-title">
+    <header class="sheet-mast">
+      <Seal />
+      <div>
+        <p class="kicker">Software Decision Fabric</p>
+        <p class="sheet-url">{site.url.replace("https://", "")}</p>
+      </div>
+      <p class="sheet-status">Design-partner brief</p>
+    </header>
+    <h1 id="one-title">{onePager.headline}</h1>
+    {
+      onePager.sections.map((section) => (
+        <section class="sheet-block">
+          <h2>{section.title}</h2>
+          <p>{section.body}</p>
+        </section>
+      ))
+    }
+    <section class="sheet-ask">
+      <h2>Ask</h2>
+      <div>
+        <p>{onePager.cta}</p>
+        <p class="no-print">
+          <a class="button" href="/design-partners">Become a design partner</a>
+        </p>
+        <p class="print-only sheet-contact">
+          {site.url.replace("https://", "")} · {site.email} (placeholder mailbox)
+        </p>
+      </div>
+    </section>
+    <footer class="sheet-foot">
+      <p>{site.status}</p>
+      <p>No customer logos, case studies, or published SDF prices. This page is the brief, not a result.</p>
+    </footer>
+  </article>
+</BaseLayout>
+
+<script>
+  const button = document.getElementById("print-one-pager");
+  button?.addEventListener("click", () => window.print());
+</script>

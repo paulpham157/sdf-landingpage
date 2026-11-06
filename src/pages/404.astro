@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const title = "Page not found — Software Decision Fabric";
+const description = "That path is not on the Software Decision Fabric site.";
+---
+
+<BaseLayout title={title} description={description} path="/404">
+  <section class="page-hero">
+    <div class="wrap narrow">
+      <p class="kicker">404</p>
+      <h1>This page is not on the site.</h1>
+      <p class="lede">The path you requested is not part of Software Decision Fabric.</p>
+      <div class="cta-row">
+        <a class="button" href="/">Back to the overview</a>
+        <a class="button button-secondary" href="/design-partners">Become a design partner</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
