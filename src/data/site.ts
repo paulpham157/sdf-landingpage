@@ -61,6 +61,9 @@ export const moat =
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 
+export const costPerAcceptedOutcome =
+  "Cost per Accepted Outcome is what you spend on work whose result a named principal actually accepted, not what you spend per seat, per session, or per agent claiming a task is done.";
+
 export const pillars = [
   {
     title: "Vendor-neutral",
@@ -74,6 +77,7 @@ export const pillars = [
     title: "Cost per Accepted Outcome",
     body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens.",
     note: verifiedAttempt,
+    outcome: costPerAcceptedOutcome,
   },
 ] as const;
 
@@ -124,6 +128,10 @@ export const faqs = [
   {
     q: "What is a verified Attempt?",
     a: verifiedAttempt,
+  },
+  {
+    q: "What is Cost per Accepted Outcome?",
+    a: costPerAcceptedOutcome,
   },
   {
     q: "Why not per seat?",

@@ -76,6 +76,10 @@ const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 assert(home.includes(verifiedAttempt), "Home is missing the verified Attempt sentence");
 assert(pricing.includes(verifiedAttempt), "Pricing is missing the verified Attempt sentence");
+const costPerAcceptedOutcome =
+  "Cost per Accepted Outcome is what you spend on work whose result a named principal actually accepted, not what you spend per seat, per session, or per agent claiming a task is done.";
+assert(home.includes(costPerAcceptedOutcome), "Home is missing the Cost per Accepted Outcome sentence");
+assert(pricing.includes(costPerAcceptedOutcome), "Pricing is missing the Cost per Accepted Outcome sentence");
 assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
 assert(!home.toLowerCase().includes("acceptable outcome"), "Home still says acceptable outcome");
 assert(!home.includes("accepted task"), "Home still says accepted task");

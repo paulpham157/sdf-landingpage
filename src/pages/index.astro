@@ -136,6 +136,7 @@ const jsonLd = graph(
                   <span class="pillar-note-label">verified Attempt.</span> {pillar.note}
                 </p>
               )}
+              {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{pillar.outcome}</p>}
             </article>
           ))
         }
