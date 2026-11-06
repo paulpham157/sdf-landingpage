@@ -6,12 +6,16 @@ const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 const links = [
   { href: "/#how-it-works", label: "How it works" },
   { href: "/pricing", label: "Pricing" },
+  { href: "/blog", label: "Blog" },
   { href: "/one-pager", label: "One-pager" },
   { href: "/sample-evidence-report", label: "Sample report" },
 ];
 
 function isCurrent(href: string) {
   if (href.startsWith("/#")) return undefined;
+  if (href === "/blog") {
+    return pathname === "/blog" || pathname.startsWith("/blog/") ? "page" : undefined;
+  }
   return pathname === href ? "page" : undefined;
 }
 ---

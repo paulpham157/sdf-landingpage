@@ -59,6 +59,7 @@ for (const page of pages) {
 
 assert(includes(home, "Know which agent work actually shipped."), "Home is missing the hero headline");
 assert(includes(home, "independent referee for coding agents"), "Home is missing the subhead");
+assert(includes(home, 'href="/blog"'), "Home is missing the blog link");
 assert(includes(home, "Become a design partner"), "Home is missing the primary CTA");
 assert(includes(home, "See a sample Evidence Report"), "Home is missing the secondary CTA");
 assert(includes(home, "Declare the objective and acceptance criteria"), "Home is missing step 1");
@@ -107,10 +108,49 @@ const sitemapBody = walk(dist)
   .filter((file) => file.endsWith(".xml"))
   .map((file) => readFileSync(file, "utf8"))
   .join("\n");
-for (const route of ["/pricing", "/one-pager", "/sample-evidence-report", "/design-partners"]) {
+for (const route of [
+  "/pricing",
+  "/one-pager",
+  "/sample-evidence-report",
+  "/design-partners",
+  "/blog",
+  "/blog/task-complete-is-a-claim",
+  "/blog/cite-the-source",
+]) {
   assert(sitemapBody.includes(route), `Sitemap is missing ${route}`);
 }
 assert(!sitemapBody.includes("/404"), "Sitemap should not list the 404 page");
+assert(!sitemapBody.includes("draft-not-published"), "Sitemap listed a draft post");
+
+const blog = read("blog/index.html");
+assert(includes(blog, "Notes from the referee"), "Blog index is missing its heading");
+assert(includes(blog, "Task complete is still a claim"), "Blog index is missing the sample note");
+assert(includes(blog, "Quote the post, then check the work"), "Blog index is missing the citation sample");
+assert(!includes(blog, "This draft must not ship"), "Blog index published a draft");
+
+const note = read("blog/task-complete-is-a-claim/index.html");
+assert(includes(note, "specimen of the blog"), "Sample note is not labeled as a sample");
+assert(includes(note, "Decision Graph"), "Sample note dropped the Decision Graph");
+assert(!note.includes("$"), "Sample note must not invent prices");
+
+const cite = read("blog/cite-the-source/index.html");
+assert(includes(cite, "specimen of the blog"), "Citation sample is not labeled as a sample");
+assert(includes(cite, "https://x.com/sdf_sample/status/1001"), "X citation is missing its permalink");
+assert(includes(cite, "https://www.linkedin.com/posts/sdf-sample_activity-1001"), "LinkedIn citation is missing its permalink");
+assert(includes(cite, "https://example.com/notes/sample-decision-graph"), "Generic citation is missing its permalink");
+assert(includes(cite, "Sample quotation. Not a live post."), "Citation card does not label the specimen quotation");
+assert(includes(cite, "Sample Author"), "Citation card dropped the author");
+assert(!cite.includes("$"), "Citation sample must not invent prices");
+assert(!includes(cite, "This draft must not ship"), "Draft text leaked onto a post");
+
+const blogPages = pages.filter((page) => page.file.includes(`${join("dist", "blog")}`));
+assert(blogPages.length >= 3, "Expected the blog index and two published posts");
+for (const page of blogPages) {
+  assert(!page.html.includes("$"), `${page.file} must not introduce dollar amounts`);
+  assert(!includes(page.html, "OpenHands"), `${page.file} must not carry market-anchor prices`);
+  assert(!/\bOna\b/.test(page.html), `${page.file} must not carry the Ona anchor`);
+  assert(!includes(page.html, "testimonial"), `${page.file} contains a testimonial claim`);
+}
 
 for (const asset of ["og.png", "apple-touch-icon.png", "favicon.svg"]) {
   try {

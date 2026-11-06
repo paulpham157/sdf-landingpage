@@ -1,0 +1,54 @@
+---
+title: Quote the post, then check the work
+date: 2026-10-28
+summary: A specimen of how this site cites a social post. The quotations are samples, not live posts and not results.
+hero: ./cite-the-source.svg
+heroAlt: A stamp beside a short ledger rule. Not a photograph and not a person.
+tags:
+  - citations
+  - verification
+sample: true
+draft: false
+---
+
+import SocialCitation from "../../components/SocialCitation.astro";
+
+A social post is a claim, in the same way an agent's "done" is a claim. You can quote it. The quote is not evidence that the work shipped, and it is not a customer result. On this site a quotation keeps the author, the date, and a permalink back to the original. There is no embed service behind the card. If the network is down, or there is no API key, the citation is still the text, the name, and the link.
+
+The three cards below are specimens. The handles are not real accounts, and the lines were written for this page. They show the shape of a citation for X, LinkedIn, and any other URL.
+
+<SocialCitation
+  platform="x"
+  author="Sample Author"
+  handle="sdf_sample"
+  date="2026-10-12"
+  url="https://x.com/sdf_sample/status/1001"
+  sample={true}
+>
+  An agent's "done" is a claim. The revision and the checks are the result.
+</SocialCitation>
+
+<SocialCitation
+  platform="linkedin"
+  author="Sample Author"
+  handle="sdf-sample"
+  date="2026-10-18"
+  url="https://www.linkedin.com/posts/sdf-sample_activity-1001"
+  sample={true}
+>
+  Keep the cost on the accepted outcome, not on the seat and not on the token.
+</SocialCitation>
+
+<SocialCitation
+  platform="generic"
+  author="Sample notebook"
+  date="2026-10-21"
+  url="https://example.com/notes/sample-decision-graph"
+  sample={true}
+>
+  The Decision Graph is the record: objective, attempt, evidence, verdict, and cost.
+</SocialCitation>
+
+A citation is not a PASS. PASS is still tied to a code revision and to checks the agent cannot forge. The graph that holds those links is append-only. SDF does not sell the agent that did the work, and the dollar amounts for SDF itself are not published.
+
+This page is a sample. SDF runs live only on a toy fixture. If the record is the thing you want to baseline, [become a design partner](/design-partners).

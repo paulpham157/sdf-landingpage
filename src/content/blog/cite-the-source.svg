@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 480" role="img" aria-labelledby="heroTitle">
+  <title id="heroTitle">Stamp beside a ledger rule</title>
+  <rect width="1200" height="480" fill="#f7f4ec"/>
+  <rect x="48" y="48" width="1104" height="384" fill="none" stroke="#1a1c16" stroke-width="2"/>
+  <rect x="88" y="96" width="120" height="120" fill="#1a1c16"/>
+  <rect x="100" y="108" width="96" height="96" fill="none" stroke="#9e2a1c" stroke-width="3"/>
+  <text x="148" y="168" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="28" fill="#f3efe4">SDF</text>
+  <path d="M280 156 H1040" stroke="#1a1c16" stroke-width="2"/>
+  <path d="M280 212 H860" stroke="#cfc6b3" stroke-width="2"/>
+  <path d="M280 268 H980" stroke="#cfc6b3" stroke-width="2"/>
+  <path d="M280 324 H720" stroke="#1a1c16" stroke-width="2"/>
+  <rect x="280" y="352" width="92" height="6" fill="#9e2a1c"/>
+</svg>

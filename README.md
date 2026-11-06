@@ -31,9 +31,63 @@ npm run preview
 | --- | --- |
 | `/` | Landing: hero, problem, four steps, three commitments, design-partner close |
 | `/pricing` | Hosted Team and Enterprise. Amounts say “Not published.” OpenHands, Factory, and Ona figures are labeled as market anchors, not SDF prices |
+| `/blog` | Blog index. Posts come from `src/content/blog` |
+| `/blog/…` | One post. Drafts are not built |
 | `/one-pager` | The same brief on one sheet. Use **Print or save as PDF** |
 | `/sample-evidence-report` | A stylized mock Evidence Report. Labeled sample. Not a customer report |
 | `/design-partners` | Design-partner contact. No backend |
+
+## Publish a blog post
+
+Add a Markdown or MDX file under [`src/content/blog/`](src/content/blog/). The filename becomes the URL: `src/content/blog/my-note.md` is published at `/blog/my-note`. Restart `npm run dev` if the new file does not show up.
+
+Frontmatter:
+
+```yaml
+---
+title: What the record is for
+date: 2026-11-06
+summary: One or two sentences. This is also the page description.
+hero: ./my-note.svg          # optional, a file next to the post
+heroAlt: Short description of the image
+tags:
+  - verification
+sample: false                # true only for specimens, which show a Sample banner
+draft: false                 # true keeps the file out of the index, the route, and the sitemap
+---
+```
+
+`title`, `date`, and `summary` are required. `tags` can be omitted. Write the body in Markdown under the frontmatter. Link to other pages with root paths such as `/design-partners`.
+
+Do not add customer logos, testimonials, case-study metrics, or SDF dollar prices. The product still runs live only on a toy fixture. If a post is a specimen rather than a piece you are actually publishing, set `sample: true`.
+
+### Cite a social post
+
+Use MDX (`.mdx`) when the post needs a citation. Import the card and pass the platform, the author, the date, and the permalink. The quoted text is the body of the component. The card does not call oEmbed or any other API. The quote, the name, and the link are always in the page.
+
+```mdx
+import SocialCitation from "../../components/SocialCitation.astro";
+
+<SocialCitation
+  platform="x"
+  author="Ada Lovelace"
+  handle="ada"
+  date="2026-10-02"
+  url="https://x.com/ada/status/1"
+>
+  The quoted text, in their words.
+</SocialCitation>
+```
+
+`platform` is `x` (or `twitter`), `linkedin`, or `generic`.
+
+- `x` / `twitter` must link to `x.com` or `twitter.com`.
+- `linkedin` must link to `linkedin.com`.
+- `generic` is the fallback for any other network or page. The card labels it with the site host and still links to the original URL.
+
+`handle` is optional. `sample={true}` marks a specimen quotation that is not a live post. A missing permalink, a non-http URL, or an X/LinkedIn link on the wrong host fails the build instead of rendering an unattributed quote.
+
+The same component can be imported into any `.astro` page. Two specimen posts ship with the repo: a plain Markdown note, and an MDX note that cites X, LinkedIn, and a generic URL. `draft-not-published.md` is `draft: true` and must not appear on the site.
 
 ## Contact placeholder
 
@@ -63,7 +117,8 @@ The site is static HTML, CSS, and a small amount of page-specific JavaScript (th
 
 - SDF prices. Both tiers say the amount is not published. The shape (workspace fee, verified Attempts, Enterprise platform fee) is described without numbers.
 - Market anchors. OpenHands ($500/mo for 10 users), Factory ($60 + seats and a $25k/yr fee), and Ona ($60k/yr commit on AWS listings) appear only on the pricing page, in a section and a table row that say they are not SDF prices.
-- Customers. There are no logos, quotes, case studies, or performance metrics. The Evidence Report is a labeled mock (`SAMPLE-TOY-001` on workspace `toy-fixture`).
+- Customers. There are no logos, testimonials, case studies, or performance metrics. The Evidence Report is a labeled mock (`SAMPLE-TOY-001` on workspace `toy-fixture`). Blog posts marked Sample are specimens, including the social quotations, which are not live posts.
+- Social citations. A quoted post always shows the author and a permalink. It is not treated as a customer result.
 - A company address, team photos, or a legal entity name. None of those were invented.
 - A working form API. Until one exists, the contact path is the documented mailto placeholder.
 
