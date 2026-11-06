@@ -1,6 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180">
-  <rect width="180" height="180" fill="#1a1c16"/>
-  <rect x="14" y="14" width="152" height="152" fill="none" stroke="#f3efe4" stroke-width="3"/>
-  <rect x="26" y="26" width="128" height="128" fill="none" stroke="#9e2a1c" stroke-width="4"/>
-  <text x="90" y="104" text-anchor="middle" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="48" fill="#f3efe4" font-weight="700">SDF</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="180" height="180" viewBox="0 0 180 180"><rect width="180" height="180" fill="#1a1c16"/><rect width="152" height="152" x="14" y="14" fill="none" stroke="#f3efe4" stroke-width="3"/><rect width="128" height="128" x="26" y="26" fill="none" stroke="#9e2a1c" stroke-width="4"/><text x="90" y="104" fill="#f3efe4" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="48" font-weight="700" text-anchor="middle">SDF</text></svg>
