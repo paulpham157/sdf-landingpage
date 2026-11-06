@@ -18,7 +18,7 @@ This file restates public pages on ${site.url}. It is not a customer list, a pri
 
 ## Contact
 
-${site.email} is a placeholder mailbox until that inbox is confirmed.
+${site.emailIsPlaceholder ? `${site.email} is a placeholder mailbox until that inbox is confirmed.` : `${site.email}. The design-partner form opens an email draft and does not submit to a server.`}
 
 ## More detail
 

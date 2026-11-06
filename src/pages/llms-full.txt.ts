@@ -27,7 +27,9 @@ write(
   site.status,
   "SDF dollar amounts are not published. The public site does not show customer logos, customer quotes, case studies, or result metrics.",
   `The public name of the metric is ${wedgeMetric}. The hosted tier is named Hosted Team.`,
-  `${site.email} is a placeholder mailbox. The design-partner form opens an email draft and does not submit to a server.`,
+  site.emailIsPlaceholder
+    ? `${site.email} is a placeholder mailbox. The design-partner form opens an email draft and does not submit to a server.`
+    : `${site.email}. The design-partner form opens an email draft and does not submit to a server.`,
   "",
   "## How it works",
   "",

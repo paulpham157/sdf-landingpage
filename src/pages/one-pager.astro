@@ -53,7 +53,7 @@ const breadcrumbs = [
           <a class="button" href="/design-partners">Become a design partner</a>
         </p>
         <p class="print-only sheet-contact">
-          {site.url.replace("https://", "")} · {site.email} (placeholder mailbox)
+          {site.url.replace("https://", "")} · {site.email}{site.emailIsPlaceholder ? " (placeholder mailbox)" : ""}
         </p>
       </div>
     </section>

@@ -50,7 +50,8 @@ for (const page of pages) {
   assert(!page.html.includes("cost per accepted outcome"), `${page.file} uses a lowercase paraphrase of Cost per Accepted Outcome`);
   assert(!page.html.includes("Hosted Pro"), `${page.file} renames Hosted Team`);
   assert(includes(page.html, "toy fixture"), `${page.file} does not mention the toy fixture`);
-  assert(includes(page.html, "Placeholder mailbox"), `${page.file} does not mark the mailbox as a placeholder`);
+  assert(includes(page.html, "design-partners@softwaredecisionfabric.tech"), `${page.file} is missing the contact address`);
+  assert(!includes(page.html, "Placeholder mailbox"), `${page.file} still marks the mailbox as a placeholder`);
   assert(!includes(page.html, "testimonial"), `${page.file} contains a testimonial claim`);
   assert(!includes(page.html, "case study"), `${page.file} contains a case study`);
   assert(!includes(page.html, "trusted by"), `${page.file} contains a trusted-by claim`);
@@ -177,7 +178,8 @@ for (const file of [llms, llmsFull]) {
   assert(file.includes("Cost per Accepted Outcome"), "llms text dropped the metric name");
   assert(file.includes("Hosted Team"), "llms text dropped Hosted Team");
   assert(!file.includes("Hosted Pro"), "llms text renamed the hosted tier");
-  assert(file.includes("placeholder"), "llms text must keep the mailbox as a placeholder");
+  assert(file.includes("design-partners@softwaredecisionfabric.tech"), "llms text is missing the contact address");
+  assert(!/placeholder mailbox/i.test(file), "llms text still calls the mailbox a placeholder");
   assert(!file.includes("testimonial"), "llms text invented social proof");
 }
 assert(llmsFull.includes("https://www.openhands.dev/pricing"), "llms-full is missing the OpenHands source");

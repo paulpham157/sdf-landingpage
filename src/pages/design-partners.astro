@@ -28,10 +28,10 @@ const breadcrumbs = [
       <h1>{closing.heading}</h1>
       <p class="lede">{closing.body}</p>
       <p>
-        Tell us how you run agents today. There is no form backend on this site. The button opens an email draft to the placeholder mailbox below. Nothing is stored here, and nothing is sent until you send the draft yourself.
+        Tell us how you run agents today. There is no form backend on this site. The button opens an email draft to the mailbox below. Nothing is stored here, and nothing is sent until you send the draft yourself.
       </p>
       <p class="contact-fallback">
-        <span class="footer-label">Placeholder mailbox</span>
+        {site.emailIsPlaceholder && <span class="footer-label">Placeholder mailbox</span>}
         <Mailto subject="SDF design partner" />
       </p>
     </div>
@@ -101,7 +101,7 @@ const breadcrumbs = [
       </form>
       <noscript>
         <p>
-          JavaScript is off, so the form will hand the fields to your email app directly. If that does not work, write to the placeholder mailbox above and include your name, company, role, how many agents you run, and whether you want Hosted Team or Enterprise.
+          JavaScript is off, so the form will hand the fields to your email app directly. If that does not work, write to the mailbox above and include your name, company, role, how many agents you run, and whether you want Hosted Team or Enterprise.
         </p>
       </noscript>
     </div>

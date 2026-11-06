@@ -1,6 +1,6 @@
 /**
- * Site-wide facts. The mailbox is a placeholder until a real inbox is confirmed.
- * Change `email` here and every mailto link, footer line, and form follows.
+ * Site-wide facts. `email` is the only contact address.
+ * Change it here and every mailto link, footer line, and form follows.
  */
 export const site = {
   name: "Software Decision Fabric",
@@ -8,7 +8,7 @@ export const site = {
   url: "https://softwaredecisionfabric.tech",
   tagline: "The independent referee for coding agents.",
   email: "design-partners@softwaredecisionfabric.tech",
-  emailIsPlaceholder: true,
+  emailIsPlaceholder: false,
   status:
     "SDF runs live only on a toy fixture. We are onboarding 3 to 5 design partners.",
 } as const;

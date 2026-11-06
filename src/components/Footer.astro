@@ -26,7 +26,7 @@ import { site } from "../data/site";
         <Mailto class="footer-email" />
       </p>
       <p class="footer-note">
-        Placeholder mailbox. This website does not store a message or submit it to a server. The link opens an email draft.
+        {site.emailIsPlaceholder && "Placeholder mailbox. "}This website does not store a message or submit it to a server. The link opens an email draft.
       </p>
     </div>
   </div>

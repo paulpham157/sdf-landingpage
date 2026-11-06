@@ -89,11 +89,9 @@ import SocialCitation from "../../components/SocialCitation.astro";
 
 The same component can be imported into any `.astro` page. Two specimen posts ship with the repo: a plain Markdown note, and an MDX note that cites X, LinkedIn, and a generic URL. `draft-not-published.md` is `draft: true` and must not appear on the site.
 
-## Contact placeholder
+## Contact
 
-`design-partners@softwaredecisionfabric.tech` is a **placeholder mailbox**. The form does not post to a server. It opens an email draft, and the address is marked as a placeholder in the footer and on the contact page.
-
-Before launch, confirm that inbox or change `email` in [`src/data/site.ts`](src/data/site.ts). That constant is the only place the address is defined.
+`design-partners@softwaredecisionfabric.tech` is the contact mailbox. It is defined once as `email` in [`src/data/site.ts`](src/data/site.ts). The form does not post to a server. It opens an email draft, and Copy address copies that same address.
 
 ## Deploy to softwaredecisionfabric.tech
 
@@ -106,7 +104,7 @@ The site is static HTML, CSS, and a small amount of page-specific JavaScript (th
 5. Add the custom domain `softwaredecisionfabric.tech`.
 6. Redirect `www.softwaredecisionfabric.tech` to the apex.
 7. Point DNS at the host: the host’s apex record (ALIAS, ANAME, or the addresses they publish) and a CNAME for `www` if you keep it.
-8. Confirm the placeholder mailbox, or change it, before announcing the page.
+8. The contact address is `email` in `src/data/site.ts`. Change that constant if the mailbox changes.
 9. No analytics script is included.
 
 `public/_headers` is copied into `dist/` and sets response headers on Cloudflare Pages and Netlify (`nosniff`, referrer policy, frame denial, a Content-Security-Policy, and an asset cache for `/_astro/*`).
@@ -123,7 +121,7 @@ The CSP is `default-src 'self'` with scripts, styles, images, and fonts limited 
 - Customers. There are no logos, testimonials, case studies, or performance metrics. The Evidence Report is a labeled mock (`SAMPLE-TOY-001` on workspace `toy-fixture`). Blog posts marked Sample are specimens, including the social quotations, which are not live posts.
 - Social citations. A quoted post always shows the author and a permalink. It is not treated as a customer result.
 - A company address, team photos, or a legal entity name. None of those were invented.
-- A working form API. Until one exists, the contact path is the documented mailto placeholder.
+- A working form API. The contact path opens an email draft to the address in `src/data/site.ts`. It does not post to a server.
 
 ## Stack
 
