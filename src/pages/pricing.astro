@@ -3,8 +3,6 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { compareRows, faqs, marketAnchorNote, marketAnchors, pricingIntro, tiers } from "../data/site";
 import { faqPage, graph, webPage } from "../lib/seo";
 
-const anchorsFor = (id: string) => marketAnchors.filter((anchor) => anchor.context === id);
-
 const title = "Pricing — Software Decision Fabric";
 const description =
   "SDF is priced per workspace and per verified outcome, never per seat. Hosted Team and Enterprise dollar amounts are unpublished until design partners validate them.";
@@ -43,26 +41,6 @@ const breadcrumbs = [
                     <dd>{tier[row.key]}</dd>
                   </div>
                 ))}
-                <div class="is-anchor">
-                  <dt>Coding-agent list price, not an SDF price</dt>
-                  <dd>
-                    {
-                      anchorsFor(tier.id).map((anchor) => (
-                        <p class="anchor-figure">
-                          <strong>{anchor.product}.</strong> {anchor.figure}{" "}
-                          {anchor.sources.map((source, index) => (
-                            <>
-                              {index > 0 && " · "}
-                              <a href={source.url} rel="noopener noreferrer">
-                                {source.label}
-                              </a>
-                            </>
-                          ))}
-                        </p>
-                      ))
-                    }
-                  </dd>
-                </div>
               </dl>
               <a class="button" href={tier.href}>
                 {tier.cta}
@@ -75,11 +53,11 @@ const breadcrumbs = [
       <div class="compare-scroll">
         <table class="compare">
           <caption>
-            Hosted Team compared with Enterprise. SDF dollar amounts are not published. The last row quotes coding-agent list prices from the linked pages. Those products are not SDF, and they are not verification or evaluation prices.
+            Hosted Team compared with Enterprise. SDF dollar amounts are not published. Coding-agent list prices are in the section below. Those products are not SDF, and they are not verification or evaluation prices.
           </caption>
           <thead>
             <tr>
-              <th scope="col"> </th>
+              <th scope="col"><span class="sr-only">Feature</span></th>
               {tiers.map((tier) => (
                 <th scope="col">{tier.name}</th>
               ))}
@@ -100,29 +78,6 @@ const breadcrumbs = [
               <th scope="row">Amount</th>
               <td><span class="unpublished">Not published</span></td>
               <td><span class="unpublished">Not published</span></td>
-            </tr>
-            <tr class="anchor-row">
-              <th scope="row">Coding-agent list price, not an SDF price</th>
-              {tiers.map((tier) => (
-                <td>
-                  <span class="cell-note">Not an SDF price.</span>
-                  <ul class="anchor-inline">
-                    {anchorsFor(tier.id).map((anchor) => (
-                      <li>
-                        <strong>{anchor.product}.</strong> {anchor.figure}{" "}
-                        {anchor.sources.map((source, index) => (
-                          <>
-                            {index > 0 && " · "}
-                            <a href={source.url} rel="noopener noreferrer">
-                              {source.label}
-                            </a>
-                          </>
-                        ))}
-                      </li>
-                    ))}
-                  </ul>
-                </td>
-              ))}
             </tr>
             <tr>
               <th scope="row">Next step</th>

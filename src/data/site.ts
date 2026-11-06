@@ -178,7 +178,7 @@ export const closing = {
 export const marketAnchorNote = {
   kicker: "Not SDF pricing",
   title: "Coding-agent list prices, for context only",
-  body: "OpenHands, Factory, and Ona sell coding agents. Those are the products SDF independently grades, not verification, evaluation, or control-plane peers. The figures below are their public list prices, shown only so a buyer can see how those products are sold. They are not SDF prices. SDF dollar amounts stay unpublished until design partners validate them.",
+  body: "OpenHands, Factory, and Ona sell coding agents. Those are the products SDF independently grades, not verification, evaluation, or control-plane peers. The figures below are their public list prices, shown only so a buyer can see how those products are sold. Each figure below is not an SDF price. SDF dollar amounts stay unpublished until design partners validate them.",
   again: "Again: coding-agent list prices, not SDF prices.",
 } as const;
 

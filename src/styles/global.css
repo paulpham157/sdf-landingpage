@@ -403,6 +403,10 @@ code {
   text-underline-offset: 0.2em;
 }
 
+.status-bar a:focus-visible {
+  outline-color: #f3cfc6;
+}
+
 .hero {
   padding-block: clamp(2.5rem, 6vw, 4.75rem) clamp(2.5rem, 5vw, 4rem);
 }
@@ -1115,6 +1119,18 @@ code {
   word-break: normal;
 }
 
+.mailto-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.copy-fallback-field {
+  position: fixed;
+  left: -9999px;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1462,20 +1478,23 @@ textarea {
   border-top: 1px solid var(--ink);
 }
 
-.post-list h2 {
+.post-list h3 {
   max-width: 22em;
   margin: 0.35rem 0 0.45rem;
+  font-family: var(--serif);
+  font-weight: 560;
+  letter-spacing: -0.02em;
   font-size: clamp(1.55rem, 3vw, 2.1rem);
 }
 
-.post-list h2 a {
+.post-list h3 a {
   text-decoration: underline;
   text-decoration-color: var(--rule);
   text-underline-offset: 0.12em;
 }
 
-.post-list h2 a:hover,
-.post-list h2 a:focus-visible {
+.post-list h3 a:hover,
+.post-list h3 a:focus-visible {
   text-decoration-color: var(--stamp);
 }
 

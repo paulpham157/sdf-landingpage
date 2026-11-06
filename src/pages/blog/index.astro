@@ -57,9 +57,9 @@ const jsonLd = graph(
                   <time datetime={isoDate(post.data.date)}>{formatPostDate(post.data.date)}</time>
                   {post.data.sample && <span class="post-sample">Sample</span>}
                 </p>
-                <h2>
+                <h3>
                   <a href={`/blog/${post.id}`}>{post.data.title}</a>
-                </h2>
+                </h3>
                 <p>{post.data.summary}</p>
                 {
                   post.data.tags.length > 0 && (

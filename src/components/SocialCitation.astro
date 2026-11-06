@@ -55,11 +55,19 @@ if (!quoted && !hasSlot) {
       )
     }
   </figcaption>
-  <blockquote cite={view.href}>
+  <blockquote cite={view.sample ? undefined : view.href}>
     {quoted ? <p>{quoted}</p> : <slot />}
   </blockquote>
   <p class="citation-meta">
-    <a class="citation-permalink" href={view.href} rel="noopener noreferrer">{view.href}</a>
+    {
+      view.sample ? (
+        <code class="citation-permalink">{view.href}</code>
+      ) : (
+        <a class="citation-permalink" href={view.href} rel="noopener noreferrer">
+          {view.href}
+        </a>
+      )
+    }
   </p>
   {view.sample && <p class="citation-sample">Sample quotation. Not a live post.</p>}
 </figure>
