@@ -58,6 +58,9 @@ export const steps = [
 export const moat =
   "The record is hardened, evidence-gated verification in a Decision Graph that links objectives to attempts, cost, and evidence.";
 
+export const verifiedAttempt =
+  "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
+
 export const pillars = [
   {
     title: "Vendor-neutral",
@@ -70,6 +73,7 @@ export const pillars = [
   {
     title: "Cost per Accepted Outcome",
     body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens.",
+    note: verifiedAttempt,
   },
 ] as const;
 
@@ -117,6 +121,10 @@ export const compareRows = [
 ] as const;
 
 export const faqs = [
+  {
+    q: "What is a verified Attempt?",
+    a: verifiedAttempt,
+  },
   {
     q: "Why not per seat?",
     a: "Agents do the work, so seats undercount value and punish adoption.",

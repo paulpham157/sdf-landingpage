@@ -131,6 +131,11 @@ const jsonLd = graph(
               <p class="step-index">0{index + 1}</p>
               <h3>{pillar.title}</h3>
               <p>{pillar.body}</p>
+              {"note" in pillar && pillar.note && (
+                <p class="pillar-note">
+                  <span class="pillar-note-label">verified Attempt.</span> {pillar.note}
+                </p>
+              )}
             </article>
           ))
         }

@@ -72,6 +72,10 @@ assert(
   includes(home, "onboarding 3 to 5 platform teams already running two or more agents"),
   "Home is missing the closing CTA",
 );
+const verifiedAttempt =
+  "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
+assert(home.includes(verifiedAttempt), "Home is missing the verified Attempt sentence");
+assert(pricing.includes(verifiedAttempt), "Pricing is missing the verified Attempt sentence");
 assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
 assert(!home.toLowerCase().includes("acceptable outcome"), "Home still says acceptable outcome");
 assert(!home.includes("accepted task"), "Home still says accepted task");
