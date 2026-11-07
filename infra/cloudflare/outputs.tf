@@ -37,6 +37,11 @@ output "managed_dns_types" {
   )
 }
 
+output "pages_source_mode" {
+  description = "direct_upload or github. This is the mode a create would send. After apply, changing it plans replacement of the Pages project, which prevent_destroy rejects."
+  value       = local.pages_source_mode
+}
+
 output "git_source_enabled" {
   description = "Whether a GitHub repository is attached to the project."
   value       = var.enable_git_source

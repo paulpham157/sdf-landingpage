@@ -31,13 +31,18 @@ variable "production_branch" {
 }
 
 variable "domain" {
-  description = "Apex hostname for the site. Used only when enable_custom_domain is true. This stack does not create the zone."
+  description = "Hostname Pages should serve. Usually the zone apex. It may instead be a subdomain of that zone (for example landing.example.com). Used only when enable_custom_domain is true. Not a pages.dev name. This stack does not create the zone."
   type        = string
   default     = "softwaredecisionfabric.tech"
 
   validation {
+    condition     = !can(regex("(?:^|\\.)pages\\.dev$", lower(var.domain)))
+    error_message = "domain must not be pages.dev or any hostname under pages.dev. Those names belong to Cloudflare Pages."
+  }
+
+  validation {
     condition     = can(regex("^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\\.)+[a-z]{2,}$", var.domain))
-    error_message = "domain must be a lowercase DNS hostname such as softwaredecisionfabric.tech."
+    error_message = "domain must be a lowercase DNS hostname, such as softwaredecisionfabric.tech or a subdomain of a zone you control. Punycode only; uppercase is rejected."
   }
 }
 
@@ -60,7 +65,7 @@ variable "manage_dns" {
 }
 
 variable "zone_id" {
-  description = "Id of the existing Cloudflare zone for domain. Required only when manage_dns is true. This stack never creates a zone."
+  description = "Id of the existing Cloudflare zone that contains domain. Required only when manage_dns is true. The zone name must be domain or a parent of it. This stack never creates a zone."
   type        = string
   default     = ""
 
@@ -71,7 +76,7 @@ variable "zone_id" {
 }
 
 variable "enable_git_source" {
-  description = "Attach a GitHub repository to the Pages project. Off by default. Requires the Cloudflare Workers & Pages GitHub App to already be installed. Attaching Git means this project cannot later be switched to Direct Upload."
+  description = "Create the project as GitHub-backed instead of Direct Upload. Off by default, which means Direct Upload. Set this before the first apply. Cloudflare does not let either mode change later, and this configuration rejects a later flip instead of updating the project in place. Requires the Cloudflare Workers & Pages GitHub App to already be installed."
   type        = bool
   default     = false
 }

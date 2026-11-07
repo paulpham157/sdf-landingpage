@@ -1,8 +1,15 @@
 name: Terraform
 
+# Credential-free validation. This file does not reference secrets and does
+# not set CLOUDFLARE_API_TOKEN. It does not inspect the runner for a token.
+# pull_request covers PR checks. push is limited to main so a branch push
+# that also opens a pull request is not validated twice.
+
 on:
-  push:
   pull_request:
+  push:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -11,7 +18,11 @@ jobs:
   validate:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # actions/checkout v4.4.0. Tag v4.4.0 and the current v4 tag both point
+      # at this commit (verified 2026-11-07).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
 
       - name: Install Terraform
         run: |
@@ -24,14 +35,6 @@ jobs:
           grep "terraform_${version}_linux_amd64.zip" "terraform_${version}_SHA256SUMS" | sha256sum -c -
           sudo unzip -o "terraform_${version}_linux_amd64.zip" -d /usr/local/bin
           terraform version
-
-      - name: Reject a live Cloudflare token
-        run: |
-          set -euo pipefail
-          if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || [ -n "${CLOUDFLARE_API_KEY:-}" ] || [ -n "${CLOUDFLARE_EMAIL:-}" ]; then
-            echo "This workflow validates configuration only and must not receive Cloudflare credentials."
-            exit 1
-          fi
 
       - name: Format
         working-directory: infra/cloudflare

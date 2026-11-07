@@ -20,6 +20,20 @@ locals {
     }
   }
 
+  # Chosen once, at create. "direct_upload" sends source = null.
+  pages_source_mode = var.enable_git_source ? "github" : "direct_upload"
+
+  zone_ready      = var.manage_dns && can(regex("^[0-9a-f]{32}$", var.zone_id))
+  zone_name       = local.zone_ready && length(data.cloudflare_zone.dns) == 1 ? lower(trimsuffix(trimspace(data.cloudflare_zone.dns[0].name), ".")) : ""
+  zone_account_id = local.zone_ready && length(data.cloudflare_zone.dns) == 1 ? data.cloudflare_zone.dns[0].account.id : ""
+
+  domain_in_zone = local.zone_name != "" && (
+    lower(var.domain) == local.zone_name || endswith(lower(var.domain), ".${local.zone_name}")
+  )
+  www_in_zone = !var.attach_www || (
+    local.zone_name != "" && endswith(lower("www.${var.domain}"), ".${local.zone_name}")
+  )
+
   git_source = {
     type = "github"
     config = merge(
@@ -38,26 +52,69 @@ locals {
   }
 }
 
-resource "terraform_data" "guards" {
+resource "terraform_data" "pages_source_mode" {
+  input = local.pages_source_mode
+}
+
+resource "terraform_data" "dns_requires_domain_and_zone" {
   lifecycle {
     precondition {
       condition     = !var.manage_dns || (var.enable_custom_domain && can(regex("^[0-9a-f]{32}$", var.zone_id)))
       error_message = "manage_dns requires enable_custom_domain and the 32 hex zone_id of an existing zone. DNS stays unmanaged until both are set."
     }
+  }
+}
 
+resource "terraform_data" "www_requires_custom_domain" {
+  lifecycle {
     precondition {
       condition     = !var.attach_www || var.enable_custom_domain
       error_message = "attach_www requires enable_custom_domain."
     }
+  }
+}
 
+resource "terraform_data" "git_requires_repository" {
+  lifecycle {
     precondition {
       condition     = !var.enable_git_source || (var.git_owner != "" && var.git_repo_name != "")
-      error_message = "enable_git_source requires git_owner and git_repo_name. It also requires the Cloudflare GitHub App to already be installed; Terraform does not install it."
+      error_message = "enable_git_source requires git_owner and git_repo_name. Choose it before the first apply. Terraform does not install the Cloudflare GitHub App."
     }
+  }
+}
 
+resource "terraform_data" "automatic_deployments_require_git" {
+  lifecycle {
     precondition {
       condition     = !var.enable_automatic_deployments || var.enable_git_source
-      error_message = "enable_automatic_deployments requires enable_git_source. Automatic production and preview builds stay off unless Git source is explicitly enabled."
+      error_message = "enable_automatic_deployments requires enable_git_source. Automatic production and preview builds stay off unless Git source is explicitly enabled at create."
+    }
+  }
+}
+
+# Read only when DNS is opted in, so a default plan does not call the zone API.
+# The precondition rejects a zone whose name does not contain every hostname
+# this stack would publish. Tests mock this data source; a live plan reads it.
+data "cloudflare_zone" "dns" {
+  count = local.zone_ready ? 1 : 0
+
+  zone_id = var.zone_id
+}
+
+resource "terraform_data" "zone_name_covers_hostnames" {
+  lifecycle {
+    precondition {
+      condition     = !var.manage_dns || !local.zone_ready || (local.domain_in_zone && local.www_in_zone)
+      error_message = "zone_id resolved to a zone that does not contain domain (and www.domain when attach_www is set). Refusing to write DNS in that zone. domain may be the zone name or a subdomain of it."
+    }
+  }
+}
+
+resource "terraform_data" "zone_account_matches" {
+  lifecycle {
+    precondition {
+      condition     = !var.manage_dns || !local.zone_ready || lower(local.zone_account_id) == var.account_id
+      error_message = "zone_id is not in account_id. Refusing to write DNS against that zone."
     }
   }
 }
@@ -74,12 +131,17 @@ resource "cloudflare_pages_project" "site" {
 
   deployment_configs = local.deployment_configs
 
-  # Null keeps this a Direct Upload project. Omitting Git avoids automatic
-  # deployments and leaves the project able to accept Direct Upload later.
+  # Null is Direct Upload. Provider 5.28.1 does not mark source RequiresReplace,
+  # so toggling it would otherwise plan an in-place update. replace_triggered_by
+  # turns a mode change into replacement, which prevent_destroy rejects.
+  # That is a plan safeguard in this configuration. It does not prove the API.
   source = var.enable_git_source ? local.git_source : null
 
   lifecycle {
     prevent_destroy = true
+    replace_triggered_by = [
+      terraform_data.pages_source_mode,
+    ]
 
     postcondition {
       condition     = endswith(self.subdomain, ".pages.dev")
@@ -113,7 +175,7 @@ resource "cloudflare_pages_domain" "www" {
 }
 
 resource "cloudflare_dns_record" "apex" {
-  count = var.manage_dns && var.enable_custom_domain && can(regex("^[0-9a-f]{32}$", var.zone_id)) ? 1 : 0
+  count = local.zone_ready && var.enable_custom_domain ? 1 : 0
 
   zone_id = var.zone_id
   name    = var.domain
@@ -121,7 +183,7 @@ resource "cloudflare_dns_record" "apex" {
   content = cloudflare_pages_project.site.subdomain
   proxied = true
   ttl     = 1
-  comment = "SDF landing apex. Pages CNAME only."
+  comment = "SDF landing hostname. Pages CNAME only."
 
   depends_on = [cloudflare_pages_domain.apex]
 
@@ -130,13 +192,13 @@ resource "cloudflare_dns_record" "apex" {
 
     postcondition {
       condition     = self.type == "CNAME" && self.proxied && !strcontains(self.name, "*") && endswith(self.content, ".pages.dev")
-      error_message = "The apex Pages record must be a proxied, non-wildcard CNAME aimed at pages.dev."
+      error_message = "The Pages record must be a proxied, non-wildcard CNAME aimed at pages.dev."
     }
   }
 }
 
 resource "cloudflare_dns_record" "www" {
-  count = var.manage_dns && var.enable_custom_domain && var.attach_www && can(regex("^[0-9a-f]{32}$", var.zone_id)) ? 1 : 0
+  count = local.zone_ready && var.enable_custom_domain && var.attach_www ? 1 : 0
 
   zone_id = var.zone_id
   name    = "www.${var.domain}"
