@@ -55,3 +55,9 @@ jobs:
       - name: Lifecycle semantics
         working-directory: infra/cloudflare
         run: ./semantics/check.sh
+
+      # Localhost header probe and committed-file checks. No credentials,
+      # no Cloudflare API, and no remote backend.
+      - name: Backend configuration
+        working-directory: infra/cloudflare
+        run: python3 backend/check.py
