@@ -1,0 +1,9 @@
+# Bucket, key, and region only. Do not put AWS keys or Cloudflare tokens here.
+# encrypt and use_lockfile are set in versions.tf. Repeating either name in
+# this file overrides the committed value.
+# Neither flag creates the bucket. Versioning, Block Public Access, the
+# bucket encryption default, and IAM still have to be set on the bucket.
+
+bucket = "REPLACE_WITH_PRIVATE_STATE_BUCKET"
+key    = "sdf-landingpage/cloudflare/terraform.tfstate"
+region = "REPLACE_WITH_BUCKET_REGION"

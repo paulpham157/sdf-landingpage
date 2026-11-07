@@ -11,7 +11,8 @@
     "dev": "astro dev --host",
     "build": "astro build",
     "preview": "astro preview --host",
-    "check:copy": "node scripts/check-constraints.mjs"
+    "check:copy": "node scripts/check-constraints.mjs",
+    "check:jsonld": "node scripts/check-jsonld.mjs"
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.3",

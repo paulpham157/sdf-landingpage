@@ -5,3 +5,20 @@ dist/
 *.log
 .vercel/
 .netlify/
+
+# Terraform local state, plans, and downloaded providers.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Private inputs. terraform.tfvars.example and backend.hcl.example stay committed.
+*.tfvars
+*.tfvars.json
+infra/cloudflare/backend.hcl

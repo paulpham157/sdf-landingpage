@@ -1,0 +1,57 @@
+name: Terraform
+
+# Credential-free validation. This file does not reference secrets and does
+# not set CLOUDFLARE_API_TOKEN. It does not inspect the runner for a token.
+# pull_request covers PR checks. push is limited to main so a branch push
+# that also opens a pull request is not validated twice.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      # actions/checkout v4.4.0. Tag v4.4.0 and the current v4 tag both point
+      # at this commit (verified 2026-11-07).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+
+      - name: Install Terraform
+        run: |
+          set -euo pipefail
+          version=1.17.1
+          work=$(mktemp -d)
+          cd "$work"
+          curl -fsSLO "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip"
+          curl -fsSLO "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_SHA256SUMS"
+          grep "terraform_${version}_linux_amd64.zip" "terraform_${version}_SHA256SUMS" | sha256sum -c -
+          sudo unzip -o "terraform_${version}_linux_amd64.zip" -d /usr/local/bin
+          terraform version
+
+      - name: Format
+        working-directory: infra/cloudflare
+        run: terraform fmt -check -recursive
+
+      - name: Init
+        working-directory: infra/cloudflare
+        run: terraform init -backend=false -input=false
+
+      - name: Validate
+        working-directory: infra/cloudflare
+        run: terraform validate -no-color
+
+      - name: Plan assertions
+        working-directory: infra/cloudflare
+        run: terraform test -no-color
+
+      - name: Lifecycle semantics
+        working-directory: infra/cloudflare
+        run: ./semantics/check.sh

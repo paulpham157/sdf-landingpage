@@ -270,6 +270,14 @@ if (faviconIco) {
   );
 }
 
+const jsonLdProbe = "JSONLD_ESCAPE_PROBE";
+for (const page of pages) {
+  assert(
+    !page.html.includes(jsonLdProbe),
+    `${page.file} contains the JSON-LD escape fixture`,
+  );
+}
+
 if (failures.length) {
   console.error("Copy and constraint checks failed:");
   for (const failure of failures) console.error(`- ${failure}`);

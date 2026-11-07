@@ -95,17 +95,11 @@ The same component can be imported into any `.astro` page. Two specimen posts sh
 
 ## Deploy to softwaredecisionfabric.tech
 
-The site is static HTML, CSS, and a small amount of page-specific JavaScript (the print button and the mailto form). Cloudflare Pages or Netlify can host it in front of the existing domain.
+The site is static HTML, CSS, and a small amount of page-specific JavaScript (the print button and the mailto form). The hosting plan is Cloudflare Pages: `npm run build`, output `dist`, Node 22.
 
-1. Connect this GitHub repository to the host.
-2. Build command: `npm run build`
-3. Output directory: `dist`
-4. Node version: 22
-5. Add the custom domain `softwaredecisionfabric.tech`.
-6. Redirect `www.softwaredecisionfabric.tech` to the apex.
-7. Point DNS at the host: the host’s apex record (ALIAS, ANAME, or the addresses they publish) and a CNAME for `www` if you keep it.
-8. The contact address is `email` in `src/data/site.ts`. Change that constant if the mailbox changes.
-9. No analytics script is included.
+The Pages project is described in [`infra/cloudflare`](infra/cloudflare/README.md). GitHub Actions validates that Terraform and does not apply it, create the project, or change DNS. The default is a Direct Upload project. Cloudflare does not let a Direct Upload project become a Git project, or the reverse. After a matching baseline is in state, flipping the mode plans a replacement that `prevent_destroy` rejects. An import is not locked until that baseline exists: the first plan must not change `source`. The other mode is a new Pages project name and a reviewed domain move. Custom domains and DNS stay off until someone opts in.
+
+Build command: `npm run build`. Output directory: `dist`. Node version: 22. The apex to attach, when that opt-in is reviewed, is `softwaredecisionfabric.tech`. Redirecting `www.softwaredecisionfabric.tech` to the apex is still required and is not created by the Terraform, because a zone redirect ruleset would take over existing redirect rules. The contact address is `email` in `src/data/site.ts`. Change that constant if the mailbox changes. No analytics script is included.
 
 `public/_headers` is copied into `dist/` and sets response headers on Cloudflare Pages and Netlify (`nosniff`, referrer policy, frame denial, a Content-Security-Policy, and an asset cache for `/_astro/*`).
 
@@ -127,4 +121,4 @@ The CSP is `default-src 'self'` with scripts, styles, images, and fonts limited 
 
 [Astro](https://astro.build/) 7 renders the pages to static files. Type is set in `src/data/site.ts` and the components. Fraunces, Source Sans 3, and IBM Plex Mono are self-hosted through Fontsource (SIL Open Font License; see `licenses/`). There is no UI kit and no tracking.
 
-GitHub Actions (`.github/workflows/build.yml`) runs `npm ci`, `npm run build`, and `npm run check:copy` on pushes and pull requests.
+GitHub Actions (`.github/workflows/build.yml`) runs `npm ci`, `npm run build`, and `npm run check:copy` on pushes and pull requests. `.github/workflows/terraform.yml` checks the Pages Terraform formatting, schema, and plan invariants. It has no Cloudflare credentials and does not deploy.

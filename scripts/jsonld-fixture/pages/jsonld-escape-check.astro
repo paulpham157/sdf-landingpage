@@ -1,0 +1,20 @@
+---
+import BaseLayout from "../../../src/layouts/BaseLayout.astro";
+import { graph } from "../../../src/lib/seo";
+import { attack, breadcrumbs } from "../payload.js";
+
+const jsonLd = graph({
+  "@type": "WebPage",
+  name: attack.close,
+  description: attack.comment,
+  attack,
+});
+---
+
+<BaseLayout
+  title="JSON-LD escape check"
+  description="Fixture for the JSON-LD escape check."
+  path="/jsonld-escape-check"
+  jsonLd={jsonLd}
+  breadcrumbs={breadcrumbs}
+/>

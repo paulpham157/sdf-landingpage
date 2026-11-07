@@ -1,0 +1,23 @@
+# Copy to terraform.tfvars (gitignored) and replace the placeholder account id.
+# These zeroes are not a Cloudflare account. Do not invent a real id here.
+# Leave the opt-in flags false until the README review steps are done.
+# Do not put CLOUDFLARE_API_TOKEN, AWS keys, or any other secret in this file.
+
+account_id   = "00000000000000000000000000000000"
+project_name = "sdf-landing"
+
+production_branch = "main"
+domain            = "softwaredecisionfabric.tech"
+
+enable_custom_domain = false
+attach_www           = false
+manage_dns           = false
+zone_id              = ""
+
+# false means Direct Upload. Cloudflare will not switch modes later.
+# A flip is rejected only after a matching baseline is already in state.
+# On import, keep this equal to the live project and stop if the plan changes source.
+enable_git_source            = false
+git_owner                    = "paulpham157"
+git_repo_name                = "sdf-landingpage"
+enable_automatic_deployments = false
