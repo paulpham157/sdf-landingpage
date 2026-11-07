@@ -1,0 +1,50 @@
+name: Terraform
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Terraform
+        run: |
+          set -euo pipefail
+          version=1.17.1
+          work=$(mktemp -d)
+          cd "$work"
+          curl -fsSLO "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_linux_amd64.zip"
+          curl -fsSLO "https://releases.hashicorp.com/terraform/${version}/terraform_${version}_SHA256SUMS"
+          grep "terraform_${version}_linux_amd64.zip" "terraform_${version}_SHA256SUMS" | sha256sum -c -
+          sudo unzip -o "terraform_${version}_linux_amd64.zip" -d /usr/local/bin
+          terraform version
+
+      - name: Reject a live Cloudflare token
+        run: |
+          set -euo pipefail
+          if [ -n "${CLOUDFLARE_API_TOKEN:-}" ] || [ -n "${CLOUDFLARE_API_KEY:-}" ] || [ -n "${CLOUDFLARE_EMAIL:-}" ]; then
+            echo "This workflow validates configuration only and must not receive Cloudflare credentials."
+            exit 1
+          fi
+
+      - name: Format
+        working-directory: infra/cloudflare
+        run: terraform fmt -check -recursive
+
+      - name: Init
+        working-directory: infra/cloudflare
+        run: terraform init -backend=false -input=false
+
+      - name: Validate
+        working-directory: infra/cloudflare
+        run: terraform validate -no-color
+
+      - name: Plan assertions
+        working-directory: infra/cloudflare
+        run: terraform test -no-color
