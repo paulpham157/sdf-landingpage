@@ -3,7 +3,7 @@ import "../styles/global.css";
 import Header from "../components/Header.astro";
 import Footer from "../components/Footer.astro";
 import { site } from "../data/site";
-import { breadcrumbList, type Crumb } from "../lib/seo";
+import { jsonLdHtml, pageJsonLd, type Crumb } from "../lib/seo";
 
 interface Props {
   title: string;
@@ -21,14 +21,6 @@ interface Props {
   robots?: string;
 }
 
-function schemaNodes(value: object | undefined) {
-  if (!value) return [];
-  const record = value as Record<string, unknown>;
-  if (Array.isArray(record["@graph"])) return record["@graph"] as Record<string, unknown>[];
-  const { "@context": _context, ...rest } = record;
-  return [rest];
-}
-
 const {
   title,
   description,
@@ -43,10 +35,7 @@ const {
   robots = "index, follow",
   breadcrumbs = [],
 } = Astro.props;
-const structured = [...schemaNodes(jsonLd), ...(breadcrumbs.length ? [breadcrumbList(breadcrumbs)] : [])];
-const structuredData = structured.length
-  ? { "@context": "https://schema.org", "@graph": structured }
-  : undefined;
+const structuredData = pageJsonLd(jsonLd, breadcrumbs);
 const canonical = new URL(path, Astro.site).href;
 const ogImage = image
   ? image.startsWith("http://") || image.startsWith("https://")
@@ -99,7 +88,7 @@ const ogImage = image
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
     <meta name="twitter:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
-    {structuredData && <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />}
+    {structuredData && <script type="application/ld+json" set:html={jsonLdHtml(structuredData)} />}
   </head>
   <body>
     <a class="skip" href="#main">Skip to content</a>

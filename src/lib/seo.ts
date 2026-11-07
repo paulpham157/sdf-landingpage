@@ -56,3 +56,29 @@ export function graph(...nodes: unknown[]) {
     "@graph": nodes,
   };
 }
+
+function schemaNodes(value: object | undefined): Record<string, unknown>[] {
+  if (!value) return [];
+  const record = value as Record<string, unknown>;
+  if (Array.isArray(record["@graph"])) return record["@graph"] as Record<string, unknown>[];
+  const { "@context": _context, ...rest } = record;
+  return [rest];
+}
+
+/** Object BaseLayout serializes into the JSON-LD script. */
+export function pageJsonLd(jsonLd: object | undefined, breadcrumbs: readonly Crumb[] = []) {
+  const structured = [
+    ...schemaNodes(jsonLd),
+    ...(breadcrumbs.length ? [breadcrumbList(breadcrumbs)] : []),
+  ];
+  if (!structured.length) return undefined;
+  return { "@context": "https://schema.org", "@graph": structured };
+}
+
+/**
+ * JSON for `set:html` inside `<script type="application/ld+json">`.
+ * `<` becomes the JSON escape `\u003c` so the HTML parser cannot close the script.
+ */
+export function jsonLdHtml(value: unknown): string {
+  return JSON.stringify(value).replaceAll("<", "\\u003c");
+}

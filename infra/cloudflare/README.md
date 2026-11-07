@@ -106,22 +106,16 @@ The direct-upload docs use the same Pages Edit permission for `wrangler pages de
 
 ## Remote state
 
-Do not apply with local state. The committed backend is an empty S3 block:
-
-```hcl
-backend "s3" {}
-```
-
-Bucket, key, region, and lock settings are not in git.
+`versions.tf` sets `encrypt = true` and `use_lockfile = true`. Bucket, key, and region are not in git.
 
 1. Outside this state, create a private S3 bucket. Enable versioning and default encryption. Block public access.
 2. Grant the operator `s3:ListBucket` on the bucket, `s3:GetObject` and `s3:PutObject` on the state key, and `s3:GetObject`, `s3:PutObject`, and `s3:DeleteObject` on the `<key>.tflock` object. That is the [S3 backend lock](https://developer.hashicorp.com/terraform/language/backend/s3) permission set for `use_lockfile`.
 3. Copy `backend.hcl.example` to `backend.hcl`. Fill bucket, key, and region. Leave credentials out of the file.
 4. `terraform init -backend-config=backend.hcl`
 
-`use_lockfile = true` is the S3-native lock (generally available in Terraform 1.11 and later; this repo was checked with 1.17.1). A second apply fails while the `.tflock` object exists, instead of overwriting the state. DynamoDB locking is not used. HCP Terraform is the other locked backend, via `TF_TOKEN_app_terraform_io` and a `cloud` block this repository does not commit. This configuration does not use Cloudflare R2 for state: the lock depends on S3 conditional writes, and that was not verified for R2.
+`use_lockfile` needs Terraform >= 1.11 and a bucket that accepts conditional writes. A second apply fails while the `.tflock` object exists. DynamoDB locking is not used. This configuration does not use Cloudflare R2 for state. A `-backend-config` entry for `encrypt` or `use_lockfile` overrides the committed value. Neither flag creates the bucket or enforces IAM, versioning, Block Public Access, or the bucket's default encryption.
 
-`terraform init -backend=false` is for format, validate, and `terraform test` only. It is not an apply.
+`terraform init -backend=false` skips backend setup so `validate` and `terraform test` can run. A later `plan` or `apply` stops with `Backend initialization required` and does not write a state file. That is not a local-state apply. The risk is initializing a backend without the lock and encryption, or deliberately selecting local state.
 
 ## Plan, review, apply
 

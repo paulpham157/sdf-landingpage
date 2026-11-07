@@ -1,15 +1,9 @@
-# Copy to backend.hcl (gitignored). Replace the placeholders.
-# Do not put AWS access keys, session tokens, or Cloudflare tokens in this file.
-# The S3 backend uses the standard AWS credential chain (role, profile, or
-# AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY in the environment).
-#
-# Create the bucket outside this configuration first. See README.md.
-# use_lockfile needs Terraform >= 1.11 and an S3 bucket that supports
-# conditional writes. Enable bucket versioning and default encryption,
-# and block public access, before the first init against this backend.
+# Bucket, key, and region only. Do not put AWS keys or Cloudflare tokens here.
+# encrypt and use_lockfile are set in versions.tf. Repeating either name in
+# this file overrides the committed value.
+# Neither flag creates the bucket. Versioning, Block Public Access, the
+# bucket encryption default, and IAM still have to be set on the bucket.
 
-bucket       = "REPLACE_WITH_PRIVATE_STATE_BUCKET"
-key          = "sdf-landingpage/cloudflare/terraform.tfstate"
-region       = "REPLACE_WITH_BUCKET_REGION"
-encrypt      = true
-use_lockfile = true
+bucket = "REPLACE_WITH_PRIVATE_STATE_BUCKET"
+key    = "sdf-landingpage/cloudflare/terraform.tfstate"
+region = "REPLACE_WITH_BUCKET_REGION"

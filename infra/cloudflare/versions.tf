@@ -8,11 +8,18 @@ terraform {
     }
   }
 
-  # Partial backend. Bucket, key, and region come from a gitignored
-  # backend.hcl via `terraform init -backend-config=backend.hcl`.
-  # `terraform init -backend=false` skips this for fmt/validate/test.
+  # Bucket, key, and region come from a gitignored backend.hcl
+  # (`terraform init -backend-config=backend.hcl`). A -backend-config value
+  # overrides the same argument here, including encrypt and use_lockfile.
+  # Those two flags do not create the bucket and do not enforce IAM,
+  # versioning, Block Public Access, or bucket-default encryption.
+  # `terraform init -backend=false` skips backend init. plan and apply then
+  # fail with "Backend initialization required" and do not write state.
   # Do not put access keys, tokens, or account ids in this block.
-  backend "s3" {}
+  backend "s3" {
+    encrypt      = true
+    use_lockfile = true
+  }
 }
 
 provider "cloudflare" {
