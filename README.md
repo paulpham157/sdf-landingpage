@@ -6,7 +6,7 @@ SDF is the independent referee for coding agents. This site follows the draft v0
 
 ## Đưa site lên Pages
 
-Một lần. Node.js 22. Không cần AWS, R2, hay Terraform.
+Một lần, trong terminal của bạn. Node.js 22. Không cần AWS, R2, hay Terraform. Đừng chạy lệnh tạo project từ một agent.
 
 ```bash
 npm ci
@@ -14,21 +14,19 @@ npm exec wrangler -- login
 npm exec wrangler -- pages project create sdf-landing --production-branch main
 ```
 
-`npm ci` cài Wrangler 4.158.0 đã ghim trong `package-lock.json`. `wrangler login` mở trình duyệt và giữ phiên trên máy, ngoài git. Không commit token.
+`npm ci` cài Wrangler 4.158.0 đã ghim trong `package-lock.json`. `wrangler login` mở trình duyệt và giữ phiên trên máy, ngoài git. Không commit token. Login chỉ thấy một account thì Wrangler dùng account đó. Thấy nhiều account thì đặt `CLOUDFLARE_ACCOUNT_ID` trong shell: id 32 ký tự hex trên dashboard, không phải token. Dùng token thay login thì thêm `CLOUDFLARE_API_TOKEN`, quyền Account → Cloudflare Pages → Edit. Hai biến chỉ ở môi trường.
 
-`npm run deploy` không hỏi và không tạo project. Login chỉ thấy một account thì Wrangler dùng account đó. Thấy nhiều account thì đặt `CLOUDFLARE_ACCOUNT_ID` trong shell: đó là account id 32 ký tự hex trên dashboard, không phải token. Dùng token thay login thì thêm `CLOUDFLARE_API_TOKEN`, quyền Account → Cloudflare Pages → Edit. Hai biến này chỉ ở môi trường, không vào git và không đưa vào đối số lệnh.
+Lệnh `pages project create` ở terminal thường tạo project Pages Direct Upload và đặt production branch `main`. Wrangler 4.158.0, khi nhận ra phiên agent và project Pages chưa có, có thể tạo Worker thay vì Pages. Repo này không chạy lệnh create. Dashboard cũng tạo được project Direct Upload: Workers & Pages → Create application → Get started → Drag and drop your files, tên `sdf-landing`. Dashboard không có chỗ chọn production branch cho Direct Upload.
 
-Tên project ghi trong [`scripts/deploy.mjs`](scripts/deploy.mjs): `sdf-landing`. Lệnh `pages project create` tạo project Direct Upload, production branch `main`. Project đã có đúng tên thì bỏ qua lệnh create. Repo không có lệnh chọn tên khác.
-
-Mỗi lần sau:
+Mỗi lần sau, khi `sdf-landing` đã có trong account:
 
 ```bash
 npm run deploy
 ```
 
-Lệnh build, chạy `check:copy` và `check:jsonld`, rồi upload `dist/`. Check lỗi thì không upload. Nhánh git `main` sạch là production. Nhánh khác là preview; lệnh không đổi nhánh thành `main`. `main` còn thay đổi chưa commit thì dừng trước upload. Wrangler in URL `pages.dev`. `npm run deploy` không gắn `softwaredecisionfabric.tech`.
+Lệnh gọi `pages project list --json`. Không thấy project thì dừng, không build và không upload. Thấy project thì build, chạy `check:copy` và `check:jsonld`, rồi `pages deploy` vào đúng project đó. Check lỗi thì không upload. Nhánh git `main` sạch là production. Nhánh khác là preview; lệnh không đổi nhánh thành `main`. `main` còn thay đổi chưa commit thì dừng trước upload. Wrangler in URL `pages.dev`. Lệnh không gắn `softwaredecisionfabric.tech`.
 
-One-time, then one command. `npm ci` on Node.js 22, `npm exec wrangler -- login`, and `npm exec wrangler -- pages project create sdf-landing --production-branch main` unless that Direct Upload project is already in the account. The destination name is `sdf-landing` in `scripts/deploy.mjs`. Set `CLOUDFLARE_ACCOUNT_ID` only when login can see more than one account. A token stays in `CLOUDFLARE_API_TOKEN`. Then `npm run deploy`: a clean `main` checkout is production, any other branch is a preview, and the first URL is the project's `pages.dev` host.
+One-time, in your own terminal: `npm ci`, `npm exec wrangler -- login`, then `npm exec wrangler -- pages project create sdf-landing --production-branch main`. That create command stays on Pages in a normal terminal. In an agent session, Wrangler 4.158.0 can create a Worker instead when the Pages project is missing. `npm run deploy` never runs it. Deploy lists Pages projects and uploads only when `sdf-landing` already exists. A clean `main` checkout is production; any other branch is a preview. The first URL is the project's `pages.dev` host.
 
 ## Run locally
 

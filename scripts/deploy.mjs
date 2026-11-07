@@ -51,6 +51,40 @@ export function uploadPlan({ branch, dirty }) {
   };
 }
 
+// Documented read-only command. It does not create a project.
+export function pagesListArgs() {
+  return ["pages", "project", "list", "--json"];
+}
+
+export function listedProject(stdout, projectName = PAGES_PROJECT) {
+  let parsed;
+  try {
+    parsed = JSON.parse(String(stdout).trim());
+  } catch {
+    return { ok: false, reason: "unreadable" };
+  }
+  if (!Array.isArray(parsed)) return { ok: false, reason: "unreadable" };
+  const found = parsed.some((row) => row && row["Project Name"] === projectName);
+  return found ? { ok: true } : { ok: false, reason: "missing" };
+}
+
+export const MISSING_PROJECT_MESSAGE = [
+  `Cloudflare Pages project "${PAGES_PROJECT}" is not in this account, so nothing was built or uploaded.`,
+  `Create it yourself in a normal terminal, not from an agent session: npm exec wrangler -- pages project create ${PAGES_PROJECT} --production-branch ${PRODUCTION_BRANCH}`,
+  "Wrangler 4.158.0 keeps that command on Pages in a normal terminal. In an agent session, the same command can create a Worker when the Pages project is missing.",
+  "The dashboard can also create the Direct Upload project: Workers & Pages → Create application → Get started → Drag and drop your files, with this project name. The dashboard does not offer a production-branch control for Direct Upload.",
+  "npm run deploy does not create a project.",
+].join("\n");
+
+export function redact(text, env = {}) {
+  let out = String(text ?? "");
+  for (const key of ["CLOUDFLARE_API_TOKEN", "CLOUDFLARE_API_KEY"]) {
+    const secret = env[key];
+    if (secret) out = out.split(secret).join("[redacted]");
+  }
+  return out;
+}
+
 export function deploySteps(cwd) {
   return [
     [process.execPath, [join(cwd, "node_modules/astro/bin/astro.mjs"), "build"]],
@@ -108,20 +142,42 @@ export function main({
     return 1;
   }
 
-  for (const [command, args] of deploySteps(cwd)) {
-    const result = run(command, args, { cwd, env });
-    if (result.status !== 0) return result.status || 1;
-  }
-
   const wrangler = join(cwd, "node_modules/wrangler/bin/wrangler.js");
   if (!exists(wrangler)) {
     log.error("Local Wrangler is not installed. Run npm install. Nothing was uploaded.");
     return 1;
   }
 
+  // Read-only. A missing Pages project must not reach `pages deploy` or `pages project create`.
+  const listed = run(process.execPath, [wrangler, ...pagesListArgs()], {
+    cwd,
+    env,
+    encoding: "utf8",
+  });
+  if (listed.status !== 0) {
+    log.error("Could not list Cloudflare Pages projects, so nothing was built or uploaded.");
+    const detail = redact(listed.stderr, env).trim();
+    if (detail) log.error(detail);
+    return listed.status || 1;
+  }
+  const found = listedProject(listed.stdout);
+  if (!found.ok) {
+    log.error(
+      found.reason === "missing"
+        ? MISSING_PROJECT_MESSAGE
+        : "The Pages project list was not readable, so nothing was built or uploaded.",
+    );
+    return 1;
+  }
+
+  for (const [command, args] of deploySteps(cwd)) {
+    const result = run(command, args, { cwd, env });
+    if (result.status !== 0) return result.status || 1;
+  }
+
   const target = plan.production ? "production" : "a preview";
   log.log(
-    `Uploading ${DIST_DIR}/ to Cloudflare Pages project ${PAGES_PROJECT} on branch ${plan.branch} (${target}).`,
+    `Uploading ${DIST_DIR}/ to the existing Cloudflare Pages project ${PAGES_PROJECT} on branch ${plan.branch} (${target}).`,
   );
 
   // stdin is not a TTY, so Wrangler cannot prompt to create a project or pick an account.
