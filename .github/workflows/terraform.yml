@@ -51,3 +51,7 @@ jobs:
       - name: Plan assertions
         working-directory: infra/cloudflare
         run: terraform test -no-color
+
+      - name: Lifecycle semantics
+        working-directory: infra/cloudflare
+        run: ./semantics/check.sh

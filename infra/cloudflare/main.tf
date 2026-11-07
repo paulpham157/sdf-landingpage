@@ -132,9 +132,10 @@ resource "cloudflare_pages_project" "site" {
   deployment_configs = local.deployment_configs
 
   # Null is Direct Upload. Provider 5.28.1 does not mark source RequiresReplace,
-  # so toggling it would otherwise plan an in-place update. replace_triggered_by
-  # turns a mode change into replacement, which prevent_destroy rejects.
-  # That is a plan safeguard in this configuration. It does not prove the API.
+  # so a source edit plans an in-place update. replace_triggered_by runs when
+  # the sentinel is updated or replaced, not when that sentinel is first
+  # created, so an import is unprotected until a matching baseline is applied.
+  # prevent_destroy does not block that in-place update. This is not an API lock.
   source = var.enable_git_source ? local.git_source : null
 
   lifecycle {

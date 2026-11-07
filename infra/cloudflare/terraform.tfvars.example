@@ -14,9 +14,9 @@ attach_www           = false
 manage_dns           = false
 zone_id              = ""
 
-# Source mode is fixed at create. false means Direct Upload. Do not flip this
-# after the project exists; Cloudflare will not switch modes, and prevent_destroy
-# rejects the replacement this configuration plans.
+# false means Direct Upload. Cloudflare will not switch modes later.
+# A flip is rejected only after a matching baseline is already in state.
+# On import, keep this equal to the live project and stop if the plan changes source.
 enable_git_source            = false
 git_owner                    = "paulpham157"
 git_repo_name                = "sdf-landingpage"

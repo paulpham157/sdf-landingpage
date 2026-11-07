@@ -76,7 +76,7 @@ variable "zone_id" {
 }
 
 variable "enable_git_source" {
-  description = "Create the project as GitHub-backed instead of Direct Upload. Off by default, which means Direct Upload. Set this before the first apply. Cloudflare does not let either mode change later, and this configuration rejects a later flip instead of updating the project in place. Requires the Cloudflare Workers & Pages GitHub App to already be installed."
+  description = "Create the project as GitHub-backed instead of Direct Upload. Off by default, which means Direct Upload. Cloudflare does not let either mode change later. After the project and the mode sentinel are both in state at this same mode, flipping the flag plans replacement and prevent_destroy rejects that destroy. The sentinel's first create does not: import with the live mode, and do not apply a plan that changes source. A Git create also needs the Cloudflare Workers & Pages GitHub App installed first."
   type        = bool
   default     = false
 }

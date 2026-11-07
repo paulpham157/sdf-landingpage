@@ -54,11 +54,13 @@ The default, `enable_git_source = false`, creates a [Direct Upload](https://deve
 
 Set `enable_git_source` only before the first apply, and only after the Cloudflare Workers & Pages GitHub App is installed (`https://github.com/settings/installations`, or the organization installations page). Limit the app to this repository. One GitHub account should point at one Cloudflare account. `git_owner_id` and `git_repo_id` stay null unless that installation has given you the numeric ids. Do not invent them. Terraform does not install the app.
 
-Provider v5.28.1's `cloudflare_pages_project.source` attribute has no `RequiresReplace` plan modifier (`internal/services/pages_project/schema.go` at tag v5.28.1). A later edit of `source` would plan as an in-place update, which does not match the API limitation and could be applied by mistake. This configuration stores the mode in `terraform_data.pages_source_mode` and sets `replace_triggered_by` on the Pages project, so a mode change is tied to replacement of the project. `prevent_destroy` is set so Terraform rejects a plan that would destroy it. `name` and `account_id` already have `RequiresReplace` in that schema, so renaming the project is the same kind of destroy. That plan was not executed in this repository.
+Provider v5.28.1's `cloudflare_pages_project.source` attribute has no `RequiresReplace` plan modifier (`internal/services/pages_project/schema.go` at tag v5.28.1). A source edit plans as an in-place update. The provider does not reject that update. `prevent_destroy` rejects only a destroy.
 
-That safeguard is local to this configuration. It does not call Cloudflare, and it does not make the remote project immutable. Removing `replace_triggered_by` would bring back the misleading in-place plan.
+`terraform_data.pages_source_mode` and `replace_triggered_by` narrow that gap only after both the project and the sentinel are already in state at the same mode. Terraform's `EvaluateReplaceTriggeredBy` treats Update, DeleteThenCreate, and CreateThenDelete of the referenced resource as a trigger. It does not treat Create as a trigger. The first plan that adds the sentinel therefore does not replace the project. A mode that does not match the imported project updates `source` in place, and `prevent_destroy` does not stop it.
 
-`terraform test` does not demonstrate the rejection. A mock apply of `cloudflare_pages_project` on Terraform 1.17.1 fails before a second plan can run: provider 5.28.1 computed sensitive attributes (`deployment_configs`, `canonical_deployment`, `latest_deployment`) are regenerated between plan and apply (`Provider produced inconsistent final plan`). The tests therefore only check a fresh plan: Direct Upload leaves `source` null, and Git mode sends `source.type = "github"`. They do not prove `prevent_destroy` fires, and they do not prove the API rejects a switch. A live plan against an existing project was not run.
+`name` and `account_id` do have `RequiresReplace`. Renaming the project plans a destroy, which `prevent_destroy` rejects. That is a different change from `source`.
+
+`infra/cloudflare/semantics/check.sh` applies `terraform_data` stand-ins only. It is not the Cloudflare provider. It shows three results: a matching import plans only `create` of the sentinel and `no-op` on the project; a mismatched import plans `create` of the sentinel and `update` of the project; after a matching apply, flipping the mode in either direction is rejected with `prevent_destroy`. The Pages mock still cannot apply `cloudflare_pages_project`, and no live plan was run. The script does not make the API immutable.
 
 To use the other mode, create a new Pages project with a new name in its own state. The old name stays on the old project, and `prevent_destroy` blocks deleting or replacing it. Move the hostname only as its own reviewed change: a hostname is attached to one Pages project, and `prevent_destroy` on `cloudflare_pages_domain` blocks Terraform from detaching it until that lifecycle flag is changed on purpose. Point the CNAME at the new project's `pages_subdomain` only after the hostname is attached there. Leave MX and TXT alone.
 
@@ -136,7 +138,7 @@ Review the plan before apply:
 - The only create, on a fresh account, is `cloudflare_pages_project.site`, unless you opted in.
 - No zone, MX, TXT, CAA, ruleset, Worker, or secret environment variable.
 - Opt-in DNS is `CNAME` only, names are the apex and optionally `www`, content ends in `.pages.dev`.
-- Git `source` is absent unless this state was created with `enable_git_source`. A plan that replaces `cloudflare_pages_project.site` because the mode changed must not be applied. `prevent_destroy` is what rejects it.
+- Git `source` is absent unless this configuration was created with `enable_git_source`. After the mode sentinel is in state, a flip plans replacement and `prevent_destroy` rejects the destroy. On an import, stop if the plan updates `source`. `prevent_destroy` does not reject that update.
 - If Git source is present on a create, `preview_deployment_setting` is `none` and both deployment booleans are false, unless `enable_automatic_deployments` was set before that create.
 - A second plan that only rewrites `deployment_configs` fields this configuration does not set is the known provider drift (the API fills defaults). Stop. Do not apply that diff, and do not add `ignore_changes` until the Node pin is still visible in review. `ignore_changes` on the whole block would hide a real `NODE_VERSION` edit.
 
@@ -154,16 +156,20 @@ If state is wrong, restore the previous object version from the bucket. Do not h
 
 ## Stop managing an object without deleting it
 
-`prevent_destroy` stays on every production resource that is still declared. Setting `manage_dns` or `enable_custom_domain` back to false changes `count` to 0. That removes the instance from the configuration, and Terraform plans to destroy `cloudflare_dns_record.apex[0]` (or the domain instance). `prevent_destroy` rejects that plan. The remote object stays. That is the protection. It is not how you forget the object.
+`prevent_destroy` applies only while the `resource` block is still in configuration. Setting `manage_dns` or `enable_custom_domain` to false leaves the block and sets `count` to 0. Terraform then plans to destroy `cloudflare_dns_record.apex[0]`, and `prevent_destroy` rejects that plan. The remote object stays. That is not how you forget it.
 
-To hand the object back to the dashboard without deleting it:
+A [`removed` block](https://developer.hashicorp.com/terraform/language/block/removed) cannot name an instance. `from = cloudflare_dns_record.apex[0]` is invalid (`Resource instance keys not allowed` in `internal/addrs/parse_target.go`). `from` is the resource address, and it drops every instance of that resource. The whole `resource` block has to be deleted in the same change. `count = 0` still declares it, and Terraform reports `Removed resource still exists`.
+
+Deleting the block and forgetting the `removed` block also deletes `prevent_destroy`. Terraform then plans a real destroy. The semantics check shows that as action `delete`.
+
+To forget the apex CNAME without deleting it:
 
 1. `terraform state pull` to a file that is not committed. Confirm the state bucket still has versioning.
-2. In one reviewed change, leave the instance out of the configuration (`count` 0, or the resource block removed) and add a [`removed` block](https://developer.hashicorp.com/terraform/language/block/removed) for that address:
+2. Delete the entire `resource "cloudflare_dns_record" "apex"` block. Leave `cloudflare_dns_record.www` in place if you still want Terraform to manage `www`. Add:
 
 ```hcl
 removed {
-  from = cloudflare_dns_record.apex[0]
+  from = cloudflare_dns_record.apex
 
   lifecycle {
     destroy = false
@@ -171,14 +177,16 @@ removed {
 }
 ```
 
-3. Plan. It must say the address will leave state, and it must not say the record will be destroyed. If the resource instance is still declared at that address, Terraform will not accept the `removed` block. If the plan shows a destroy, stop. Do not set `prevent_destroy` to false for this path. That flag is what allows a real delete.
-4. Apply only that plan. Delete the `removed` block in a follow-up once the address is gone from state. A `removed` block is for that apply, not a permanent setting.
+3. Plan. The instance action must be `forget`, not `delete`. If the plan destroys anything, stop.
+4. Apply only that plan, then delete the `removed` block once the address is gone from state.
 
-`terraform state rm` also forgets an address without deleting the remote object. Prefer the `removed` block so the action is in the reviewed plan. Take the same state backup first. The same shape works for `cloudflare_pages_domain.apex[0]`, `cloudflare_dns_record.www[0]`, and `cloudflare_pages_project.site` (no `[0]`). Forgetting the project does not delete it, and it does not change its Direct Upload or Git mode.
+The same resource address, with no `[0]`, is how you forget `cloudflare_dns_record.www`, `cloudflare_pages_domain.apex`, `cloudflare_pages_domain.www`, or `cloudflare_pages_project.site`. Forgetting the project does not delete it and does not change its Direct Upload or Git mode. `infra/cloudflare/semantics/check.sh` checks this shape on `terraform_data.record`: indexed `from` is rejected, `count = 0` plus `removed` is rejected, a bare delete plans `delete`, and `destroy = false` plans `forget` and leaves state empty. That fixture is not Cloudflare.
 
 ## Import
 
-Import adopts an object that already exists. A create against it conflicts; it does not adopt it. Match `enable_git_source` to the project's real mode before importing it. A mismatch plans a replacement, and `prevent_destroy` rejects that plan.
+Import adopts an object that already exists. A create against it conflicts; it does not adopt it. The mode sentinel does not protect this first plan. Read the live project first. Direct Upload means `enable_git_source = false`. GitHub means `true`, with that owner and repository. Do not guess, and do not flip the mode in the same change as the import.
+
+After `terraform import`, the acceptable plan creates `terraform_data.pages_source_mode` and does not update or replace `cloudflare_pages_project.site.source`. Stop if `source` changes. That change is an in-place update: the provider does not block it, and `prevent_destroy` does not block it. Apply only the plan that adds the sentinel. Both directions are latched only after that matching baseline is in state. A later flip plans replacement, and `prevent_destroy` rejects the destroy. Cloudflare still will not switch modes. The other mode is a new project name and a reviewed domain move, not a variable edit.
 
 ```bash
 terraform import cloudflare_pages_project.site '<account_id>/<project_name>'
@@ -213,4 +221,4 @@ terraform validate
 terraform test
 ```
 
-`terraform test` plans against a mocked provider. It does not call Cloudflare, and it does not apply this resource. `.github/workflows/terraform.yml` runs the same commands. It does not reference GitHub secrets and does not set a Cloudflare token. It does not prove a token is absent on the runner. Do not add an apply job or a `secrets` reference there.
+`terraform test` plans against a mocked provider. It does not call Cloudflare, and it does not apply this resource. `semantics/check.sh` applies only local `terraform_data` stand-ins. `.github/workflows/terraform.yml` runs both. It does not reference GitHub secrets and does not set a Cloudflare token. It does not prove a token is absent on the runner. Do not add an apply job or a `secrets` reference there.

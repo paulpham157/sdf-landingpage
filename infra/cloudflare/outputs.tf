@@ -38,7 +38,7 @@ output "managed_dns_types" {
 }
 
 output "pages_source_mode" {
-  description = "direct_upload or github. This is the mode a create would send. After apply, changing it plans replacement of the Pages project, which prevent_destroy rejects."
+  description = "direct_upload or github. The mode this configuration would send. It is not a lock by itself. A later flip is tied to replacement only after the mode sentinel is already in state with the project."
   value       = local.pages_source_mode
 }
 
