@@ -1,14 +1,1 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
-  <rect width="1200" height="630" fill="#f3efe4"/>
-  <rect x="48" y="48" width="1104" height="534" fill="none" stroke="#1a1c16" stroke-width="2"/>
-  <rect x="72" y="78" width="64" height="64" fill="#1a1c16"/>
-  <rect x="76" y="82" width="56" height="56" fill="none" stroke="#9e2a1c" stroke-width="2"/>
-  <text x="104" y="118" text-anchor="middle" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="18" fill="#f3efe4" font-weight="700">SDF</text>
-  <text x="156" y="106" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="20" fill="#7f2218" letter-spacing="2">SOFTWARE DECISION FABRIC</text>
-  <text x="156" y="134" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="16" fill="#3a3e34" letter-spacing="1.5">THE INDEPENDENT REFEREE FOR CODING AGENTS</text>
-  <text x="84" y="280" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68" fill="#1a1c16">Know which agent</text>
-  <text x="84" y="360" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68" fill="#1a1c16">work actually shipped.</text>
-  <rect x="84" y="396" width="92" height="6" fill="#9e2a1c"/>
-  <text x="84" y="500" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="24" fill="#3a3e34">Design-partner program. Live today only on a toy fixture.</text>
-  <text x="84" y="546" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="22" fill="#1a1c16">softwaredecisionfabric.tech</text>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#f3efe4"/><rect width="1104" height="534" x="48" y="48" fill="none" stroke="#1a1c16" stroke-width="2"/><rect width="64" height="64" x="72" y="78" fill="#1a1c16"/><rect width="56" height="56" x="76" y="82" fill="none" stroke="#9e2a1c" stroke-width="2"/><text x="104" y="118" fill="#f3efe4" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="18" font-weight="700" text-anchor="middle">SDF</text><text x="156" y="106" fill="#7f2218" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="20" letter-spacing="2">SOFTWARE DECISION FABRIC</text><text x="156" y="134" fill="#3a3e34" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="16" letter-spacing="1.5">THE INDEPENDENT REFEREE FOR CODING AGENTS</text><text x="84" y="280" fill="#1a1c16" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68">Know which agent</text><text x="84" y="360" fill="#1a1c16" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68">work actually shipped.</text><rect width="92" height="6" x="84" y="396" fill="#9e2a1c"/><text x="84" y="500" fill="#3a3e34" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="24">Design-partner program. Live today only on a toy fixture.</text><text x="84" y="546" fill="#1a1c16" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="22">softwaredecisionfabric.tech</text></svg>
