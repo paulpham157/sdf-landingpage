@@ -246,6 +246,30 @@ for (const asset of ["og.png", "apple-touch-icon.png", "favicon.svg"]) {
   }
 }
 
+let faviconIco;
+try {
+  faviconIco = readFileSync(join(dist, "favicon.ico"));
+} catch {
+  faviconIco = null;
+  failures.push("Missing favicon.ico");
+}
+if (faviconIco) {
+  assert(
+    faviconIco.length > 6 &&
+      faviconIco[0] === 0 &&
+      faviconIco[1] === 0 &&
+      faviconIco[2] === 1 &&
+      faviconIco[3] === 0 &&
+      faviconIco.readUInt16LE(4) >= 1,
+    "favicon.ico is not an ICO image",
+  );
+  assert(
+    !faviconIco.subarray(0, 15).toString("latin1").toLowerCase().startsWith("<!doctype") &&
+      !faviconIco.subarray(0, 5).toString("latin1").toLowerCase().startsWith("<html"),
+    "favicon.ico is the HTML 404 page",
+  );
+}
+
 if (failures.length) {
   console.error("Copy and constraint checks failed:");
   for (const failure of failures) console.error(`- ${failure}`);
