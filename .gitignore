@@ -5,6 +5,7 @@ dist/
 *.log
 .vercel/
 .netlify/
+.wrangler/
 
 # Terraform local state, plans, and downloaded providers.
 .terraform/

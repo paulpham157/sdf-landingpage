@@ -40,13 +40,7 @@ Direct Upload does not run the Pages build image. The build settings are stored 
 
 Terraform owns the Pages project and, only when the flags are on, its custom domains and the CNAME records. There is no `wrangler.toml` and no `cloudflare.config.ts`. Do not add one that also sets the project name, build command, or environment. Wrangler and Terraform must not both reconcile those settings.
 
-Uploading `dist/` is not `terraform apply`. The [Direct Upload](https://developers.cloudflare.com/pages/how-to/use-direct-upload-with-continuous-integration/) command, run by a person after the project exists, is:
-
-```bash
-CLOUDFLARE_ACCOUNT_ID="<account id>" npx wrangler pages deploy dist --project-name="<project name>"
-```
-
-`CLOUDFLARE_API_TOKEN` is the same environment variable, not a shell argument. Run the upload from a checkout of `main`. Pages uses the current Git branch as the deployment branch unless a branch option is set, and a non-production branch becomes a preview. Do not point Wrangler at a second project name. If Wrangler creates the project before Terraform does, import the project instead of applying a second create.
+Uploading `dist/` is not `terraform apply`. From the repository root, `npm run deploy` builds, checks, and runs the pinned local Wrangler `pages deploy` against the existing project `sdf-landing`. It passes the current git branch and does not create a project. There is still no `wrangler.toml` or `cloudflare.config.ts`. Terraform remains the optional owner of the project settings, domains, and DNS. This upload does not reconcile those settings. A clean `main` upload is production when the Pages production branch is `main`. Any other branch is a preview. Do not point the command at a second project name. If the project was created with `wrangler pages project create` before Terraform, import it instead of applying a second create.
 
 ## Source mode is fixed at creation
 
@@ -106,7 +100,9 @@ The direct-upload docs use the same Pages Edit permission for `wrangler pages de
 
 ## Remote state
 
-`versions.tf` sets `encrypt = true` and `use_lockfile = true`. Bucket, key, and region are not in git.
+`npm run deploy` does not read this backend and does not need a bucket. The backend below is unchanged.
+
+`versions.tf` sets `encrypt = true` and `use_lockfile = true`. Bucket, key, and region are not in git. State was not moved to Cloudflare R2. Terraform 1.17.1's `use_lockfile` sends `PutObject` with `If-None-Match: *` ([S3 backend client](https://github.com/hashicorp/terraform/blob/v1.17.1/internal/backend/remote-state/s3/client.go)), and R2 documents that header as an atomic create ([conditional PutObject](https://developers.cloudflare.com/r2/api/s3/extensions/), [consistency](https://developers.cloudflare.com/r2/reference/consistency/)). That lock behavior was not run against a live bucket. `encrypt = true` also sends `x-amz-server-side-encryption`, which R2's PutObject table marks unsupported ([S3 API compatibility](https://developers.cloudflare.com/r2/api/s3/api/)); R2 already encrypts objects at rest without that header ([data security](https://developers.cloudflare.com/r2/reference/data-security/)). `GetBucketVersioning` is unimplemented on that same page, so R2 does not provide S3 version history to restore. Cloudflare's [remote backend example](https://developers.cloudflare.com/terraform/advanced-topics/remote-backend/) (21 April 2026) does not set `use_lockfile`. No live migration was run.
 
 1. Outside this state, create a private S3 bucket. Enable versioning and default encryption. Block public access.
 2. Grant the operator `s3:ListBucket` on the bucket, `s3:GetObject` and `s3:PutObject` on the state key, and `s3:GetObject`, `s3:PutObject`, and `s3:DeleteObject` on the `<key>.tflock` object. That is the [S3 backend lock](https://developer.hashicorp.com/terraform/language/backend/s3) permission set for `use_lockfile`.

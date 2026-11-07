@@ -4,6 +4,32 @@ Marketing site for [softwaredecisionfabric.tech](https://softwaredecisionfabric.
 
 SDF is the independent referee for coding agents. This site follows the draft v0 landing, pricing, and one-pager: vendor-neutral verification, evidence a team can re-run, and Cost per Accepted Outcome. It is written for the design-partner program. SDF runs live only on a toy fixture, so the pages do not show customer logos, testimonials, case studies, result metrics, or SDF dollar prices.
 
+## Đưa site lên Pages
+
+Một lần. Node.js 22. Không cần AWS, R2, hay Terraform.
+
+```bash
+npm ci
+npm exec wrangler -- login
+npm exec wrangler -- pages project create sdf-landing --production-branch main
+```
+
+`npm ci` cài Wrangler 4.158.0 đã ghim trong `package-lock.json`. `wrangler login` mở trình duyệt và giữ phiên trên máy, ngoài git. Không commit token.
+
+`npm run deploy` không hỏi và không tạo project. Login chỉ thấy một account thì Wrangler dùng account đó. Thấy nhiều account thì đặt `CLOUDFLARE_ACCOUNT_ID` trong shell: đó là account id 32 ký tự hex trên dashboard, không phải token. Dùng token thay login thì thêm `CLOUDFLARE_API_TOKEN`, quyền Account → Cloudflare Pages → Edit. Hai biến này chỉ ở môi trường, không vào git và không đưa vào đối số lệnh.
+
+Tên project ghi trong [`scripts/deploy.mjs`](scripts/deploy.mjs): `sdf-landing`. Lệnh `pages project create` tạo project Direct Upload, production branch `main`. Project đã có đúng tên thì bỏ qua lệnh create. Repo không có lệnh chọn tên khác.
+
+Mỗi lần sau:
+
+```bash
+npm run deploy
+```
+
+Lệnh build, chạy `check:copy` và `check:jsonld`, rồi upload `dist/`. Check lỗi thì không upload. Nhánh git `main` sạch là production. Nhánh khác là preview; lệnh không đổi nhánh thành `main`. `main` còn thay đổi chưa commit thì dừng trước upload. Wrangler in URL `pages.dev`. `npm run deploy` không gắn `softwaredecisionfabric.tech`.
+
+One-time, then one command. `npm ci` on Node.js 22, `npm exec wrangler -- login`, and `npm exec wrangler -- pages project create sdf-landing --production-branch main` unless that Direct Upload project is already in the account. The destination name is `sdf-landing` in `scripts/deploy.mjs`. Set `CLOUDFLARE_ACCOUNT_ID` only when login can see more than one account. A token stays in `CLOUDFLARE_API_TOKEN`. Then `npm run deploy`: a clean `main` checkout is production, any other branch is a preview, and the first URL is the project's `pages.dev` host.
+
 ## Run locally
 
 Node.js 22 or newer.
@@ -93,11 +119,11 @@ The same component can be imported into any `.astro` page. Two specimen posts sh
 
 `design-partners@softwaredecisionfabric.tech` is the contact mailbox. It is defined once as `email` in [`src/data/site.ts`](src/data/site.ts). The form does not post to a server. It opens an email draft, and Copy address copies that same address.
 
-## Deploy to softwaredecisionfabric.tech
+## Headers, then an optional custom domain
 
-The site is static HTML, CSS, and a small amount of page-specific JavaScript (the print button and the mailto form). The hosting plan is Cloudflare Pages: `npm run build`, output `dist`, Node 22.
+The site is static HTML, CSS, and a small amount of page-specific JavaScript (the print button and the mailto form). `npm run deploy` only uploads files. The first hostname is the project's `pages.dev` URL. Attaching `softwaredecisionfabric.tech` is later, and this command does not do it.
 
-The Pages project is described in [`infra/cloudflare`](infra/cloudflare/README.md). GitHub Actions validates that Terraform and does not apply it, create the project, or change DNS. The default is a Direct Upload project. Cloudflare does not let a Direct Upload project become a Git project, or the reverse. After a matching baseline is in state, flipping the mode plans a replacement that `prevent_destroy` rejects. An import is not locked until that baseline exists: the first plan must not change `source`. The other mode is a new Pages project name and a reviewed domain move. Custom domains and DNS stay off until someone opts in.
+Terraform in [`infra/cloudflare`](infra/cloudflare/README.md) is optional. Publishing does not need it, and does not need AWS or R2. GitHub Actions validates that Terraform and does not apply it, create the project, or change DNS. It also does not run `npm run deploy`. The default Terraform project is Direct Upload. Cloudflare does not let a Direct Upload project become a Git project, or the reverse. After a matching baseline is in state, flipping the mode plans a replacement that `prevent_destroy` rejects. An import is not locked until that baseline exists: the first plan must not change `source`. The other mode is a new Pages project name and a reviewed domain move. Custom domains and DNS stay off until someone opts in. There is no Wrangler config file, so the upload does not reconcile those settings.
 
 Build command: `npm run build`. Output directory: `dist`. Node version: 22. The apex to attach, when that opt-in is reviewed, is `softwaredecisionfabric.tech`. Redirecting `www.softwaredecisionfabric.tech` to the apex is still required and is not created by the Terraform, because a zone redirect ruleset would take over existing redirect rules. The contact address is `email` in `src/data/site.ts`. Change that constant if the mailbox changes. No analytics script is included.
 
@@ -121,4 +147,4 @@ The CSP is `default-src 'self'` with scripts, styles, images, and fonts limited 
 
 [Astro](https://astro.build/) 7 renders the pages to static files. Type is set in `src/data/site.ts` and the components. Fraunces, Source Sans 3, and IBM Plex Mono are self-hosted through Fontsource (SIL Open Font License; see `licenses/`). There is no UI kit and no tracking.
 
-GitHub Actions (`.github/workflows/build.yml`) runs `npm ci`, `npm run build`, and `npm run check:copy` on pushes and pull requests. `.github/workflows/terraform.yml` checks the Pages Terraform formatting, schema, and plan invariants. It has no Cloudflare credentials and does not deploy.
+GitHub Actions (`.github/workflows/build.yml`) runs `npm ci`, the deploy-script tests, `npm run build`, `npm run check:copy`, and `npm run check:jsonld` on pushes and pull requests. `.github/workflows/terraform.yml` checks the Pages Terraform formatting, schema, and plan invariants. Neither workflow has Cloudflare credentials, and neither deploys.
