@@ -1,9 +1,14 @@
-# Bucket, key, and region only. Do not put AWS keys or Cloudflare tokens here.
-# encrypt and use_lockfile are set in versions.tf. Repeating either name in
-# this file overrides the committed value.
-# Neither flag creates the bucket. Versioning, Block Public Access, the
-# bucket encryption default, and IAM still have to be set on the bucket.
+# Bucket, object key, and R2 S3 endpoint only.
+# Do not put R2 access keys, AWS keys, Cloudflare API tokens, or account
+# ids that are real into this file. Do not add access_key, secret_key,
+# token, encrypt, use_lockfile, region, or any skip_* name: a value here
+# overrides the same argument in versions.tf.
+# Copy this file to backend.hcl (gitignored) and replace the two placeholders.
+# This file does not create the bucket.
 
 bucket = "REPLACE_WITH_PRIVATE_STATE_BUCKET"
 key    = "sdf-landingpage/cloudflare/terraform.tfstate"
-region = "REPLACE_WITH_BUCKET_REGION"
+
+endpoints = {
+  s3 = "https://REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID.r2.cloudflarestorage.com"
+}

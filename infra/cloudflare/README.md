@@ -6,7 +6,7 @@ Checked against the Cloudflare provider schema published with v5.28.1 (20 Octobe
 
 ## Why Pages
 
-Cloudflare recommends [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) for new sites. This repository already specifies Pages: `npm run build`, output `dist`, Node 22, and the apex `softwaredecisionfabric.tech`. `public/_headers` is a Pages (and Netlify) static headers file. Moving the site to Workers would be a different host and a different asset configuration. This stack stays on Pages and creates no Worker, route, KV, R2, D1, or Access resource.
+Cloudflare recommends [Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) for new sites. This repository already specifies Pages: `npm run build`, output `dist`, Node 22, and the apex `softwaredecisionfabric.tech`. `public/_headers` is a Pages (and Netlify) static headers file. Moving the site to Workers would be a different host and a different asset configuration. This stack stays on Pages and creates no Worker, route, KV, R2, D1, or Access resource. The optional remote state below is an R2 bucket created outside this configuration, not an R2 resource Terraform manages.
 
 ## What an apply would create
 
@@ -100,26 +100,136 @@ The direct-upload docs use the same Pages Edit permission for `wrangler pages de
 
 ## Remote state
 
-`npm run deploy` does not read this backend and does not need a bucket. The backend below is unchanged.
+`npm run deploy` does not read this backend, does not create a bucket, and does not need R2. Publishing stays the Wrangler command in the site README.
 
-`versions.tf` sets `encrypt = true` and `use_lockfile = true`. Bucket, key, and region are not in git. State was not moved to Cloudflare R2. Terraform 1.17.1's `use_lockfile` sends `PutObject` with `If-None-Match: *` ([S3 backend client](https://github.com/hashicorp/terraform/blob/v1.17.1/internal/backend/remote-state/s3/client.go)), and R2 documents that header as an atomic create ([conditional PutObject](https://developers.cloudflare.com/r2/api/s3/extensions/), [consistency](https://developers.cloudflare.com/r2/reference/consistency/)). That lock behavior was not run against a live bucket. `encrypt = true` also sends `x-amz-server-side-encryption`, which R2's PutObject table marks unsupported ([S3 API compatibility](https://developers.cloudflare.com/r2/api/s3/api/)); R2 already encrypts objects at rest without that header ([data security](https://developers.cloudflare.com/r2/reference/data-security/)). `GetBucketVersioning` is unimplemented on that same page, so R2 does not provide S3 version history to restore. Cloudflare's [remote backend example](https://developers.cloudflare.com/terraform/advanced-topics/remote-backend/) (21 April 2026) does not set `use_lockfile`. No live migration was run.
+`versions.tf` keeps Terraform's S3 backend and points it at R2's S3 API. Bucket, object key, and the endpoint stay out of git. This configuration does not create the bucket. Create it before `terraform init`, outside this state: the backend cannot be the configuration that creates the bucket it is stored in.
 
-1. Outside this state, create a private S3 bucket. Enable versioning and default encryption. Block public access.
-2. Grant the operator `s3:ListBucket` on the bucket, `s3:GetObject` and `s3:PutObject` on the state key, and `s3:GetObject`, `s3:PutObject`, and `s3:DeleteObject` on the `<key>.tflock` object. That is the [S3 backend lock](https://developer.hashicorp.com/terraform/language/backend/s3) permission set for `use_lockfile`.
-3. Copy `backend.hcl.example` to `backend.hcl`. Fill bucket, key, and region. Leave credentials out of the file.
-4. `terraform init -backend-config=backend.hcl`
+Docs and the Terraform 1.17.1 client were checked on 7 November 2026. `backend/check.py` repeats the file checks and runs that same Terraform binary against a stand-in on `127.0.0.1`. A live R2 bucket was not initialized, and Terraform was not applied.
 
-`use_lockfile` needs Terraform >= 1.11 and a bucket that accepts conditional writes. A second apply fails while the `.tflock` object exists. DynamoDB locking is not used. This configuration does not use Cloudflare R2 for state. A `-backend-config` entry for `encrypt` or `use_lockfile` overrides the committed value. Neither flag creates the bucket or enforces IAM, versioning, Block Public Access, or the bucket's default encryption.
+### Lock, request encryption, checksums
 
-`terraform init -backend=false` skips backend setup so `validate` and `terraform test` can run. A later `plan` or `apply` stops with `Backend initialization required` and does not write a state file. That is not a local-state apply. The risk is initializing a backend without the lock and encryption, or deliberately selecting local state.
+`use_lockfile = true` stays on. In Terraform 1.17.1 the lock object is `<key>.tflock` ([backend_state.go](https://github.com/hashicorp/terraform/blob/v1.17.1/internal/backend/remote-state/s3/backend_state.go)), and the lock `PutObject` sets `If-None-Match: *` ([client.go](https://github.com/hashicorp/terraform/blob/v1.17.1/internal/backend/remote-state/s3/client.go)). The localhost probe sent that header on the lock object, then deleted the object after the stand-in stored it. R2 documents the same header as an atomic create: one writer succeeds and the others get `412 PreconditionFailed` ([conditional PutObject](https://developers.cloudflare.com/r2/api/s3/extensions/), [consistency](https://developers.cloudflare.com/r2/reference/consistency/)). That R2 path was not executed. A second operation fails while `<key>.tflock` exists. That failure is the lock. `terraform force-unlock <lock-id>` deletes it only after the other process is gone. The id is in the error. A `-backend-config` entry or a `backend.hcl` line named `use_lockfile` overrides the committed value. `backend.hcl.example` does not contain that name. Setting it to false turns mutual exclusion off.
+
+`encrypt = false` is set on purpose. With `encrypt = true`, the same client sets server-side encryption to `AES256`. The localhost probe then sent `x-amz-server-side-encryption: AES256` on the lock `PutObject`. R2's PutObject table marks `x-amz-server-side-encryption` unsupported ([S3 API compatibility](https://developers.cloudflare.com/r2/api/s3/api/)). R2 encrypts every object at rest with AES-256-GCM. Cloudflare holds the keys. There is no bucket switch to turn that on ([data security](https://developers.cloudflare.com/r2/reference/data-security/), 21 April 2026). `PutBucketEncryption` is unimplemented on the compatibility page. `encrypt = false` leaves that at-rest encryption in place and keeps the unsupported request header off the call. It is not client-side encryption. Anyone who can read the bucket can read the state. Leave the bucket's public `r2.dev` URL and custom domains off. Do not set `sse_customer_key`, `AWS_SSE_CUSTOMER_KEY`, or `kms_key_id`. SSE-C is a different header, and losing that key makes the state unreadable.
+
+The state `PutObject` does not send `If-None-Match`. The localhost probe showed that on an empty state pushed to the stand-in: the lock write is conditional, and the state write replaces the object. With R2 that replacement is the only copy.
+
+`skip_s3_checksum = true` stops this client from setting `ChecksumAlgorithm` SHA256. It does not stop the AWS SDK inside Terraform 1.17.1 from adding `x-amz-checksum-crc32`. The localhost probe showed that header on the lock `PutObject` when `AWS_REQUEST_CHECKSUM_CALCULATION` was unset, and showed it absent when the variable was `when_required`. That probe used an empty `HOME`, so it did not read `~/.aws/config`. R2's checksum table lists CRC32 full-object checksums as unimplemented and composite CRC32 as implemented. The probe did not ask R2 whether it rejects the header. Export `AWS_REQUEST_CHECKSUM_CALCULATION=when_required` for this Terraform version. The variable is not a credential. `x-amz-content-sha256` is still sent. It is the SigV4 payload hash.
+
+`region = "auto"` matches R2's S3 region. Without `skip_region_validation`, Terraform 1.17.1 rejects it at init with `Invalid AWS Region: auto` and does not open a connection. The check script covers that failure. `skip_credentials_validation`, `skip_requesting_account_id`, and `skip_metadata_api_check` skip STS, the account lookup, and IMDS. R2 does not provide those AWS endpoints. `use_path_style = true` matches Cloudflare's [remote backend example](https://developers.cloudflare.com/terraform/advanced-topics/remote-backend/) (21 April 2026). That example also writes `access_key` and `secret_key` into the file and does not set `use_lockfile`. This repository keeps the lock, leaves those keys out of every tracked file, and sets `encrypt = false`. No DynamoDB table is set, so this client does not write the MD5 digest it stores only in DynamoDB. No `acl` is set. R2 marks PutObject ACL headers unsupported.
+
+`terraform init -backend=false` skips backend setup so `validate` and `terraform test` can run. A later `plan` or `apply` stops with `Backend initialization required` and does not write a state file. That is not a local-state apply.
+
+### Credentials
+
+Two credentials. They are different tokens, created on different screens. Neither is committed, and neither is passed as a command argument. Terraform stores `-backend-config` values in `.terraform` and in plan files, so the R2 keys stay in the shell.
+
+1. R2 S3 credentials, for the backend only. In the dashboard open R2, then Manage API Tokens, then create an account API token or a user API token. Choose Object Read & Write and scope it to this bucket. The confirmation page shows the Access Key ID and the Secret Access Key once. Cloudflare's [R2 token](https://developers.cloudflare.com/r2/api/tokens/) page says this token is separate from API tokens for other services, that R2 has to be purchased before the token can be created, and that Object Read & Write is not accepted by `api.cloudflare.com`. Export `AWS_ACCESS_KEY_ID` as the access key id and `AWS_SECRET_ACCESS_KEY` as the secret. If those variables already hold AWS keys, this shell would send the AWS keys to the R2 endpoint. Set the R2 values for the Terraform commands, then unset them. Do not set `AWS_PROFILE` for this command.
+2. The provider token, for Pages and optional DNS only. `CLOUDFLARE_API_TOKEN` is the account API token from the token table above. Create it on the account API token page, not the R2 token page. Do not add an R2 admin permission to it. Do not put the R2 access key in `CLOUDFLARE_API_TOKEN`.
+
+The account id is not invented in git. Copy the S3 endpoint the dashboard shows for the bucket into `backend.hcl`. The default host is `https://<ACCOUNT_ID>.r2.cloudflarestorage.com` ([S3 API](https://developers.cloudflare.com/r2/get-started/s3/)). A jurisdiction-specific bucket uses a different host. Use the host the dashboard shows. In Terraform 1.17.1, `endpoints.s3` in the backend config is chosen before `AWS_ENDPOINT_URL_S3`. Unset `AWS_ENDPOINT_URL_S3` and `AWS_S3_ENDPOINT` so a later command does not follow them.
+
+R2's token screen does not take the IAM action names in the [S3 backend permission list](https://developer.hashicorp.com/terraform/language/backend/s3). The client in this version calls `ListObjectsV2` (workspace prefix `env:`), `GetObject` and `PutObject` on the state key, and `PutObject`, `GetObject`, and `DeleteObject` on `<key>.tflock`. Object Read & Write scoped to the bucket is the permission Cloudflare's remote-backend page asks for. It was not executed against a token.
+
+### Bootstrap
+
+Before init, outside this state:
+
+1. Enable R2 on the account.
+2. Create a private bucket. The name is lowercase letters, digits, and hyphens. Leave public access off. `GetBucketVersioning`, `PutBucketVersioning`, `GetPublicAccessBlock`, and `PutPublicAccessBlock` are unimplemented, so there is no S3 versioning switch and no S3 Block Public Access switch to turn on.
+3. Create the scoped R2 token above.
+4. Copy `backend.hcl.example` to `backend.hcl`. Replace `REPLACE_WITH_PRIVATE_STATE_BUCKET` and `REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID`. Leave every other name out of the file. The object key in the example is the key this configuration uses.
+
+This repository has no state file. With no local `terraform.tfstate` and no previous remote state, init creates a new backend and does not migrate:
+
+```bash
+cd infra/cloudflare
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+export CLOUDFLARE_API_TOKEN="..."
+terraform init -backend-config=backend.hcl -input=false
+terraform plan -out=sdf.tfplan
+```
+
+Review that plan before any apply. Apply is a human step. GitHub Actions does not init this backend and does not apply. If Terraform offers to copy state and there is no state, stop. Do not add `-migrate-state`. Do not pass `-reconfigure` to skip a prompt you have not read. Use the default workspace. This configuration does not set `workspace_key_prefix`.
+
+### Migration, only when state already exists
+
+This change does not move state. Follow this only when a state file is already on disk or in a previous backend. Otherwise the init above is the whole setup.
+
+1. While the current backend still reads, `terraform state pull` to a file that is not in git. Keep that file. It is the recovery copy. The next state write replaces the object, and R2 does not keep the previous one.
+2. Local `terraform.tfstate` next to this configuration: `terraform init -backend-config=backend.hcl -migrate-state -input=false`, after the backup exists. `-reconfigure` skips the copy.
+3. A previous S3 bucket, if one was created for the old backend: leave that bucket in place. Init with the R2 `backend.hcl`. Terraform offers to copy when it can still read the old backend. When it cannot, stop and use the pull backup. After init, a reviewed plan should show the same resources. The old object stays until that plan has been read. This repository's workflow does not delete it.
+4. `terraform state push` overwrites the remote object. It is the way to restore the pull backup after review. It is not the migration command.
+
+If the state object is wrong, restore that backup or import again from Cloudflare. Do not hand-edit the state. There is no previous object version in the bucket to restore.
+
+## Trạng thái từ xa
+
+`npm run deploy` không đọc backend này, không tạo bucket, và không cần R2. Đưa site lên Pages vẫn là lệnh Wrangler ở README gốc.
+
+`versions.tf` dùng backend S3 của Terraform, trỏ vào API S3 của R2. Bucket, khóa object, và endpoint không nằm trong git. Cấu hình này không tạo bucket. Tạo bucket trước `terraform init`, ở ngoài state: Terraform không tạo cái bucket đang chứa chính state của nó.
+
+Đã đối chiếu tài liệu và client Terraform 1.17.1 ngày 7 tháng 11 năm 2026. `backend/check.py` kiểm tra file đã commit và chạy đúng binary đó với một tiến trình giả lập trên `127.0.0.1`. Chưa khởi tạo bucket R2 thật và chưa chạy terraform apply.
+
+`use_lockfile = true` giữ nguyên. Terraform 1.17.1 ghi object khóa `<key>.tflock` bằng `PutObject` với `If-None-Match: *`. Trên localhost, probe thấy header đó trên object khóa, rồi thấy lệnh xóa object khóa sau khi tiến trình giả lập lưu nó. Tài liệu R2 mô tả header này là tạo một lần; writer thứ hai nhận `412`. Phần đó chưa chạy trên R2. Lệnh sau thất bại khi `<key>.tflock` còn. Đó là khóa. `terraform force-unlock <lock-id>` chỉ khi tiến trình kia đã tắt. Một dòng `use_lockfile` trong `backend.hcl` hoặc `-backend-config` ghi đè giá trị đã commit. File ví dụ không có tên đó. Đặt `false` là tắt loại trừ lẫn nhau.
+
+`encrypt = false` là cố ý. `encrypt = true` khiến client gửi `x-amz-server-side-encryption: AES256`. Probe localhost thấy header đó. Bảng PutObject của R2 đánh dấu header là không hỗ trợ. R2 vẫn mã hóa mọi object lúc lưu bằng AES-256-GCM, khóa do Cloudflare giữ, không có công tắc bucket (trang data security, 21 tháng 4 năm 2026). `encrypt = false` chỉ giữ header yêu cầu khỏi request. Nó không tắt mã hóa lúc lưu, và không phải mã hóa phía client. Ai đọc được bucket thì đọc được state. Đừng bật URL công khai `r2.dev` hoặc gắn custom domain cho bucket này. Đừng đặt `sse_customer_key`, `AWS_SSE_CUSTOMER_KEY`, hay `kms_key_id`.
+
+`PutObject` của chính file state không gửi `If-None-Match`. Probe localhost thấy điều đó khi đẩy một state rỗng vào tiến trình giả lập: ghi khóa thì có điều kiện, ghi state thì thay thế object. Trên R2, lần ghi đó là bản duy nhất.
+
+`skip_s3_checksum = true` chỉ bỏ `ChecksumAlgorithm` SHA256 trong client. Terraform 1.17.1 vẫn gửi `x-amz-checksum-crc32` khi thiếu biến môi trường. Probe thấy header đó lúc biến chưa đặt, và không thấy khi `AWS_REQUEST_CHECKSUM_CALCULATION=when_required`. Probe dùng `HOME` trống, nên không đọc `~/.aws/config`. Bảng checksum của R2 ghi CRC32 full-object là chưa triển khai. Probe không hỏi R2 có từ chối header hay không. Đặt biến đó trong shell. Biến này không phải mật khẩu. `x-amz-content-sha256` vẫn đi kèm chữ ký SigV4.
+
+`region = "auto"`. Thiếu `skip_region_validation` thì Terraform 1.17.1 từ chối lúc init bằng `Invalid AWS Region: auto`, trước khi mở kết nối. `skip_credentials_validation`, `skip_requesting_account_id`, và `skip_metadata_api_check` bỏ STS, tra cứu account, và IMDS. `use_path_style = true` theo ví dụ remote backend của Cloudflare. Ví dụ đó ghi `access_key` và `secret_key` trong file và không bật `use_lockfile`. Repo này giữ khóa, không ghi các key đó vào file được theo dõi, và đặt `encrypt = false`. Không dùng DynamoDB. Không đặt `acl`.
+
+`terraform init -backend=false` bỏ qua backend để `validate` và `terraform test` chạy được. `plan` hoặc `apply` sau đó dừng với `Backend initialization required` và không ghi state. Đó không phải apply bằng state local.
+
+Hai thông tin xác thực, tách nhau. Không commit, không đưa lên đối số lệnh. Terraform lưu giá trị `-backend-config` vào `.terraform` và file plan.
+
+1. Credential S3 của R2, chỉ cho backend. Dashboard: R2 → Manage API Tokens → tạo account API token hoặc user API token. Quyền Object Read & Write, giới hạn đúng bucket này. Trang xác nhận hiện Access Key ID và Secret Access Key một lần. Trang [token R2](https://developers.cloudflare.com/r2/api/tokens/) nói token này khác token API của dịch vụ khác, phải mua R2 rồi mới tạo được, và Object Read & Write không được `api.cloudflare.com` chấp nhận. Trong shell: `AWS_ACCESS_KEY_ID` là access key id, `AWS_SECRET_ACCESS_KEY` là secret. Nếu hai biến đang giữ key AWS, shell này sẽ gửi key AWS tới endpoint R2. Đặt giá trị R2 cho lệnh Terraform, rồi xóa khỏi shell. Đừng đặt `AWS_PROFILE`.
+2. Token của provider, chỉ cho Pages và DNS khi cần. `CLOUDFLARE_API_TOKEN` là token ở bảng quyền phía trên. Tạo ở trang API token của account, không phải trang token R2. Đừng thêm quyền admin R2. Đừng ghi access key R2 vào `CLOUDFLARE_API_TOKEN`.
+
+Account id không bịa trong git. Chép endpoint S3 mà dashboard hiện cho bucket vào `backend.hcl`. Host mặc định là `https://<ACCOUNT_ID>.r2.cloudflarestorage.com`. Bucket theo jurisdiction có host khác; dùng đúng host dashboard hiện. Trong Terraform 1.17.1, `endpoints.s3` được chọn trước `AWS_ENDPOINT_URL_S3`. Xóa `AWS_ENDPOINT_URL_S3` và `AWS_S3_ENDPOINT` khỏi shell.
+
+Màn hình token của R2 không nhận tên quyền IAM trong tài liệu backend S3. Client bản này gọi `ListObjectsV2` (prefix workspace `env:`), `GetObject` và `PutObject` trên khóa state, và `PutObject`, `GetObject`, `DeleteObject` trên `<key>.tflock`. Object Read & Write cho đúng bucket là quyền trang remote backend của Cloudflare yêu cầu. Chưa chạy thử với token thật.
+
+Trước init, ở ngoài state: bật R2 trên account; tạo bucket riêng tư, tên chỉ gồm chữ thường, số, và dấu gạch ngang; để public access tắt. `GetBucketVersioning` và `PutBucketVersioning` không được triển khai, nên không có phiên bản đối tượng để bật. `GetPublicAccessBlock` cũng không có. Quyền riêng tư là để truy cập công khai tắt. Bản để khôi phục là file `terraform state pull` tự lưu, không phải phiên bản object cũ. Rồi tạo token R2 ở trên, chép `backend.hcl.example` thành `backend.hcl`, thay `REPLACE_WITH_PRIVATE_STATE_BUCKET` và `REPLACE_WITH_CLOUDFLARE_ACCOUNT_ID`. Đừng thêm tên nào khác vào file.
+
+Repo này không có file state. Không có `terraform.tfstate` local và không có state ở backend cũ thì init là backend mới, không phải migration:
+
+```bash
+cd infra/cloudflare
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+export CLOUDFLARE_API_TOKEN="..."
+terraform init -backend-config=backend.hcl -input=false
+terraform plan -out=sdf.tfplan
+```
+
+Xem plan trước khi apply. Apply là việc của người. GitHub Actions không init backend này và không apply. Terraform hỏi copy state mà không có state thì dừng. Đừng thêm `-migrate-state`. Đừng dùng `-reconfigure` để bỏ qua câu hỏi chưa đọc. Dùng workspace mặc định.
+
+Chỉ migrate khi state đã tồn tại. Thay đổi này không di chuyển state.
+
+1. Khi backend hiện tại còn đọc được, `terraform state pull` ra file ngoài git. Giữ file đó. Lần ghi sau thay thế object, và R2 không giữ bản cũ.
+2. Có `terraform.tfstate` cạnh cấu hình này: `terraform init -backend-config=backend.hcl -migrate-state -input=false`, sau khi đã có bản sao. `-reconfigure` bỏ qua bước chép.
+3. Đã có bucket S3 của backend cũ: giữ bucket đó. Init bằng `backend.hcl` của R2. Terraform đề nghị chép khi còn đọc được backend cũ. Không đọc được thì dừng và dùng file pull. Sau init, plan đã xem phải ra cùng các resource. Object cũ ở lại đến khi plan đó được đọc. Workflow của repo không xóa nó.
+4. `terraform state push` ghi đè object từ xa. Dùng nó để khôi phục file pull sau khi đã xem. Đó không phải lệnh migration.
+
+State sai thì khôi phục bản pull, hoặc import lại từ Cloudflare. Đừng sửa state bằng tay. Bucket không có phiên bản object cũ để lấy lại.
 
 ## Plan, review, apply
 
 ```bash
 cd infra/cloudflare
 cp terraform.tfvars.example terraform.tfvars   # then replace account_id
-export CLOUDFLARE_API_TOKEN="..."              # shell only; never commit it
-terraform init -backend-config=backend.hcl
+# R2 S3 keys, not the provider token. Shell only. See Remote state above.
+export AWS_ACCESS_KEY_ID="..."
+export AWS_SECRET_ACCESS_KEY="..."
+export AWS_REQUEST_CHECKSUM_CALCULATION=when_required
+export CLOUDFLARE_API_TOKEN="..."
+terraform init -backend-config=backend.hcl -input=false
 terraform plan -out=sdf.tfplan
 ```
 
@@ -142,7 +252,7 @@ A bad upload is a Pages deployment rollback, not a Terraform destroy. In the pro
 
 A bad infrastructure change is a reverted commit and a new plan. `prevent_destroy` blocks `terraform destroy` and blocks a `count` change that would destroy an instance. To delete a remote object on purpose: change `prevent_destroy` to `false` in a reviewed commit, plan, and only then destroy. Destroying the project deletes its deployments. Destroying a CNAME deletes that record only. Cloudflare's domain docs remove the CNAME before the custom domain attachment.
 
-If state is wrong, restore the previous object version from the bucket. Do not hand-edit the state.
+If state is wrong, restore the uncommitted `terraform state pull` backup, or import again. Do not hand-edit the state. R2 does not keep a previous object version to restore.
 
 ## Stop managing an object without deleting it
 
@@ -154,7 +264,7 @@ Deleting the block and forgetting the `removed` block also deletes `prevent_dest
 
 To forget the apex CNAME without deleting it:
 
-1. `terraform state pull` to a file that is not committed. Confirm the state bucket still has versioning.
+1. `terraform state pull` to a file that is not committed. Keep that file until the forget plan has been applied. R2 has no object version to confirm.
 2. Delete the entire `resource "cloudflare_dns_record" "apex"` block. Leave `cloudflare_dns_record.www` in place if you still want Terraform to manage `www`. Add:
 
 ```hcl
@@ -209,6 +319,7 @@ terraform fmt -check -recursive
 terraform init -backend=false -input=false
 terraform validate
 terraform test
+python3 backend/check.py
 ```
 
 `terraform test` plans against a mocked provider. It does not call Cloudflare, and it does not apply this resource. `semantics/check.sh` applies only local `terraform_data` stand-ins. `.github/workflows/terraform.yml` runs both. It does not reference GitHub secrets and does not set a Cloudflare token. It does not prove a token is absent on the runner. Do not add an apply job or a `secrets` reference there.
