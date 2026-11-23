@@ -63,7 +63,7 @@ export const steps = [
     id: "03",
     title: "Verify",
     status: "planned" as Status,
-    body: "SDF runs independent checks the agent can't forge, and ties PASS to the exact code revision.",
+    body: "Planned: SDF runs independent checks the agent can't forge, and ties PASS to the exact code revision.",
     today:
       "Today: no check runs against the agent's change. sdf check tests the collector's own summary, not your code.",
   },
@@ -78,7 +78,7 @@ export const steps = [
 ] as const;
 
 export const moat =
-  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that prefer an exact SHA or a git hook, fall back to the one commit inside a session's time window, and stay unlinked when zero or several commits fit.";
+  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that come, in order, from a commit SHA the agent exported, the sdf git hook, or an SDF-Session: commit trailer. An exported SHA that is not in the checkout leaves the session unlinked; it does not drop to the hook, the trailer, or the time window. Only a session with no exported SHA and no hook commit can be linked by its time window, and only when exactly one commit fits.";
 
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
@@ -271,7 +271,7 @@ export const marketAnchors = [
 
 export const graphNodes = [
   { title: "Objective", detail: "Planned: acceptance criteria, linked to the business goal" },
-  { title: "Attempt", detail: "Today: an agent session, linked to a commit by exact SHA, git hook, commit trailer, or the single commit in its time window" },
+  { title: "Attempt", detail: "Today: an agent session, linked to a commit by exact SHA, git hook, commit trailer, or the single commit in its time window; otherwise unlinked" },
   { title: "Evidence", detail: "Planned: checks the agent cannot forge" },
   { title: "Verdict", detail: "Planned: bound to the exact code revision" },
   { title: "Cost", detail: "Today: computed from the session's tokens and a public price table" },
