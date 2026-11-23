@@ -6,7 +6,7 @@ import { graph, webPage } from "../lib/seo";
 
 const title = "Sample Evidence Report (mock) — Software Decision Fabric";
 const description =
-  "A stylized mock of an SDF Evidence Report. Not a customer report and not a live result. SDF runs live only on a toy fixture.";
+  "A stylized mock of a planned SDF Evidence Report. Not a customer report and not a live result. sdf does not produce this report today; it is a toy fixture mock.";
 
 const checks = [
   {
@@ -50,7 +50,7 @@ const breadcrumbs = [
 >
   <article class="report wrap">
     <p class="sample-banner" role="note">
-      <strong>Sample.</strong> This is a stylized mock of an Evidence Report. It is not a customer report, not a signed audit, and not a live result. {site.status}
+      <strong>Sample.</strong> This is a stylized mock of an Evidence Report. It is not a customer report, not a signed audit, and not a live result. The report, its route, its checks, and its verdict are planned; sdf does not produce any of them today. {site.status}
     </p>
 
     <header class="report-head">
@@ -58,7 +58,7 @@ const breadcrumbs = [
         <p class="kicker">Evidence Report</p>
         <h1>Format specimen</h1>
         <p class="lede tight">
-          What a filed attempt looks like when SDF has checked it. Every field below is invented for the layout. Nothing here shipped for a customer.
+          What a filed attempt will look like once SDF checks it. Every field below is invented for the layout. Nothing here shipped for a customer.
         </p>
       </div>
       <p class="sample-stamp" aria-hidden="true">Sample</p>
@@ -97,15 +97,15 @@ const breadcrumbs = [
     </section>
 
     <section class="report-block">
-      <h2>Route</h2>
+      <h2>Route <span class="status-badge status-planned">Planned</span></h2>
       <p>
-        The task is handed to an agent you already pay for. SDF does not sell that agent and does not resell its tokens. In this specimen the agent is named Example Agent so the slot is visible.
+        The task will be handed to an agent you already pay for. sdf does not launch or route agents today. SDF does not sell that agent and does not resell its tokens. In this specimen the agent is named Example Agent so the slot is visible.
       </p>
     </section>
 
     <section class="report-block">
-      <h2>Independent checks</h2>
-      <p>The agent cannot sign these. Each line is tied to the same revision as the verdict.</p>
+      <h2>Independent checks <span class="status-badge status-planned">Planned</span></h2>
+      <p>The agent will not be able to sign these. Each line is tied to the same revision as the verdict.</p>
       <div class="table-scroll">
         <table class="checks">
           <caption>Specimen checks for SAMPLE-TOY-001. Results are part of the mock.</caption>
@@ -145,7 +145,7 @@ const breadcrumbs = [
     <section class="report-block">
       <h2>Cost record</h2>
       <p>
-        Tokens, time, and invoice cost are stored on the attempt so you can compute Cost per Accepted Outcome. This sample leaves the amounts blank. SDF prices are not set, and a mock must not invent a result.
+        Planned: tokens, time, and invoice cost stored on the attempt. Today sdf stores tokens, duration, the cost the agent reported, and a cost computed from a public price table on each session; there is no attempt record and no invoice import. This sample leaves the amounts blank. SDF prices are not set, and a mock must not invent a result.
       </p>
       <dl class="cost-blank">
         <div>
@@ -154,7 +154,7 @@ const breadcrumbs = [
         </div>
         <div>
           <dt>Attempt cost</dt>
-          <dd>Filled from your own agent invoice</dd>
+          <dd>Planned: filled from your own agent invoice</dd>
         </div>
         <div>
           <dt>Cost per Accepted Outcome</dt>
@@ -171,13 +171,13 @@ const breadcrumbs = [
       <h2>Decision Graph excerpt</h2>
       <DecisionChain
         nodes={sampleNodes}
-        caption="Specimen links only. A live graph is append-only and can be audited. This drawing is not an export and it is not signed."
+        caption="Specimen links only. The planned graph is append-only and can be audited. This drawing is not an export and it is not signed."
       />
     </section>
 
     <footer class="report-foot">
       <p>
-        Enterprise reports can be signed and exported. This page has no signature, no export file, and no customer behind it.
+        Signed, exported reports are planned for Enterprise. This page has no signature, no export file, and no customer behind it.
       </p>
       <p>
         <a class="button" href="/design-partners">Become a design partner</a>

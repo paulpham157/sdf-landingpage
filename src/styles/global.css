@@ -1718,3 +1718,56 @@ textarea {
     margin: 0.55in;
   }
 }
+
+/* Roadmap labels: what is planned versus what ships today. */
+.status-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  border: 1px dashed var(--stamp-deep);
+  padding: 0.12rem 0.4rem;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  vertical-align: middle;
+  color: var(--stamp-deep);
+}
+
+.status-partial {
+  border-style: solid;
+  border-color: var(--pass);
+  color: var(--pass);
+}
+
+.step-today {
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+
+.install {
+  max-width: 42rem;
+  margin: 1.1rem 0 0;
+  overflow-x: auto;
+  background: var(--paper-3);
+  border: 1px solid var(--ink);
+  padding: 0.8rem 1rem;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.install code {
+  background: none;
+  padding: 0;
+  border: 0;
+}
+
+.repo-link {
+  display: inline-block;
+  margin-top: 0.8rem;
+  color: var(--stamp-deep);
+  font-weight: 600;
+  text-underline-offset: 0.2em;
+}

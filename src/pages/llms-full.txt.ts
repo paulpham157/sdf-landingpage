@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import {
+  acceptedToday,
   closing,
   faqs,
   hero,
@@ -8,7 +9,9 @@ import {
   onePager,
   pillars,
   pricingIntro,
+  shipsToday,
   site,
+  statusLabel,
   steps,
   tiers,
   wedgeMetric,
@@ -35,12 +38,13 @@ write(
   "",
 );
 for (const step of steps) {
-  write(`- ${step.id} ${step.title}: ${step.body}`);
+  write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body} ${step.today}`);
 }
 write("", "## Commitments", "");
 for (const pillar of pillars) {
-  write(`- ${pillar.title}: ${pillar.body}`);
+  write(`- ${pillar.title}${"status" in pillar ? ` (${statusLabel[pillar.status]})` : ""}: ${pillar.body}`);
 }
+write("", acceptedToday, "", `## ${shipsToday.heading}`, "", shipsToday.body, `Install: ${shipsToday.install}`, `Run: ${shipsToday.run.join(", ")}`, shipsToday.note, `Source: ${site.repo}`);
 write(
   "",
   "## Pricing shape",

@@ -9,12 +9,12 @@ sample: true
 draft: false
 ---
 
-An agent can report the task complete and still be wrong. The report is a claim. SDF checks that claim against acceptance criteria you declared first, and keeps Cost per Accepted Outcome on the same record.
+An agent can report the task complete and still be wrong. The report is a claim. The referee SDF is building will check that claim against acceptance criteria you declared first, and keep Cost per Accepted Outcome on the same record.
 
 This is for platform, security, and engineering leaders who already run two or more coding agents. Copilot, Cursor, Devin, and Factory can each grade their own work. None of those grades is something security or finance can re-run. Seat price and token price do not answer the question that matters: did the attempt meet the criteria?
 
-SDF does not sell an agent, and it does not resell model tokens. You bring the subscriptions and keys you already have. The task is routed to one of those agents. SDF then runs checks the agent cannot forge, and a PASS is tied to the exact code revision.
+SDF does not sell an agent, and it does not resell model tokens. You bring the subscriptions and keys you already have. In the planned loop, the task is routed to one of those agents, SDF runs checks the agent cannot forge, and a PASS is tied to the exact code revision. None of those three steps ships today.
 
-What you keep is an append-only Decision Graph. It links the objective, the attempt, the evidence, the verdict, and the cost. That record is what you can audit. The number it is meant to produce is Cost per Accepted Outcome, not cost per seat and not cost per token. SDF's own dollar amounts are not published. They stay unpublished until design partners validate them.
+What you would keep is an append-only Decision Graph. It links the objective, the attempt, the evidence, the verdict, and the cost. That record is what you can audit. The number it is meant to produce is Cost per Accepted Outcome, not cost per seat and not cost per token. The open-source collector already computes that number, with accepted meaning the linked pull request merged. SDF's own dollar amounts are not published. They stay unpublished until design partners validate them.
 
-This note is a sample of the blog. SDF runs live only on a toy fixture, and nothing here is a measured result. Teams already running two or more agents can [baseline Cost per Accepted Outcome](/design-partners) before and after SDF. A picture of the record, also a sample, is the [Evidence Report](/sample-evidence-report).
+This note is a sample of the blog. The referee loop is planned and shown only on a toy fixture mock, and nothing here is a measured result. Teams already running two or more agents can [baseline Cost per Accepted Outcome](/design-partners) before and after SDF. A picture of the record, also a sample, is the [Evidence Report](/sample-evidence-report).

@@ -73,12 +73,16 @@ assert(
   includes(home, "onboarding 3 to 5 platform teams already running two or more agents"),
   "Home is missing the closing CTA",
 );
+assert(includes(home, "Planned"), "Home must label unshipped steps as Planned");
+assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Home is missing the real install path");
+assert(includes(home, "merged GitHub pull request"), "Home must say accepted means merged");
+assert(includes(pricing, "Planned: SSO (SAML/OIDC), SCIM"), "Pricing must label SSO as planned");
 const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 assert(home.includes(verifiedAttempt), "Home is missing the verified Attempt sentence");
 assert(pricing.includes(verifiedAttempt), "Pricing is missing the verified Attempt sentence");
 const costPerAcceptedOutcome =
-  "Cost per Accepted Outcome is what you spend on work whose result a named principal actually accepted, not what you spend per seat, per session, or per agent claiming a task is done.";
+  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked commit landed in a merged GitHub pull request, divided by how many such sessions there are. It is unknown, not zero, when any session has no known outcome, an accepted session has no known cost, the same commit is linked to more than one accepted session, or nothing merged. It is never a cost per seat, or per agent claiming a task is done.";
 assert(home.includes(costPerAcceptedOutcome), "Home is missing the Cost per Accepted Outcome sentence");
 assert(pricing.includes(costPerAcceptedOutcome), "Pricing is missing the Cost per Accepted Outcome sentence");
 assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
