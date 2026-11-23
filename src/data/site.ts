@@ -10,7 +10,8 @@ export const site = {
   email: "design-partners@softwaredecisionfabric.tech",
   emailIsPlaceholder: false,
   status:
-    "SDF runs live only on a toy fixture. We are onboarding 3 to 5 design partners.",
+    "Today SDF ships an open-source local collector for coding-agent telemetry. The referee loop is planned and is shown only as a toy fixture mock on this site. We are onboarding 3 to 5 design partners.",
+  repo: "https://github.com/paulpham157/sdf",
 } as const;
 
 /** Public name of the wedge metric. Do not paraphrase this on the site. */
@@ -19,7 +20,7 @@ export const wedgeMetric = "Cost per Accepted Outcome";
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "SDF is the independent referee for coding agents. It verifies every agent attempt against your acceptance criteria and shows Cost per Accepted Outcome, across every agent you run.",
+    "SDF is building the independent referee for coding agents. Today it is an open-source local collector: it records the telemetry your agents already export, links sessions to commits, and shows Cost per Accepted Outcome from pull requests that merged. Verifying each attempt against your acceptance criteria is planned.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Become a design partner",
@@ -29,40 +30,64 @@ export const hero = {
 export const problem = {
   heading: "“Task complete” is a claim, not a result.",
   body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token, while the question that matters — did it work? — goes unanswered.",
+  coverage:
+    "What SDF reads today: Claude Code, Codex CLI, OpenCode v2, Grok CLI, and Pi through the community pi-otel extension, from the OpenTelemetry each one exports. Copilot, Cursor, Devin, and Factory have no SDF adapter yet.",
   agents: ["Copilot", "Cursor", "Devin", "Factory"] as const,
 } as const;
+
+export type Status = "planned" | "partial";
+
+export const statusLabel: Record<Status, string> = {
+  planned: "Planned",
+  partial: "Partly shipped",
+};
 
 export const steps = [
   {
     id: "01",
     title: "Declare",
+    status: "planned" as Status,
     body: "Declare the objective and acceptance criteria, linked to the business goal.",
+    today:
+      "Today: you can write a decision or hypothesis with sdf decision add. There is no acceptance-criteria record yet.",
   },
   {
     id: "02",
     title: "Route",
+    status: "planned" as Status,
     body: "Route the task to any agent you already use. Bring your own subscriptions or keys.",
+    today:
+      "Today: SDF does not launch or route agents. You run them as usual, and sdf init prints the settings that point their telemetry at SDF.",
   },
   {
     id: "03",
     title: "Verify",
-    body: "SDF runs independent checks the agent can't forge. PASS is tied to the exact code revision.",
+    status: "planned" as Status,
+    body: "SDF runs independent checks the agent can't forge, and ties PASS to the exact code revision.",
+    today:
+      "Today: no check runs against the agent's change. sdf check tests the collector's own summary, not your code.",
   },
   {
     id: "04",
     title: "Record",
-    body: "Every attempt, cost, and piece of evidence lands in an append-only Decision Graph you can audit.",
+    status: "partial" as Status,
+    body: "Every attempt, cost, and piece of evidence lands in a Decision Graph you can audit.",
+    today:
+      "Today: each session's tokens, duration, and cost, the commit or pull request it links to, and the decision records you write, in one local SQLite file. No UI or API route writes or deletes. Evidence and verdicts are planned.",
   },
 ] as const;
 
 export const moat =
-  "The record is hardened, evidence-gated verification in a Decision Graph that links objectives to attempts, cost, and evidence.";
+  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that stay unlinked rather than guess.";
 
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 
 export const costPerAcceptedOutcome =
-  "Cost per Accepted Outcome is what you spend on work whose result a named principal actually accepted, not what you spend per seat, per session, or per agent claiming a task is done.";
+  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked commit landed in a merged GitHub pull request, divided by how many such sessions there are. It is unknown, not zero, when any session has no known outcome or an accepted session has no known cost. It is never a cost per seat, or per agent claiming a task is done.";
+
+export const acceptedToday =
+  "Accepted means merged: a session counts as accepted only when every commit linked to it is in one GitHub pull request and that pull request is merged. CI status is reported next to it and does not change it. Acceptance by a named reviewer is planned.";
 
 export const pillars = [
   {
@@ -71,20 +96,21 @@ export const pillars = [
   },
   {
     title: "Independently verifiable",
-    body: "Evidence is re-runnable and revision-bound. Security and finance can check it without trusting us or the agent.",
+    status: "planned" as Status,
+    body: "Evidence that is re-runnable and revision-bound, so security and finance can check it without trusting us or the agent. Today the evidence is telemetry in a local SQLite file you can summarize again; there are no checks to re-run yet.",
   },
   {
     title: "Cost per Accepted Outcome",
-    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens.",
+    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI shows it per agent when you run sdf serve --github.",
     note: verifiedAttempt,
     outcome: costPerAcceptedOutcome,
   },
 ] as const;
 
 export const pricingIntro = {
-  lede: "Priced per workspace and per verified outcome, never per seat.",
+  lede: "Planned pricing: per workspace and per verified outcome, never per seat.",
   unpublished:
-    "Dollar amounts are intentionally unpublished until design partners validate them.",
+    "Neither plan is available yet. Dollar amounts are intentionally unpublished until design partners validate them. The open-source collector is free to run today under Apache 2.0.",
 } as const;
 
 export const tiers = [
@@ -95,9 +121,9 @@ export const tiers = [
     priceShape:
       "Monthly workspace fee with included verified Attempts, then a per-Attempt overage",
     agents: "Bring your own agent subscriptions or keys. SDF does not resell tokens.",
-    evidence: "Evidence Report per task",
-    deployment: "Hosted by SDF",
-    identity: "Team roles",
+    evidence: "Planned: Evidence Report per task",
+    deployment: "Planned: hosted by SDF",
+    identity: "Planned: team roles",
     cta: "Join the design-partner program",
     href: "/design-partners?plan=hosted",
   },
@@ -106,10 +132,10 @@ export const tiers = [
     name: "Enterprise",
     for: "Platform, security, and regulated organizations",
     priceShape: "Annual platform fee plus verified-outcome volume",
-    agents: "Same as Hosted Team, plus routing policy and budgets per org",
-    evidence: "Signed Evidence Reports and export for audit",
-    deployment: "Hosted, your VPC, or self-hosted",
-    identity: "SSO (SAML/OIDC), SCIM",
+    agents: "Same as Hosted Team, plus planned routing policy and budgets per org",
+    evidence: "Planned: signed Evidence Reports and export for audit",
+    deployment: "Planned: hosted, your VPC, or supported self-host",
+    identity: "Planned: SSO (SAML/OIDC), SCIM",
     cta: "Talk to us",
     href: "/design-partners?plan=enterprise",
   },
@@ -139,15 +165,15 @@ export const faqs = [
   },
   {
     q: "Do you resell model tokens?",
-    a: "No. You keep your agent contracts. We bill for verification and the record.",
+    a: "No. You keep your agent contracts. The plan is to bill for verification and the record.",
   },
   {
     q: "Can I self-host?",
-    a: "On Enterprise, yes.",
+    a: "The open-source collector already runs on your own machine. A supported Enterprise self-host, with identity and signed export, is planned.",
   },
   {
     q: "Is SDF generally available?",
-    a: "No. SDF runs live only on a toy fixture. The invitation on this site is a design-partner program for 3 to 5 platform teams, not a public rollout.",
+    a: "No. What ships today is the open-source local collector. Verification, routing, Hosted Team, and Enterprise are planned, and the referee loop exists only as a toy fixture mock. The invitation on this site is a design-partner program for 3 to 5 platform teams, not a public rollout.",
   },
   {
     q: "Are the OpenHands, Factory, and Ona figures SDF prices?",
@@ -164,7 +190,7 @@ export const onePager = {
     },
     {
       title: "Solution",
-      body: "A vendor-neutral control plane that verifies every agent attempt with evidence the agent can't forge and records it in an auditable Decision Graph.",
+      body: "Planned: a vendor-neutral control plane that verifies every agent attempt with evidence the agent can't forge and records it in an auditable Decision Graph. Shipping today: an open-source local collector that records agent telemetry, links sessions to commits, and computes Cost per Accepted Outcome from merged pull requests.",
     },
     {
       title: "Outcome",
@@ -176,7 +202,7 @@ export const onePager = {
     },
     {
       title: "Model",
-      body: "Hosted Team (workspace fee plus verified Attempts) and Enterprise (annual platform fee, VPC or self-host, SSO/SCIM). Dollar amounts are unpublished until design partners validate them.",
+      body: "Planned: Hosted Team (workspace fee plus verified Attempts) and Enterprise (annual platform fee, VPC or self-host, SSO/SCIM). Neither is available yet. Dollar amounts are unpublished until design partners validate them.",
     },
   ],
   cta: "Become one of 3 to 5 design partners and baseline Cost per Accepted Outcome before and after SDF.",
@@ -244,9 +270,17 @@ export const marketAnchors = [
 ] as const;
 
 export const graphNodes = [
-  { title: "Objective", detail: "Acceptance criteria, linked to the business goal" },
-  { title: "Attempt", detail: "Routed to an agent you already use" },
-  { title: "Evidence", detail: "Checks the agent cannot forge" },
-  { title: "Verdict", detail: "Bound to the exact code revision" },
-  { title: "Cost", detail: "Recorded on the same attempt" },
+  { title: "Objective", detail: "Planned: acceptance criteria, linked to the business goal" },
+  { title: "Attempt", detail: "Today: an agent session, linked to a commit when the link is certain" },
+  { title: "Evidence", detail: "Planned: checks the agent cannot forge" },
+  { title: "Verdict", detail: "Planned: bound to the exact code revision" },
+  { title: "Cost", detail: "Today: computed from the session's tokens and a public price table" },
 ] as const;
+
+export const shipsToday = {
+  heading: "What you can run today",
+  body: "The collector is open source (Apache 2.0) and runs on your machine. It listens for OTLP on localhost, stores sessions in one SQLite file, and serves a read-only page. It has no authentication, so keep it on localhost.",
+  install: "go install github.com/paulpham157/sdf/cmd/sdf@latest",
+  run: ["sdf serve", "sdf summary"],
+  note: "Needs Go 1.26 or newer. No release binaries are published yet. An accepted outcome needs a commit link (sdf init --git-hooks records one) and --github for merge status; without them the metric says unknown.",
+} as const;

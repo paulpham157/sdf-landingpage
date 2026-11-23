@@ -2,6 +2,7 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import DecisionChain from "../components/DecisionChain.astro";
 import {
+  acceptedToday,
   closing,
   graphNodes,
   hero,
@@ -9,14 +10,16 @@ import {
   pillars,
   pricingIntro,
   problem,
+  shipsToday,
   site,
+  statusLabel,
   steps,
   wedgeMetric,
 } from "../data/site";
 import { graph, webPage } from "../lib/seo";
 
 const title = "SDF — Know which agent work actually shipped";
-const description = `SDF is the independent referee for coding agents. It verifies every attempt against your acceptance criteria and shows ${wedgeMetric}.`;
+const description = `SDF is building the independent referee for coding agents. Today it is an open-source local collector that links agent sessions to commits and shows ${wedgeMetric} from merged pull requests.`;
 
 const jsonLd = graph(
   {
@@ -73,7 +76,7 @@ const jsonLd = graph(
             <dd>Recorded on the attempt. No amount is shown in this picture.</dd>
           </div>
         </dl>
-        <p class="stub-foot">Format specimen for the story above. Not a customer report. SDF runs live only on a toy fixture.</p>
+        <p class="stub-foot">Format specimen for the planned referee. Not a customer report, and sdf does not produce this verdict today. The loop is shown only on a toy fixture mock.</p>
       </aside>
     </div>
   </section>
@@ -83,6 +86,7 @@ const jsonLd = graph(
       <p class="kicker">§ 01 — The problem</p>
       <h2 id="problem-title">{problem.heading}</h2>
       <p class="statement">{problem.body}</p>
+      <p class="lede tight">{problem.coverage}</p>
       <ul class="agent-row">
         {
           problem.agents.map((name) => (
@@ -100,21 +104,24 @@ const jsonLd = graph(
     <div class="wrap">
       <p class="kicker">§ 02 — How it works</p>
       <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF checks the work and keeps the record.</p>
+      <p class="lede tight">Your agents stay in place. SDF checks the work and keeps the record. Three of the four steps are planned; each says what runs today.</p>
       <ol class="steps">
         {
           steps.map((step) => (
             <li>
               <span class="step-index">{step.id}</span>
-              <h3>{step.title}</h3>
+              <h3>
+                {step.title} <span class={`status-badge status-${step.status}`}>{statusLabel[step.status]}</span>
+              </h3>
               <p>{step.body}</p>
+              <p class="step-today">{step.today}</p>
             </li>
           ))
         }
       </ol>
       <DecisionChain
         nodes={graphNodes}
-        caption="Append-only. The verdict is tied to the exact code revision, and the cost sits on the same record."
+        caption="The planned record. Today SDF stores the session, its cost, and its commit link; objectives, evidence, and verdicts are not recorded yet."
       />
       <p class="moat">{moat}</p>
     </div>
@@ -129,14 +136,20 @@ const jsonLd = graph(
           pillars.map((pillar, index) => (
             <article>
               <p class="step-index">0{index + 1}</p>
-              <h3>{pillar.title}</h3>
+              <h3>
+                {pillar.title}
+                {"status" in pillar && pillar.status && (
+                  <span class={`status-badge status-${pillar.status}`}>{statusLabel[pillar.status]}</span>
+                )}
+              </h3>
               <p>{pillar.body}</p>
               {"note" in pillar && pillar.note && (
                 <p class="pillar-note">
-                  <span class="pillar-note-label">verified Attempt.</span> {pillar.note}
+                  <span class="pillar-note-label">verified Attempt (planned).</span> {pillar.note}
                 </p>
               )}
               {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{pillar.outcome}</p>}
+              {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{acceptedToday}</p>}
             </article>
           ))
         }
@@ -144,10 +157,21 @@ const jsonLd = graph(
     </div>
   </section>
 
+  <section class="section" id="today" aria-labelledby="today-title">
+    <div class="wrap">
+      <p class="kicker">§ 04 — Shipping today</p>
+      <h2 id="today-title">{shipsToday.heading}</h2>
+      <p class="lede tight">{shipsToday.body}</p>
+      <pre class="install"><code>{[shipsToday.install, ...shipsToday.run].join("\n")}</code></pre>
+      <p class="step-today">{shipsToday.note}</p>
+      <p><a class="repo-link" href={site.repo} rel="noopener noreferrer">Source, docs, and setup per agent on GitHub</a></p>
+    </div>
+  </section>
+
   <section class="section band" aria-labelledby="price-pointer-title">
     <div class="wrap price-pointer">
       <div>
-        <p class="kicker">§ 04 — Pricing shape</p>
+        <p class="kicker">§ 05 — Pricing shape</p>
         <h2 id="price-pointer-title">{pricingIntro.lede}</h2>
         <p class="lede tight">{pricingIntro.unpublished}</p>
       </div>
@@ -158,7 +182,7 @@ const jsonLd = graph(
   <section class="close" aria-labelledby="close-title">
     <div class="wrap close-grid">
       <div>
-        <p class="kicker kicker-light">§ 05 — Design partners</p>
+        <p class="kicker kicker-light">§ 06 — Design partners</p>
         <h2 id="close-title">{closing.heading}</h2>
         <p class="lede light">{closing.body}</p>
         <div class="cta-row">

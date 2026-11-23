@@ -135,6 +135,8 @@ The CSP is `default-src 'self'` with scripts, styles, images, and fonts limited 
 
 - SDF prices. Both tiers say the amount is not published. The shape (workspace fee, verified Attempts, Enterprise platform fee) is described without numbers.
 - Market anchors. OpenHands, Factory, and Ona appear only on the pricing page, with links to the public pages the figures come from. They are coding-agent list prices, not SDF prices and not verification or evaluation prices. The hosted tier stays Hosted Team.
+- Unshipped features as shipped. Declare, Route, and Verify, verified Attempts, Evidence Reports, Hosted Team, Enterprise, routing policy, signed reports, and SSO/SCIM are labeled Planned until they exist on [sdf](https://github.com/paulpham157/sdf) `main`. Record is labeled Partly shipped. The home page says what the open-source collector does today and how to install it.
+- A stretched “accepted.” Accepted means what sdf's code means: every commit linked to the session is in one GitHub pull request and that pull request is merged (`internal/outcome/github.go`, `internal/outcome/outcome.go`, `docs/outcomes.md` in sdf).
 - The wedge metric. Public copy uses Cost per Accepted Outcome. It does not also say “cost per acceptable outcome,” “cost per accepted task,” or “cost of each accepted outcome.”
 - Customers. There are no logos, testimonials, case studies, or performance metrics. The Evidence Report is a labeled mock (`SAMPLE-TOY-001` on workspace `toy-fixture`). Blog posts marked Sample are specimens, including the social quotations, which are not live posts.
 - Social citations. A quoted post always shows the author and a permalink. It is not treated as a customer result.
