@@ -76,7 +76,7 @@ const jsonLd = graph(
             <dd>Recorded on the attempt. No amount is shown in this picture.</dd>
           </div>
         </dl>
-        <p class="stub-foot">Format specimen for the planned referee. Not a customer report, and sdf does not produce this verdict today. The loop is shown only on a toy fixture mock.</p>
+        <p class="stub-foot">Format specimen for the planned referee. Not a customer report, and sdf does not produce this report today. The loop is shown only on a toy fixture mock.</p>
       </aside>
     </div>
   </section>
@@ -104,7 +104,7 @@ const jsonLd = graph(
     <div class="wrap">
       <p class="kicker">§ 02 — How it works</p>
       <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF records what they did today; checking the work is planned. Three of the four steps are planned, and each says what runs today.</p>
+      <p class="lede tight">Your agents stay in place. SDF records what they did today, and can check a commit against a declared task from the command line; running that on every attempt is planned. Each step says what runs today.</p>
       <ol class="steps">
         {
           steps.map((step) => (
@@ -121,7 +121,7 @@ const jsonLd = graph(
       </ol>
       <DecisionChain
         nodes={graphNodes}
-        caption="The planned record. Today SDF stores the session, its cost, and its commit link; objectives, evidence, and verdicts are not recorded yet."
+        caption="The planned record. Today SDF stores the session, its cost, and its commit link, and sdf verify records a task's evidence and verdict for a commit; they are not linked to the session yet."
       />
       <p class="moat">{moat}</p>
     </div>
