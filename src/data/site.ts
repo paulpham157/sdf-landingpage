@@ -71,20 +71,20 @@ export const steps = [
     id: "04",
     title: "Record",
     status: "partial" as Status,
-    body: "Every attempt, cost, and piece of evidence lands in a Decision Graph you can audit.",
+    body: "Planned: every attempt, its cost, and its evidence land in a Decision Graph you can audit. Shipping now: session cost and commit links, plus decision records you link to sessions and commits.",
     today:
       "Today: each session's tokens, duration, and cost, the commit or pull request it links to, and the decision records you write, in one local SQLite file. No UI or API route writes or deletes. Evidence and verdicts are planned.",
   },
 ] as const;
 
 export const moat =
-  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that stay unlinked rather than guess.";
+  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that prefer an exact SHA or a git hook, fall back to the one commit inside a session's time window, and stay unlinked when zero or several commits fit.";
 
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 
 export const costPerAcceptedOutcome =
-  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked commit landed in a merged GitHub pull request, divided by how many such sessions there are. It is unknown, not zero, when any session has no known outcome or an accepted session has no known cost. It is never a cost per seat, or per agent claiming a task is done.";
+  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked commit landed in a merged GitHub pull request, divided by how many such sessions there are. It is unknown, not zero, when any session has no known outcome, an accepted session has no known cost, the same commit is linked to more than one accepted session, or nothing merged. It is never a cost per seat, or per agent claiming a task is done.";
 
 export const acceptedToday =
   "Accepted means merged: a session counts as accepted only when every commit linked to it is in one GitHub pull request and that pull request is merged. CI status is reported next to it and does not change it. Acceptance by a named reviewer is planned.";
@@ -101,7 +101,7 @@ export const pillars = [
   },
   {
     title: "Cost per Accepted Outcome",
-    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI shows it per agent when you run sdf serve --github.",
+    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI from sdf serve shows it overall and per agent. Run it with --github so merge status is known; without that flag the figure stays unknown.",
     note: verifiedAttempt,
     outcome: costPerAcceptedOutcome,
   },
@@ -177,7 +177,7 @@ export const faqs = [
   },
   {
     q: "Are the OpenHands, Factory, and Ona figures SDF prices?",
-    a: "No. They are coding-agent list prices, shown so you can see how those products are sold. OpenHands, Factory, and Ona sell agents. SDF grades that work and does not sell an agent. The figures are not SDF prices, and they are not prices for a verification, evaluation, or control-plane product. SDF dollar amounts are not published.",
+    a: "No. They are coding-agent list prices, shown so you can see how those products are sold. OpenHands, Factory, and Ona sell agents. SDF is being built to grade that work, and it does not sell an agent. The figures are not SDF prices, and they are not prices for a verification, evaluation, or control-plane product. SDF dollar amounts are not published.",
   },
 ] as const;
 
@@ -220,7 +220,7 @@ export const closing = {
 export const marketAnchorNote = {
   kicker: "Not SDF pricing",
   title: "Coding-agent list prices, for context only",
-  body: "OpenHands, Factory, and Ona sell coding agents. Those are the products SDF independently grades, not verification, evaluation, or control-plane peers. The figures below are their public list prices, shown only so a buyer can see how those products are sold. Each figure below is not an SDF price. SDF dollar amounts stay unpublished until design partners validate them.",
+  body: "OpenHands, Factory, and Ona sell coding agents. Those are the products SDF plans to grade independently, not verification, evaluation, or control-plane peers. The figures below are their public list prices, shown only so a buyer can see how those products are sold. Each figure below is not an SDF price. SDF dollar amounts stay unpublished until design partners validate them.",
   again: "Again: coding-agent list prices, not SDF prices.",
 } as const;
 
@@ -271,7 +271,7 @@ export const marketAnchors = [
 
 export const graphNodes = [
   { title: "Objective", detail: "Planned: acceptance criteria, linked to the business goal" },
-  { title: "Attempt", detail: "Today: an agent session, linked to a commit when the link is certain" },
+  { title: "Attempt", detail: "Today: an agent session, linked to a commit by exact SHA, git hook, commit trailer, or the single commit in its time window" },
   { title: "Evidence", detail: "Planned: checks the agent cannot forge" },
   { title: "Verdict", detail: "Planned: bound to the exact code revision" },
   { title: "Cost", detail: "Today: computed from the session's tokens and a public price table" },
@@ -279,7 +279,7 @@ export const graphNodes = [
 
 export const shipsToday = {
   heading: "What you can run today",
-  body: "The collector is open source (Apache 2.0) and runs on your machine. It listens for OTLP on localhost, stores sessions in one SQLite file, and serves a read-only page. It has no authentication, so keep it on localhost.",
+  body: "The collector is open source (Apache 2.0) and runs on your machine. sdf serve listens for OTLP/HTTP on 127.0.0.1:4318 and OTLP/gRPC on 127.0.0.1:4317, stores sessions in one SQLite file, and serves a read-only page at 127.0.0.1:4320. It has no authentication, so keep it on localhost.",
   install: "go install github.com/paulpham157/sdf/cmd/sdf@latest",
   run: ["sdf serve", "sdf summary"],
   note: "Needs Go 1.26 or newer. No release binaries are published yet. An accepted outcome needs a commit link (sdf init --git-hooks records one) and --github for merge status; without them the metric says unknown.",

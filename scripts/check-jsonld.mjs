@@ -1,6 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { attack, breadcrumbs } from "./jsonld-fixture/payload.js";
 
@@ -25,7 +24,12 @@ const expected = {
     },
   ],
 };
-const outDir = mkdtempSync(join(tmpdir(), "sdf-jsonld-"));
+// Astro renames build assets from .astro/ into the output directory, and a
+// rename fails with EXDEV when the OS temp dir is on another filesystem. Keep
+// the scratch output under the (gitignored) .astro/ directory instead.
+const scratchRoot = new URL("../.astro/", import.meta.url).pathname;
+mkdirSync(scratchRoot, { recursive: true });
+const outDir = mkdtempSync(join(scratchRoot, "sdf-jsonld-"));
 
 function fail(message) {
   rmSync(outDir, { recursive: true, force: true });
