@@ -79,8 +79,8 @@ assert(includes(home, "§ 01. Why SDF"), "Home § 01 kicker drifted");
 assert(includes(home, "Stays on your machine"), "Home is missing the localhost point");
 assert(includes(home, "Data goes into local SQLite, with no outside SaaS."), "Localhost point drifted");
 assert(includes(home, 'href="/blog"'), "Home is missing the blog link");
-assert(includes(home, "Become a design partner"), "Home is missing the § 06 design-partner heading");
-assert(includes(home, "Apply to be a design partner"), "Home is missing the § 06 design-partner link");
+assert(includes(home, "Become a design partner"), "Home is missing the § 04 design-partner heading");
+assert(includes(home, "Apply to be a design partner"), "Home is missing the § 04 design-partner link");
 const headerBlocks = pages.map((page) => ({
   file: page.file,
   header: page.html.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0] ?? "",
@@ -109,7 +109,7 @@ assert(
 assert(!heroCta.includes("sample-evidence-report"), "Hero must not keep the sample-report button");
 assert(includes(home, 'href="/sample-evidence-report"'), "Sample report must stay in the nav");
 const closeCta = [...home.matchAll(/<div class="cta-row">([\s\S]*?)<\/div>/g)].at(-1)?.[1] ?? "";
-assert(closeCta.includes('href="/design-partners"') && includes(closeCta, "Apply to be a design partner"), "§ 06 design-partner CTA must stay");
+assert(closeCta.includes('href="/design-partners"') && includes(closeCta, "Apply to be a design partner"), "§ 04 design-partner CTA must stay");
 assert(includes(home, "sdf task declare records the task"), "Home is missing the Declare line");
 assert(includes(home, "Routing a task to an agent you already use is planned."), "Home Route line drifted");
 assert(includes(home, "Your agents stay in place. SDF records what they did."), "How-it-works lede drifted");
@@ -138,7 +138,7 @@ assert(!includes(home, "This is headed toward"), "Homepage moat was removed");
 assert(!includes(home, "either way"), "either way must stay out of the homepage");
 assert(includes(home, "The exact commit-link rules are in "), "Commit-link docs line drifted");
 assert(includes(home, "is spelled out in "), "Accepted-definition docs line drifted");
-assert(includes(home, "go install builds from source and needs Go 1.26 or newer."), "Home install note drifted");
+assert(includes(home, "<code>go install</code> builds from source and needs Go 1.26 or newer."), "Home install note drifted");
 assert(!includes(home, "Cost per Accepted Outcome is unknown without --github"), "The install note still repeats the unknown-cost conditions");
 assert(home.includes('id="today"'), "Install section must keep id today");
 assert(
@@ -307,6 +307,11 @@ assert(llms.includes("Route is Planned"), "llms.txt still uses the old step coun
 assert(llms.includes("Declare, Verify, and Record are partly shipped"), "llms.txt must say which steps are partly shipped");
 assert(!llms.includes("three planned, one partly shipped"), "llms.txt still says three steps are planned");
 assert(llmsFull.includes("Accepted means merged"), "llms-full must keep the accepted definition");
+assert(llmsFull.includes("## Why SDF"), "llms-full must title the points Why SDF");
+assert(!llmsFull.includes("## Commitments"), "llms-full still says Commitments");
+assert(!llmsFull.includes("Acceptance by a named reviewer is planned"), "llms-full still says reviewer acceptance is planned");
+assert(!llms.includes("A local OpenTelemetry collector and decision ledger for coding agents."), "llms.txt repeats the tagline beside the subhead");
+assert(!llmsFull.includes("A local OpenTelemetry collector and decision ledger for coding agents."), "llms-full repeats the tagline beside the subhead");
 assert(llmsFull.includes("https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "llms-full is missing the v0.1.0 release");
 assert(llmsFull.includes("https://www.openhands.dev/pricing"), "llms-full is missing the OpenHands source");
 assert(llmsFull.includes("https://factory.com/pricing"), "llms-full is missing the Factory source");

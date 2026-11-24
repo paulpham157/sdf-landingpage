@@ -3,7 +3,7 @@ import { hero, shipsToday, site } from "../data/site";
 
 const body = `# ${site.name} (${site.shortName})
 
-> ${site.tagline} ${hero.subhead} Source: ${site.repo}. Install: ${shipsToday.install}. Pin: ${shipsToday.installPin}. Release: ${shipsToday.releaseUrl}. SDF does not sell an agent and does not resell model tokens. ${site.status} SDF dollar amounts are not published. The hosted tier is named Hosted Team.
+> ${hero.subhead} Source: ${site.repo}. Install: ${shipsToday.install}. Pin: ${shipsToday.installPin}. Release: ${shipsToday.releaseUrl}. SDF does not sell an agent and does not resell model tokens. ${site.status} SDF dollar amounts are not published. The hosted tier is named Hosted Team.
 
 This file restates public pages on ${site.url}. It is not a customer list, a price sheet, or a set of results.
 

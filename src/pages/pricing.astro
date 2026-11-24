@@ -24,7 +24,7 @@ const breadcrumbs = [
       </p>
       <pre class="install"><code><!--email_off-->{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}<!--/email_off--></code></pre>
       <p class="step-today">
-        <a href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>. {shipsToday.note}
+        <a href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>. <code>{shipsToday.note.command}</code>{shipsToday.note.after}
       </p>
       <p class="lede">{pricingIntro.lede}</p>
       <p class="lede tight">{pricingIntro.unpublished}</p>

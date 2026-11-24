@@ -104,7 +104,7 @@ const jsonLd = graph(
       <h2 id="today-title">{shipsToday.heading}</h2>
       <p class="lede tight">{shipsToday.body}</p>
       <pre class="install"><code><!--email_off-->{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}<!--/email_off--></code></pre>
-      <p class="step-today">{shipsToday.note}</p>
+      <p class="step-today"><code>{shipsToday.note.command}</code>{shipsToday.note.after}</p>
       <p class="lede tight">{problem.coverage}</p>
       <p>
         <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">Prebuilt archives for Linux, macOS, and Windows</a>

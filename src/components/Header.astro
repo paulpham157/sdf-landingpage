@@ -24,6 +24,7 @@ function isCurrent(href: string) {
 ---
 
 <header class="site-header">
+  <button type="button" class="nav-backdrop" hidden tabindex="-1" aria-label="Close menu"></button>
   <div class="wrap header-bar">
     <a class="brand" href="/" aria-current={pathname === "/" ? "page" : undefined}>
       <Seal />
@@ -44,7 +45,7 @@ function isCurrent(href: string) {
     </nav>
     <details class="nav-disclosure">
       <summary class="nav-summary">Menu</summary>
-      <nav class="primary-nav" aria-label="Primary">
+      <nav class="primary-nav" aria-label="Menu">
         <a class="menu-cta" href="/#today">{hero.primaryCta}</a>
         {
           links.map((link) => (
@@ -61,11 +62,26 @@ function isCurrent(href: string) {
 
 <script>
   const menu = document.querySelector(".nav-disclosure");
+  const backdrop = document.querySelector(".nav-backdrop");
   if (menu instanceof HTMLDetailsElement) {
+    const setOpen = (open: boolean) => {
+      document.documentElement.classList.toggle("menu-open", open);
+      if (backdrop instanceof HTMLButtonElement) backdrop.hidden = !open;
+    };
+    menu.addEventListener("toggle", () => setOpen(menu.open));
     menu.addEventListener("click", (event) => {
       const link = event.target instanceof Element ? event.target.closest("a") : null;
       if (link) menu.open = false;
     });
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (!menu.open) return;
+        if (!(event.target instanceof Node) || menu.contains(event.target)) return;
+        menu.open = false;
+      },
+      true,
+    );
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !menu.open) return;
       menu.open = false;

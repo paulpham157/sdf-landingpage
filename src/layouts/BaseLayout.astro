@@ -126,10 +126,22 @@ const ogImage = image
         return Number.isFinite(parsed) ? parsed : 0;
       }
 
+      let scrollToken = 0;
+
+      function focusTarget(target: HTMLElement) {
+        if (!target.hasAttribute("tabindex")) target.setAttribute("tabindex", "-1");
+        target.focus({ preventScroll: true });
+      }
+
       function scrollToTarget(target: HTMLElement) {
+        const token = ++scrollToken;
+        const finish = () => {
+          if (token === scrollToken) focusTarget(target);
+        };
         const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - scrollPaddingTop());
         if (reduceMotion.matches) {
           window.scrollTo({ top, behavior: "auto" });
+          finish();
           return;
         }
         const start = window.scrollY;
@@ -137,10 +149,12 @@ const ogImage = image
         const duration = 260;
         const started = performance.now();
         const frame = (now: number) => {
+          if (token !== scrollToken) return;
           const progress = Math.min(1, (now - started) / duration);
           const eased = 1 - (1 - progress) ** 2;
           window.scrollTo(0, start + delta * eased);
           if (progress < 1) requestAnimationFrame(frame);
+          else finish();
         };
         requestAnimationFrame(frame);
       }

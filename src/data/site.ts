@@ -47,7 +47,6 @@ export const problem = {
   body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token and still can't tell what worked.",
   coverage:
     "sdf init supports Claude Code, Codex, OpenCode v2, Pi (through the community pi-otel extension), Qwen, Grok, Gemini, and Copilot CLI. Tool-call arguments from Qwen Code and Gemini CLI are dropped before anything is stored. Cursor, Devin, Factory, and Copilot outside the CLI have no SDF adapter.",
-  agents: ["Copilot", "Cursor", "Devin", "Factory"] as const,
 } as const;
 
 export type Status = "planned" | "partial";
@@ -84,9 +83,6 @@ export const steps = [
   },
 ] as const;
 
-export const moat =
-  "This is headed toward a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. Today you get vendor-neutral telemetry, a computed cost that says unknown instead of guessing, an opt-in hash-chained ledger for tasks, evidence, and verdicts, and commit links that follow a fixed order. If a link is not certain, the session stays unlinked. The exact rules are in the docs.";
-
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 
@@ -94,7 +90,7 @@ export const costPerAcceptedOutcome =
   "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked GitHub pull request merged, divided by how many such sessions there are. It is unknown, not zero, without --github, or when cost, outcome, or a unique merge is missing: any session has no known outcome, an accepted session has no known cost, the same commit is linked to more than one accepted session, or nothing merged. It is not read from an invoice, and it is not acceptance by a named principal. It is never a cost per seat, or per agent claiming a task is done.";
 
 export const acceptedToday =
-  "Accepted means merged: a session counts as accepted only when every commit linked to it is in one GitHub pull request and that pull request is merged. CI status is reported next to it and does not change it. Acceptance by a named reviewer is planned.";
+  "Accepted means merged: a session counts as accepted only when every commit linked to it is in one GitHub pull request and that pull request is merged. CI status is reported next to it and does not change it.";
 
 export const pillars = [
   {
@@ -291,14 +287,6 @@ export const marketAnchors = [
   },
 ] as const;
 
-export const graphNodes = [
-  { title: "Objective", detail: "Today: a declared task's checks (sdf task declare). Planned: linked to the business goal" },
-  { title: "Attempt", detail: "Today: an agent session, linked to a commit by a fixed order of rules, or left unlinked" },
-  { title: "Evidence", detail: "Today: sdf verify's check results, not yet linked to a session" },
-  { title: "Verdict", detail: "Today: PASS, FAIL, or ERROR for the exact commit sdf verify checked" },
-  { title: "Cost", detail: "Today: computed from the session's token counts and a public price table, not from an invoice" },
-] as const;
-
 export const shipsToday = {
   heading: "What you can run today",
   body: "v0.1.0 is open source under Apache 2.0. sdf serve listens on localhost and serves a read-only page. Authentication is off by default, so keep the receiver on localhost.",
@@ -306,5 +294,8 @@ export const shipsToday = {
   installPin: "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0",
   releaseUrl: "https://github.com/paulpham157/sdf/releases/tag/v0.1.0",
   run: ["sdf serve", "sdf summary"],
-  note: "go install builds from source and needs Go 1.26 or newer.",
+  note: {
+    command: "go install",
+    after: " builds from source and needs Go 1.26 or newer.",
+  },
 } as const;

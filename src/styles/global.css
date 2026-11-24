@@ -59,7 +59,6 @@ h1,
 h2,
 .brand-name,
 .brand-short,
-.agent-name,
 .footer-name,
 .tier h3,
 .compare thead th {
@@ -297,6 +296,15 @@ code {
   border-bottom: 1px solid var(--rule);
 }
 
+.nav-backdrop {
+  display: none;
+}
+
+html.menu-open,
+html.menu-open body {
+  overflow: hidden;
+}
+
 .header-bar {
   display: flex;
   flex-wrap: nowrap;
@@ -503,45 +511,6 @@ code {
   letter-spacing: -0.02em;
 }
 
-.agent-row {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 0;
-  margin: 2rem 0 0;
-  padding: 0;
-  border-top: 1px solid var(--ink);
-}
-
-.agent-row li {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  padding: 0.95rem 1rem 0.95rem 0;
-  border-bottom: 1px solid var(--rule);
-}
-
-.agent-name {
-  font-size: 1.55rem;
-}
-
-.agent-row-label {
-  margin-top: 1.25rem;
-  max-width: 40rem;
-  font-family: var(--mono);
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--ink-soft);
-}
-
-.agent-mark {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-
 .steps {
   list-style: none;
   display: grid;
@@ -575,25 +544,6 @@ code {
 .steps p,
 .pillars p + p {
   margin-top: 0.75rem;
-}
-
-.pillar-definitions {
-  display: grid;
-  gap: 0.95rem;
-  max-width: 48rem;
-  margin-top: 1.75rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--rule);
-}
-
-.pillar-definitions .pillar-note {
-  margin: 0;
-}
-
-.pillar-note-label {
-  font-family: var(--mono);
-  font-size: 0.8125rem;
-  letter-spacing: 0.04em;
 }
 
 .pillars p,
@@ -648,18 +598,6 @@ code {
   margin-top: 1.15rem;
   max-width: 46rem;
   color: var(--ink-soft);
-}
-
-.moat {
-  margin-top: 2.75rem;
-  max-width: 46rem;
-  color: var(--ink-soft);
-}
-
-.moat a {
-  color: var(--stamp-deep);
-  font-weight: 600;
-  text-underline-offset: 0.2em;
 }
 
 .pillars {
@@ -1289,7 +1227,6 @@ textarea {
 }
 
 .footer-tag,
-.footer-status,
 .footer-note,
 .footer-install,
 .footer-end {
@@ -1309,7 +1246,6 @@ textarea {
   white-space: nowrap;
 }
 
-.footer-status,
 .footer-note {
   margin-top: 0.7rem;
 }
@@ -1402,7 +1338,6 @@ textarea {
     border-right: 0;
   }
 
-  .agent-row,
   .chain ol {
     grid-template-columns: 1fr 1fr;
   }
@@ -1477,6 +1412,25 @@ textarea {
     display: none;
   }
 
+  .brand,
+  .header-cta,
+  .nav-summary {
+    position: relative;
+    z-index: 1;
+  }
+
+  .nav-backdrop:not([hidden]) {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--paper);
+    cursor: pointer;
+  }
+
   .nav-disclosure[open] > .primary-nav {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -1490,7 +1444,7 @@ textarea {
     background: var(--paper);
     border-bottom: 1px solid var(--rule);
     padding: 0.5rem 1.25rem;
-    z-index: 20;
+    z-index: 1;
   }
 }
 
@@ -1549,10 +1503,6 @@ textarea {
   .narrow,
   .faq-wrap {
     width: min(1120px, calc(100% - 1.5rem));
-  }
-
-  .agent-row {
-    grid-template-columns: 1fr 1fr;
   }
 
   .sample-stamp {
