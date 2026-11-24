@@ -7,11 +7,23 @@ export const site = {
   shortName: "SDF",
   url: "https://softwaredecisionfabric.tech",
   tagline: "A local OpenTelemetry collector and decision ledger for coding agents.",
+  /** Short header phrase. The full tagline stays in the hero and footer. */
+  headerTagline: "Local collector and decision ledger",
+  /**
+   * One line for the sticky status bar. `status` stays the full public
+   * statement used in the footer, one-pager, sample report, and llms.txt.
+   */
+  statusBar: "v0.1.0 is public. We are onboarding 3 to 5 design partners.",
   email: "design-partners@softwaredecisionfabric.tech",
   emailIsPlaceholder: false,
   status:
     "v0.1.0 is public: an open-source local collector and decision ledger (Apache 2.0) that listens on your machine. Declare, verify, and record are partly shipped. Routing and the hosted referee loop are planned. We are onboarding 3 to 5 design partners.",
   repo: "https://github.com/paulpham157/sdf",
+  /** Product docs directory, linked from the README documentation index. */
+  docsUrl: "https://github.com/paulpham157/sdf/tree/main/docs",
+  /** Commit-link rules. Heading exists in docs/outcomes.md. */
+  commitLinkDocsUrl:
+    "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit",
 } as const;
 
 /** Public name of the wedge metric. Do not paraphrase this on the site. */
@@ -20,7 +32,7 @@ export const wedgeMetric = "Cost per Accepted Outcome";
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "A local OpenTelemetry collector and decision ledger for coding agents. It runs on your machine: it listens on 127.0.0.1, stores sessions in SQLite, and does not launch, route, or sandbox agents. It records the telemetry your agents already export, links sessions to commits, and shows Cost per Accepted Outcome from pull requests that merged. It can also run a task's declared checks against one commit. The independent referee loop — routing work and verifying every attempt automatically — is planned.",
+    "A local OpenTelemetry collector and decision ledger for coding agents. It runs on your machine, records the telemetry they already export, and does not launch, route, or sandbox them. It links sessions to commits and shows Cost per Accepted Outcome from merged pull requests. The independent referee loop is planned.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Become a design partner",
@@ -29,9 +41,9 @@ export const hero = {
 
 export const problem = {
   heading: "“Task complete” is a claim, not a result.",
-  body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token, while the question that matters — did it work? — goes unanswered.",
+  body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token, but the question that matters goes unanswered: did it work?",
   coverage:
-    "sdf init supports Claude Code, Codex, OpenCode v2, Pi (through the community pi-otel extension), Qwen, Grok, Gemini, and Copilot CLI, from the OpenTelemetry each one exports. The tool-call arguments Qwen Code and Gemini CLI send are dropped before anything is stored. Cursor, Devin, Factory, and Copilot outside the CLI have no SDF adapter.",
+    "sdf init supports Claude Code, Codex, OpenCode v2, Pi (through the community pi-otel extension), Qwen, Grok, Gemini, and Copilot CLI, from the OpenTelemetry each one exports. Tool-call arguments from Qwen Code and Gemini CLI are dropped before anything is stored. Cursor, Devin, Factory, and Copilot outside the CLI have no SDF adapter.",
   agents: ["Copilot", "Cursor", "Devin", "Factory"] as const,
 } as const;
 
@@ -49,7 +61,7 @@ export const steps = [
     status: "partial" as Status,
     body: "Declare the objective and acceptance criteria, linked to the business goal.",
     today:
-      "Today: sdf task declare records a task's checks and the files they depend on, hashed, before an agent starts, and sdf decision add records a decision or hypothesis. Linking a task to a business goal is planned.",
+      "Today: before an agent starts, sdf task declare records a task's checks and the files they depend on, hashed. sdf decision add records a decision or hypothesis. Linking a task to a business goal is planned.",
   },
   {
     id: "02",
@@ -65,7 +77,7 @@ export const steps = [
     status: "partial" as Status,
     body: "SDF runs independent checks the agent can't forge, and ties PASS to the exact code revision.",
     today:
-      "Today: sdf verify runs a declared task's checks against one commit in a fresh checkout, from trusted copies of the task, and prints the evidence and a PASS, FAIL, or ERROR verdict for that commit. A GitHub Action runs it on pull requests. Running it on every agent attempt automatically is planned.",
+      "Today: sdf verify runs a declared task's checks against one commit, from trusted copies in a fresh checkout, and prints the evidence and a PASS, FAIL, or ERROR. A GitHub Action runs it on pull requests. Running it on every attempt automatically is planned.",
   },
   {
     id: "04",
@@ -73,12 +85,12 @@ export const steps = [
     status: "partial" as Status,
     body: "Planned: every attempt, its cost, and its evidence land in a Decision Graph you can audit. Shipping now: session cost and commit links, decision records you link to sessions and commits, and an optional hash-chained ledger.",
     today:
-      "Today: token counts, duration, and computed cost for each session, the commit or pull request it links to, and the decision records you write, in one local SQLite file. Prompt, response, tool, and error text is dropped before storing unless you opt in with --store-content. No UI or API route writes or deletes. With --ledger, sdf task declare and sdf verify also append the task, evidence, and verdict to an append-only, hash-chained ledger that sdf audit verify checks. Linking that evidence to sessions and cost is planned.",
+      "Today: a local SQLite file stores each session's token counts, duration, computed cost, commit or pull request link, and the decision records you write. Prompt, response, tool, and error text is dropped unless you opt in. No UI or API route writes or deletes. An optional hash-chained ledger can record tasks, evidence, and verdicts. Linking that evidence to sessions and cost is planned.",
   },
 ] as const;
 
 export const moat =
-  "Where this is going: a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. What runs today is the layer underneath it: an opt-in hash-chained ledger for tasks, evidence, and verdicts, vendor-neutral telemetry, a computed cost that says unknown instead of guessing, and commit links that come, in order, from a commit SHA the agent exported, the sdf git hook, or an SDF-Session: commit trailer. An exported SHA that is not in the checkout leaves the session unlinked; it does not drop to the hook, the trailer, or the time window. Only a session with no exported SHA and no hook commit can be linked by its time window, and only when exactly one commit fits.";
+  "This is headed toward a hardened, evidence-gated record in a Decision Graph that links objectives to attempts, cost, and evidence. Today you get the layer underneath: vendor-neutral telemetry, a computed cost that says unknown instead of guessing, an opt-in hash-chained ledger for tasks, evidence, and verdicts, and commit links that follow a fixed order instead of guessing. If a link is not certain, the session stays unlinked. The exact rules are in the docs.";
 
 export const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
@@ -97,11 +109,11 @@ export const pillars = [
   {
     title: "Independently verifiable",
     status: "planned" as Status,
-    body: "Evidence that is re-runnable and revision-bound, so security and finance can check it without trusting us or the agent. Today the telemetry sits in a local SQLite file you can summarize again, and sdf verify re-runs a declared task's checks against a commit. Re-running them for every agent attempt is planned.",
+    body: "Evidence that is re-runnable and revision-bound, so security and finance can check it without trusting us or the agent. Today, the telemetry sits in a local SQLite file you can summarize again, and sdf verify re-runs a declared task's checks against a commit. Re-running them for every agent attempt is planned.",
   },
   {
     title: "Cost per Accepted Outcome",
-    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI from sdf serve shows it overall and per agent. Run it with --github so merge status is known; without that flag the figure stays unknown.",
+    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI from sdf serve shows it overall and per agent. Run it with --github so merge status is known. Without that flag, the figure stays unknown.",
     note: verifiedAttempt,
     outcome: costPerAcceptedOutcome,
   },
@@ -190,11 +202,11 @@ export const onePager = {
     },
     {
       title: "Install",
-      body: "Public now, and the way to run SDF: v0.1.0, Apache 2.0, on your machine. go install github.com/paulpham157/sdf/cmd/sdf@latest, or go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0. Prebuilt archives are at https://github.com/paulpham157/sdf/releases/tag/v0.1.0. Go 1.26 or newer to build from source. It listens on 127.0.0.1 and stores SQLite locally. No outside SaaS is required. Hosted Team, Enterprise, VPC, and SSO are a planned roadmap and are not required to install.",
+      body: "The way to run SDF today is v0.1.0, Apache 2.0, on your machine: go install github.com/paulpham157/sdf/cmd/sdf@latest, or go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0. Prebuilt archives are at https://github.com/paulpham157/sdf/releases/tag/v0.1.0. Building from source, including go install, needs Go 1.26 or newer. It listens on localhost and stores data in local SQLite. No outside SaaS is required. Hosted Team, Enterprise, VPC, and SSO are planned and not required to install.",
     },
     {
       title: "Solution",
-      body: "Shipping today: an open-source local collector and decision ledger. It records agent telemetry, drops prompt, response, tool, and error text unless you pass --store-content, keeps token counts so cost can be computed, links sessions to commits, and computes Cost per Accepted Outcome from merged pull requests. sdf verify runs a declared task's checks against one commit. Planned: a vendor-neutral referee that routes work and verifies every agent attempt with evidence the agent can't forge.",
+      body: "Shipping today: an open-source local collector and decision ledger. It records agent telemetry, drops prompt, response, tool, and error text unless you opt in, keeps token counts so cost can be computed, links sessions to commits, and computes Cost per Accepted Outcome from merged pull requests. sdf verify runs a declared task's checks against one commit. Planned: a vendor-neutral referee that routes work and verifies every attempt with evidence the agent can't forge.",
     },
     {
       title: "Outcome",
@@ -283,10 +295,10 @@ export const graphNodes = [
 
 export const shipsToday = {
   heading: "What you can run today",
-  body: "v0.1.0 is open source (Apache 2.0) and runs entirely on your machine. No outside SaaS is required. sdf serve listens for OTLP/HTTP on 127.0.0.1:4318 and OTLP/gRPC on 127.0.0.1:4317, stores sessions in one SQLite file, and serves a read-only page at 127.0.0.1:4320. It does not launch, route, or sandbox agents; it only listens. Prompt, response, tool, and error text is dropped before storing unless you opt in with --store-content. Token counts are stored so cost can be computed. Authentication is off by default; an optional bearer token (--otlp-token-file or SDF_OTLP_TOKEN_FILE) guards OTLP writes, and the hooks sdf installs send it. Keep the receiver on localhost either way.",
+  body: "v0.1.0 is open source (Apache 2.0) and runs entirely on your machine, with no outside SaaS. sdf serve listens on localhost for OTLP and serves the read-only UI on localhost. It stores sessions in one SQLite file. It does not launch, route, or sandbox agents. It only listens. Prompt, response, tool, and error text is dropped unless you opt in, and token counts are stored so cost can be computed. Authentication is off by default. An optional bearer token can guard OTLP writes. Keep the receiver on localhost.",
   install: "go install github.com/paulpham157/sdf/cmd/sdf@latest",
   installPin: "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0",
   releaseUrl: "https://github.com/paulpham157/sdf/releases/tag/v0.1.0",
   run: ["sdf serve", "sdf summary"],
-  note: "Building from source, including go install, needs Go 1.26 or newer. The @latest install currently resolves to v0.1.0; the @v0.1.0 pin stays on this release. Prebuilt archives for Linux, macOS, and Windows are on the v0.1.0 release. Cost per Accepted Outcome is unknown without --github, or when cost, outcome, or a unique merge is missing.",
+  note: "Building from source, including go install, needs Go 1.26 or newer. Prebuilt archives for Linux, macOS, and Windows are on the v0.1.0 release. Cost per Accepted Outcome is unknown without --github, or when cost, outcome, or a unique merge is missing.",
 } as const;
