@@ -18,7 +18,7 @@ import {
 } from "../data/site";
 import { graph, webPage } from "../lib/seo";
 
-const title = "SDF — Know which agent work actually shipped";
+const title = "SDF: Know which agent work actually shipped";
 const description = `${site.tagline} It links agent sessions to commits and shows ${wedgeMetric} from merged pull requests. The independent referee loop is planned.`;
 
 const jsonLd = graph(
@@ -83,10 +83,9 @@ const jsonLd = graph(
 
   <section class="section" id="problem" aria-labelledby="problem-title">
     <div class="wrap">
-      <p class="kicker">§ 01 — The problem</p>
+      <p class="kicker">§ 01. The problem</p>
       <h2 id="problem-title">{problem.heading}</h2>
       <p class="statement">{problem.body}</p>
-      <p class="lede tight">{problem.coverage}</p>
       <p class="agent-row-label">These products grade their own work. This row is not the list of SDF adapters.</p>
       <ul class="agent-row" aria-label="Products that grade their own work. Not the SDF adapter list.">
         {
@@ -103,9 +102,9 @@ const jsonLd = graph(
 
   <section class="section" id="how-it-works" aria-labelledby="how-title">
     <div class="wrap">
-      <p class="kicker">§ 02 — How it works</p>
+      <p class="kicker">§ 02. How it works</p>
       <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF records what they did today, and can check a commit against a declared task from the command line; running that on every attempt is planned. Each step says what runs today.</p>
+      <p class="lede tight">Your agents stay in place. SDF records what they did today, and can check a commit against a declared task from the command line. Running that on every attempt is planned. Each step says what runs today.</p>
       <ol class="steps">
         {
           steps.map((step) => (
@@ -122,7 +121,7 @@ const jsonLd = graph(
       </ol>
       <DecisionChain
         nodes={graphNodes}
-        caption="The planned record. Today SDF stores the session, its cost, and its commit link, and sdf verify records a task's evidence and verdict for a commit; they are not linked to the session yet."
+        caption="Today the session, its cost, and its commit link are stored separately from the evidence and verdict that sdf verify records. They are not linked yet."
       />
       <p class="moat">{moat}</p>
     </div>
@@ -130,7 +129,7 @@ const jsonLd = graph(
 
   <section class="section" id="commitments" aria-labelledby="pillar-title">
     <div class="wrap">
-      <p class="kicker">§ 03 — Three commitments</p>
+      <p class="kicker">§ 03. Three commitments</p>
       <h2 id="pillar-title">Vendor-neutral, verifiable, {wedgeMetric}.</h2>
       <div class="pillars">
         {
@@ -144,6 +143,14 @@ const jsonLd = graph(
                 )}
               </h3>
               <p>{pillar.body}</p>
+            </article>
+          ))
+        }
+      </div>
+      <div class="pillar-definitions">
+        {
+          pillars.map((pillar) => (
+            <>
               {"note" in pillar && pillar.note && (
                 <p class="pillar-note">
                   <span class="pillar-note-label">verified Attempt (planned).</span> {pillar.note}
@@ -151,7 +158,7 @@ const jsonLd = graph(
               )}
               {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{pillar.outcome}</p>}
               {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{acceptedToday}</p>}
-            </article>
+            </>
           ))
         }
       </div>
@@ -160,9 +167,10 @@ const jsonLd = graph(
 
   <section class="section" id="today" aria-labelledby="today-title">
     <div class="wrap">
-      <p class="kicker">§ 04 — Shipping today</p>
+      <p class="kicker">§ 04. Shipping today</p>
       <h2 id="today-title">{shipsToday.heading}</h2>
       <p class="lede tight">{shipsToday.body}</p>
+      <p class="lede tight">{problem.coverage}</p>
       <pre class="install"><code>{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}</code></pre>
       <p class="step-today">{shipsToday.note}</p>
       <p>
@@ -175,11 +183,9 @@ const jsonLd = graph(
 
   <section class="section band" aria-labelledby="price-pointer-title">
     <div class="wrap price-pointer">
-      <div>
-        <p class="kicker">§ 05 — Pricing shape</p>
-        <h2 id="price-pointer-title">{pricingIntro.lede}</h2>
-        <p class="lede tight">{pricingIntro.unpublished}</p>
-      </div>
+      <p class="kicker">§ 05. Pricing shape</p>
+      <h2 id="price-pointer-title">{pricingIntro.lede}</h2>
+      <p class="lede tight">{pricingIntro.unpublished}</p>
       <a class="button button-secondary" href="/pricing">Read the comparison</a>
     </div>
   </section>
@@ -187,7 +193,7 @@ const jsonLd = graph(
   <section class="close" aria-labelledby="close-title">
     <div class="wrap close-grid">
       <div>
-        <p class="kicker kicker-light">§ 06 — Design partners</p>
+        <p class="kicker kicker-light">§ 06. Design partners</p>
         <h2 id="close-title">{closing.heading}</h2>
         <p class="lede light">{closing.body}</p>
         <div class="cta-row">

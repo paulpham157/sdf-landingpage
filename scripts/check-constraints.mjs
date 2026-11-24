@@ -88,7 +88,7 @@ assert(includes(home, "Planned"), "Home must label unshipped steps as Planned");
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Home is missing the real install path");
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0"), "Home is missing the v0.1.0 pin");
 assert(includes(home, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Home is missing the v0.1.0 release");
-assert(includes(home, "--store-content"), "Home must say content is opt-in");
+assert(includes(home, "unless you opt in"), "Home must say content is opt-in");
 assert(includes(home, "Token counts"), "Home must say token counts are stored");
 assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Pricing must lead with the local install");
 assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
