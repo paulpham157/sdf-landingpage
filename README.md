@@ -33,7 +33,13 @@ npm exec wrangler -- pages project create sdf-landing --production-branch main
 
 Do not run `pages project create` from an agent session. Wrangler 4.158.0 can create a Worker instead of a Pages project when `sdf-landing` is missing. `npm run deploy` only uploads when that project already exists.
 
-`npm run deploy` needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The token is an account API token with Cloudflare Pages: Edit. Copy [`.env.example`](.env.example) to `.env` at the repo root. A value already set in the shell wins. `.env` is not committed.
+`npm run deploy` needs `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The token is an account API token with Cloudflare Pages: Edit. Copy [`.env.example`](.env.example) to `.env` at the repo root for a local shell. `npm run deploy` loads that file when it exists. A value already set in the shell wins. `.env` is not committed. When `.env` is absent, the command keeps the variables already in the process environment. The GitHub Actions deploy does not create a `.env` file.
+
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) installs with `npm ci`, builds, runs `npm run check:copy` and `npm run check:jsonld`, then runs `npm run deploy`. That command builds and checks again and uploads `dist/` to the existing Pages project `sdf-landing`. A push to `main` is production and is recorded on the GitHub `production` environment (`https://sdf-landing.pages.dev`). A push to any other branch is a preview (the Pages branch alias) on the `preview` environment. `workflow_dispatch` deploys the branch you select. Pull requests do not deploy.
+
+The workflow needs two repository secrets, added under Settings → Secrets and variables → Actions. `CLOUDFLARE_API_TOKEN` is an account API token with Cloudflare Pages: Edit. `CLOUDFLARE_ACCOUNT_ID` is the account id. They are passed only to the secret check and to `npm run deploy`. If either secret is missing on `main`, the check names it, says where to add it, and fails the production job. On any other branch it emits a notice and skips the preview. Secret values are not printed.
+
+Push lên `main` là bản production. Push lên nhánh khác là bản xem trước (alias của nhánh). `workflow_dispatch` chạy nhánh được chọn. Workflow cần `CLOUDFLARE_API_TOKEN` (quyền Cloudflare Pages: Edit) và `CLOUDFLARE_ACCOUNT_ID`. Thiếu secret trên `main` thì job lỗi; trên nhánh khác thì ghi notice và bỏ qua. Không cần file `.env`.
 
 Attach the custom domain in the Cloudflare dashboard. Response headers are in [`public/_headers`](public/_headers).
 
@@ -56,4 +62,4 @@ The contact address is `email` in [`src/data/site.ts`](src/data/site.ts) (`desig
 
 ## Stack
 
-[Astro](https://astro.build/) 7 builds static HTML. [`.github/workflows/build.yml`](.github/workflows/build.yml) installs, tests, builds, and runs the checks. It does not deploy.
+[Astro](https://astro.build/) 7 builds static HTML. [`.github/workflows/build.yml`](.github/workflows/build.yml) installs, tests, builds, and runs the checks. It does not deploy. [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) publishes the site with `npm run deploy`.
