@@ -7,24 +7,7 @@ dist/
 .netlify/
 .wrangler/
 
-# Terraform local state, plans, and downloaded providers.
-.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
-crash.*.log
-override.tf
-override.tf.json
-*_override.tf
-*_override.tf.json
-
-# Private inputs. terraform.tfvars.example and backend.hcl.example stay committed.
-*.tfvars
-*.tfvars.json
-infra/cloudflare/backend.hcl
-
-# Local credentials loaded by npm run deploy and npm run attach-domain.
+# Local credentials loaded by npm run deploy.
 .env
 .env.*
 !.env.example

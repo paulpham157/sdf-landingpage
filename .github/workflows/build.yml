@@ -26,7 +26,6 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run test:deploy
-      - run: npm run test:attach-domain
       - run: npm run test:env-file
       - run: npm run build
       - run: npm run check:copy
