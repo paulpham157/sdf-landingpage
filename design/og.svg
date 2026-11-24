@@ -1,1 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630"><rect width="1200" height="630" fill="#f3efe4"/><rect width="1104" height="534" x="48" y="48" fill="none" stroke="#1a1c16" stroke-width="2"/><rect width="64" height="64" x="72" y="78" fill="#1a1c16"/><rect width="56" height="56" x="76" y="82" fill="none" stroke="#9e2a1c" stroke-width="2"/><text x="104" y="118" fill="#f3efe4" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="18" font-weight="700" text-anchor="middle">SDF</text><text x="156" y="106" fill="#7f2218" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="20" letter-spacing="2">SOFTWARE DECISION FABRIC</text><text x="156" y="134" fill="#3a3e34" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="16" letter-spacing="1.5">THE INDEPENDENT REFEREE FOR CODING AGENTS</text><text x="84" y="280" fill="#1a1c16" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68">Know which agent</text><text x="84" y="360" fill="#1a1c16" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="68">work actually shipped.</text><rect width="92" height="6" x="84" y="396" fill="#9e2a1c"/><text x="84" y="500" fill="#3a3e34" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="24">Design-partner program. Live today only on a toy fixture.</text><text x="84" y="546" fill="#1a1c16" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="22">softwaredecisionfabric.tech</text></svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#F6F1E8"/>
+  <rect width="1104" height="534" x="48" y="48" fill="none" stroke="#2F3640" stroke-width="2"/>
+  <svg x="80" y="84" width="112" height="112" viewBox="0 0 256 256">
+    <rect width="256" height="256" fill="#F6F1E8"/>
+    <g fill="none" stroke="#2F3640" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M113.7 33.7 L194.3 114.3"/>
+      <path d="M87.7 59.7 L168.3 140.3"/>
+      <path d="M61.7 85.7 L128.0 152.0"/>
+      <path d="M142.3 33.7 L61.7 114.3"/>
+      <path d="M168.3 59.7 L87.7 140.3"/>
+      <path d="M128.0 152.0 L98.0 206.0"/>
+    </g>
+    <path d="M194.3 85.7 L128.0 152.0 L158.0 206.0" fill="none" stroke="#C65A2E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <rect x="80" y="84" width="112" height="112" fill="none" stroke="#2F3640" stroke-width="2"/>
+  <text x="216" y="124" fill="#C65A2E" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="22" letter-spacing="2">SOFTWARE DECISION FABRIC</text>
+  <text x="216" y="162" fill="#2F3640" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="20">A local OpenTelemetry collector and decision ledger for coding agents.</text>
+  <text x="84" y="310" fill="#2F3640" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="64">Know which agent work</text>
+  <text x="84" y="386" fill="#2F3640" font-family="Liberation Serif, DejaVu Serif, Times New Roman, serif" font-size="64">actually shipped.</text>
+  <rect width="92" height="6" x="84" y="422" fill="#C65A2E"/>
+  <text x="84" y="500" fill="#2F3640" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="24">Open source v0.1.0. Runs on your machine.</text>
+  <text x="84" y="546" fill="#2F3640" font-family="Liberation Sans, DejaVu Sans, sans-serif" font-size="22">softwaredecisionfabric.tech</text>
+</svg>

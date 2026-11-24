@@ -4,20 +4,20 @@
 @import "@fontsource/ibm-plex-mono/latin-500.css";
 
 :root {
-  --paper: #f3efe4;
-  --paper-2: #e6decc;
-  --paper-3: #f7f4ec;
-  --ink: #1a1c16;
-  --ink-soft: #3a3e34;
-  --rule: #cfc6b3;
-  --stamp: #9e2a1c;
-  --stamp-deep: #7f2218;
+  --paper: #f6f1e8;
+  --paper-2: #ebe3d6;
+  --paper-3: #fbf7f1;
+  --ink: #2f3640;
+  --ink-soft: #4e5864;
+  --rule: #d9cfc0;
+  --stamp: #c65a2e;
+  --stamp-deep: #8e3e1c;
   --pass: #145c38;
-  --anchor: #f6e4d8;
+  --anchor: #f3e4d8;
   --serif: "Fraunces Variable", "Iowan Old Style", Palatino, "Palatino Linotype", serif;
   --sans: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", sans-serif;
   --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-  --shadow: 7px 7px 0 #1a1c16;
+  --shadow: 7px 7px 0 #2f3640;
   color-scheme: light;
 }
 
@@ -164,7 +164,7 @@ a:visited {
 }
 
 .kicker-light {
-  color: #f3cfc6;
+  color: #f3c7b6;
 }
 
 .lede {
@@ -184,7 +184,7 @@ a:visited {
 }
 
 .lede.light {
-  color: #e7e2d6;
+  color: #e8e2d6;
 }
 
 .buyer {
@@ -258,19 +258,13 @@ code {
 }
 
 .seal {
-  display: grid;
-  place-items: center;
+  display: block;
   flex: 0 0 auto;
   width: 2.65rem;
   height: 2.65rem;
-  background: var(--ink);
-  color: var(--paper);
   border: 1px solid var(--ink);
+  background: var(--paper);
   box-shadow: 3px 3px 0 var(--stamp);
-  font-family: var(--serif);
-  font-weight: 620;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
 }
 
 .site-header {
@@ -306,10 +300,9 @@ code {
 }
 
 .brand-tag {
-  font-family: var(--mono);
-  font-size: 0.75rem;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  max-width: 22rem;
+  font-size: 0.78rem;
+  line-height: 1.3;
   color: var(--ink-soft);
 }
 
@@ -404,7 +397,7 @@ code {
 }
 
 .status-bar a:focus-visible {
-  outline-color: #f3cfc6;
+  outline-color: #f3c7b6;
 }
 
 .hero {
@@ -523,6 +516,15 @@ code {
 
 .agent-name {
   font-size: 1.55rem;
+}
+
+.agent-row-label {
+  margin-top: 1.25rem;
+  max-width: 40rem;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  color: var(--ink-soft);
 }
 
 .agent-mark {
@@ -671,7 +673,7 @@ code {
 
 .close .text-link:focus-visible,
 .close .button:focus-visible {
-  outline-color: #f3cfc6;
+  outline-color: #f3c7b6;
 }
 
 .page-hero {
@@ -1248,8 +1250,13 @@ textarea {
 .footer-tag,
 .footer-status,
 .footer-note,
+.footer-install,
 .footer-end {
   color: var(--ink-soft);
+}
+
+.footer-install {
+  margin-top: 0.7rem;
 }
 
 .footer-status,
@@ -1316,7 +1323,7 @@ textarea {
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1360px) {
   .primary-nav-bar {
     width: 100%;
     order: 3;

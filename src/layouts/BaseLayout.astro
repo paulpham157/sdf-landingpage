@@ -54,8 +54,9 @@ const ogImage = image
     <meta name="description" content={description} />
     <meta name="robots" content={robots} />
     <link rel="canonical" href={canonical} />
-    <meta name="theme-color" content="#f3efe4" />
+    <meta name="theme-color" content="#F6F1E8" />
     <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap-index.xml" />
@@ -82,12 +83,12 @@ const ogImage = image
         )
       )
     }
-    <meta property="og:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
+    <meta property="og:image:alt" content={imageAlt ?? "Software Decision Fabric, a local OpenTelemetry collector and decision ledger for coding agents. Know which agent work actually shipped."} />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={ogImage} />
-    <meta name="twitter:image:alt" content={imageAlt ?? "SDF — Know which agent work actually shipped."} />
+    <meta name="twitter:image:alt" content={imageAlt ?? "Software Decision Fabric, a local OpenTelemetry collector and decision ledger for coding agents. Know which agent work actually shipped."} />
     {structuredData && <script type="application/ld+json" set:html={jsonLdHtml(structuredData)} />}
   </head>
   <body>

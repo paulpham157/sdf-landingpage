@@ -44,7 +44,20 @@ write("", "## Commitments", "");
 for (const pillar of pillars) {
   write(`- ${pillar.title}${"status" in pillar ? ` (${statusLabel[pillar.status]})` : ""}: ${pillar.body}`);
 }
-write("", acceptedToday, "", `## ${shipsToday.heading}`, "", shipsToday.body, `Install: ${shipsToday.install}`, `Run: ${shipsToday.run.join(", ")}`, shipsToday.note, `Source: ${site.repo}`);
+write(
+  "",
+  acceptedToday,
+  "",
+  `## ${shipsToday.heading}`,
+  "",
+  shipsToday.body,
+  `Install: ${shipsToday.install}`,
+  `Pin: ${shipsToday.installPin}`,
+  `Release: ${shipsToday.releaseUrl}`,
+  `Run: ${shipsToday.run.join(", ")}`,
+  shipsToday.note,
+  `Source: ${site.repo}`,
+);
 write(
   "",
   "## Pricing shape",

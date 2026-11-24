@@ -5,4 +5,10 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<span class:list={["seal", className]} aria-hidden="true">SDF</span>
+<img
+  class:list={["seal", className]}
+  src="/logo.svg"
+  alt=""
+  width="42"
+  height="42"
+/>
