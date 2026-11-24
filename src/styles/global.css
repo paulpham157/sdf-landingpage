@@ -29,6 +29,7 @@
 
 html {
   scroll-behavior: auto;
+  scrollbar-gutter: stable;
   --header-height: 4rem;
 }
 
@@ -142,9 +143,11 @@ a:visited {
   transform: none;
 }
 
-#main:focus-visible {
-  outline: 2px solid var(--ink);
-  outline-offset: 3px;
+#main:focus,
+#main:focus-visible,
+section:focus,
+section:focus-visible {
+  outline: none;
 }
 
 .wrap {
@@ -298,11 +301,6 @@ code {
 
 .nav-backdrop {
   display: none;
-}
-
-html.menu-open,
-html.menu-open body {
-  overflow: hidden;
 }
 
 .header-bar {
@@ -1363,6 +1361,11 @@ textarea {
 }
 
 @media (max-width: 1040px) {
+  html.menu-open,
+  html.menu-open body {
+    overflow: hidden;
+  }
+
   .site-header {
     position: relative;
     z-index: 20;

@@ -68,6 +68,8 @@ function isCurrent(href: string) {
       document.documentElement.classList.toggle("menu-open", open);
       if (backdrop instanceof HTMLButtonElement) backdrop.hidden = !open;
     };
+    const summary = () => menu.querySelector("summary");
+    const header = menu.closest(".site-header");
     menu.addEventListener("toggle", () => setOpen(menu.open));
     menu.addEventListener("click", (event) => {
       const link = event.target instanceof Element ? event.target.closest("a") : null;
@@ -79,13 +81,24 @@ function isCurrent(href: string) {
         if (!menu.open) return;
         if (!(event.target instanceof Node) || menu.contains(event.target)) return;
         menu.open = false;
+        const clickedLink = event.target instanceof Element ? event.target.closest("a") : null;
+        if (!clickedLink) summary()?.focus();
       },
       true,
     );
+    document.addEventListener("focusin", (event) => {
+      if (!menu.open || !(event.target instanceof Node)) return;
+      if (header?.contains(event.target)) return;
+      menu.open = false;
+    });
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !menu.open) return;
       menu.open = false;
-      menu.querySelector("summary")?.focus();
+      summary()?.focus();
+    });
+    const compactNav = window.matchMedia("(max-width: 1040px)");
+    compactNav.addEventListener("change", () => {
+      if (!compactNav.matches) menu.open = false;
     });
   }
 </script>
