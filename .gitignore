@@ -11,3 +11,10 @@ dist/
 .env
 .env.*
 !.env.example
+
+# Copied from @excalidraw/excalidraw at build time. Not vendored.
+public/excalidraw-assets/
+
+test-results/
+playwright-report/
+blob-report/

@@ -1,0 +1,4 @@
+{
+  "gzipBytes": 2495361,
+  "note": "Gzip of every JS and CSS file reachable from /draw, including Excalidraw dynamic imports (locales, diagram chunks, and the font subsetter)."
+}

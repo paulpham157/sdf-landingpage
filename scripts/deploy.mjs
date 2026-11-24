@@ -91,6 +91,7 @@ export function deploySteps(cwd) {
     [process.execPath, [join(cwd, "node_modules/astro/bin/astro.mjs"), "build"]],
     [process.execPath, [join(cwd, "scripts/check-constraints.mjs")]],
     [process.execPath, [join(cwd, "scripts/check-jsonld.mjs")]],
+    [process.execPath, [join(cwd, "scripts/check-draw.mjs")]],
   ];
 }
 

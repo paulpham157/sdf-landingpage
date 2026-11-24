@@ -1,0 +1,63 @@
+---
+import "../styles/draw.css";
+import { site } from "../data/site";
+
+interface Props {
+  title: string;
+  description: string;
+}
+
+const { title, description } = Astro.props;
+const canonical = new URL("/draw", Astro.site).href;
+const ogImage = new URL("/og.png", Astro.site).href;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="canonical" href={canonical} />
+    <meta name="theme-color" content="#F6F1E8" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content="Software Decision Fabric" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+  </head>
+  <body class="draw-body">
+    <a class="draw-skip" href="#draw">Skip to the canvas</a>
+    <span class="draw-semibold">Aa</span>
+    <header class="draw-header">
+      <a class="draw-back" href="/">Software Decision Fabric</a>
+      <p class="draw-kicker">Local drawing canvas</p>
+      <p class="draw-note">
+        This is not the Software Decision Fabric product. After this page loads, the drawing stays in this browser.
+        Nothing is uploaded. The page does not request anything else unless you follow a link. There is no account and
+        no server. If this page is open in two tabs, the last write wins.
+      </p>
+      <p class="draw-links">
+        <a href={site.repo} rel="noopener noreferrer">GitHub</a>
+        <a href={`mailto:${site.email}`}>{site.email}</a>
+      </p>
+    </header>
+    <div class="draw-stage" id="draw">
+      <slot />
+    </div>
+  </body>
+</html>

@@ -53,6 +53,9 @@ Attach the custom domain in the Cloudflare dashboard. Response headers are in [`
 | `/one-pager` | The same brief on one sheet |
 | `/sample-evidence-report` | Labeled mock Evidence Report |
 | `/design-partners` | Design-partner contact. Opens an email draft |
+| `/draw` | Local drawing canvas. Not the product, not linked from the nav, `noindex`, and omitted from the sitemap |
+
+`/draw` is a browser drawing page (Excalidraw). It is not Software Decision Fabric, and it is not a mock of the product. After the page loads, the drawing stays in that browser: nothing is uploaded and the page does not request anything else unless you follow a link. There is no account, no server, and no service worker. The scene is stored in IndexedDB. If two tabs are open, the last write wins. A failed write shows a "Not saved" notice with Save to file. Fonts are copied from the Excalidraw package at build time into `public/excalidraw-assets/` (gitignored, not vendored).
 
 ## Content
 

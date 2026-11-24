@@ -30,3 +30,6 @@ jobs:
       - run: npm run build
       - run: npm run check:copy
       - run: npm run check:jsonld
+      - run: npm run check:draw
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:draw

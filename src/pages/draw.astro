@@ -1,0 +1,12 @@
+---
+import DrawLayout from "../layouts/DrawLayout.astro";
+import DrawCanvas from "../components/DrawCanvas";
+
+const title = "Local drawing canvas: Software Decision Fabric";
+const description =
+  "A local drawing canvas in the browser. It is not the Software Decision Fabric product. After the page loads, the drawing stays on this device and is not uploaded.";
+---
+
+<DrawLayout title={title} description={description}>
+  <DrawCanvas client:only="react" />
+</DrawLayout>

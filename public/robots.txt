@@ -3,5 +3,6 @@ User-agent: *
 Allow: /
 Disallow: /404
 Disallow: /404.html
+Disallow: /draw
 
 Sitemap: https://softwaredecisionfabric.tech/sitemap-index.xml

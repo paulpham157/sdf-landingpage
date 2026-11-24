@@ -200,7 +200,7 @@ test("project name and check order stay fixed", () => {
   assert.equal(plan.args.includes("--force"), false);
   assert.deepEqual(
     deploySteps("/repo").map(([, args]) => args.at(-1).split("/").at(-1)),
-    ["build", "check-constraints.mjs", "check-jsonld.mjs"],
+    ["build", "check-constraints.mjs", "check-jsonld.mjs", "check-draw.mjs"],
   );
   assert.equal(redact(`see ${token}`, envWithSecret()).includes(token), false);
 });

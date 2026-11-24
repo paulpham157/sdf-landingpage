@@ -1,0 +1,20 @@
+/*
+ * Light-theme chrome for the drawing page. Scoped to Excalidraw's root so it
+ * does not leak onto the marketing pages. #c65a2e is the site rust. Text that
+ * sits on the cream page uses #8e3e1c instead: #c65a2e on #f6f1e8 is about 3.8:1.
+ */
+.excalidraw,
+.excalidraw.theme--dark {
+  --color-primary: #c65a2e;
+  --color-primary-darker: #a34722;
+  --color-primary-darkest: #8e3e1c;
+  --color-primary-hover: #b24e27;
+  --color-primary-light: #f3e4d8;
+  --color-primary-light-darker: #e7d3c3;
+  --color-selection: #c65a2e;
+  --color-promo: #8e3e1c;
+  --color-logo-icon: #c65a2e;
+  --color-brand-hover: #b24e27;
+  --color-brand-active: #8e3e1c;
+  --link-color: #8e3e1c;
+}
