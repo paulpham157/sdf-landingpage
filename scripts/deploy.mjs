@@ -1,5 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
+import { loadRepoEnv } from "./env-file.mjs";
 import { join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -192,5 +193,5 @@ export function main({
 const invokedDirectly =
   process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (invokedDirectly) {
-  process.exit(main());
+  process.exit(main({ env: loadRepoEnv() }));
 }

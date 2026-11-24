@@ -23,3 +23,8 @@ override.tf.json
 *.tfvars
 *.tfvars.json
 infra/cloudflare/backend.hcl
+
+# Local credentials loaded by npm run deploy and npm run attach-domain.
+.env
+.env.*
+!.env.example

@@ -113,6 +113,8 @@ a:visited {
   color: inherit;
 }
 
+/* a:visited beats .button. Keep each button face's own text color. */
+
 :focus-visible {
   outline: 2px solid var(--ink);
   outline-offset: 3px;
@@ -224,6 +226,11 @@ button.button {
   text-align: center;
   text-decoration: none;
   cursor: pointer;
+  appearance: none;
+}
+
+a.button:visited {
+  color: var(--paper);
 }
 
 .button-secondary {
@@ -231,10 +238,18 @@ button.button {
   color: var(--ink);
 }
 
+a.button-secondary:visited {
+  color: var(--ink);
+}
+
 .button-light {
   background: var(--paper);
   color: var(--ink);
   border-color: var(--paper);
+}
+
+a.button-light:visited {
+  color: var(--ink);
 }
 
 .cta-row {
@@ -249,6 +264,10 @@ button.button {
   color: var(--paper);
   font-weight: 600;
   text-underline-offset: 0.2em;
+}
+
+a.text-link:visited {
+  color: var(--paper);
 }
 
 code {
@@ -920,6 +939,7 @@ code {
   color: var(--ink);
   border: 1px solid var(--ink);
   cursor: pointer;
+  appearance: none;
 }
 
 .sheet {
@@ -1405,6 +1425,7 @@ textarea {
     font-weight: 600;
     cursor: pointer;
     list-style: none;
+    appearance: none;
   }
 
   .nav-summary::-webkit-details-marker {
