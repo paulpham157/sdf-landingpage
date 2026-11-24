@@ -71,4 +71,4 @@ The contact address is `email` in [`src/data/site.ts`](src/data/site.ts) (`desig
 
 ## Stack
 
-[Astro](https://astro.build/) 7 builds static HTML. [`.github/workflows/build.yml`](.github/workflows/build.yml) installs, tests, builds, and runs the checks. [`.github/workflows/terraform.yml`](.github/workflows/terraform.yml) validates the Pages Terraform and does not deploy. [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) publishes the site with `npm run deploy`.
+[Astro](https://astro.build/) 7 builds static HTML. [`.github/workflows/build.yml`](.github/workflows/build.yml) installs, tests, builds, and runs the checks. [`.github/workflows/terraform.yml`](.github/workflows/terraform.yml) validates the Pages Terraform. Neither workflow deploys.
