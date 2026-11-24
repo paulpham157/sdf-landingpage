@@ -19,6 +19,11 @@ export const site = {
   status:
     "v0.1.0 is public: an open-source local collector and decision ledger (Apache 2.0) that listens on your machine. Declare, verify, and record are partly shipped. Routing and the hosted referee loop are planned. We are onboarding 3 to 5 design partners.",
   repo: "https://github.com/paulpham157/sdf",
+  /** Product docs directory, linked from the README documentation index. */
+  docsUrl: "https://github.com/paulpham157/sdf/tree/main/docs",
+  /** Commit-link rules. Heading exists in docs/outcomes.md. */
+  commitLinkDocsUrl:
+    "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit",
 } as const;
 
 /** Public name of the wedge metric. Do not paraphrase this on the site. */
@@ -197,7 +202,7 @@ export const onePager = {
     },
     {
       title: "Install",
-      body: "The way to run SDF today is v0.1.0, Apache 2.0, on your machine: go install github.com/paulpham157/sdf/cmd/sdf@latest, or go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0. Prebuilt archives are at https://github.com/paulpham157/sdf/releases/tag/v0.1.0. It listens on localhost and stores data in local SQLite. No outside SaaS is required. Hosted Team, Enterprise, VPC, and SSO are planned and not required to install.",
+      body: "The way to run SDF today is v0.1.0, Apache 2.0, on your machine: go install github.com/paulpham157/sdf/cmd/sdf@latest, or go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0. Prebuilt archives are at https://github.com/paulpham157/sdf/releases/tag/v0.1.0. Building from source, including go install, needs Go 1.26 or newer. It listens on localhost and stores data in local SQLite. No outside SaaS is required. Hosted Team, Enterprise, VPC, and SSO are planned and not required to install.",
     },
     {
       title: "Solution",
@@ -290,7 +295,7 @@ export const graphNodes = [
 
 export const shipsToday = {
   heading: "What you can run today",
-  body: "v0.1.0 is open source (Apache 2.0) and runs entirely on your machine, with no outside SaaS. sdf serve listens on localhost, stores sessions in one SQLite file, and serves a read-only page. It does not launch, route, or sandbox agents. It only listens. Prompt, response, tool, and error text is dropped unless you opt in, and token counts are stored so cost can be computed. Authentication is off by default. Keep the receiver on localhost.",
+  body: "v0.1.0 is open source (Apache 2.0) and runs entirely on your machine, with no outside SaaS. sdf serve listens on localhost for OTLP and serves the read-only UI on localhost. It stores sessions in one SQLite file. It does not launch, route, or sandbox agents. It only listens. Prompt, response, tool, and error text is dropped unless you opt in, and token counts are stored so cost can be computed. Authentication is off by default. An optional bearer token can guard OTLP writes. Keep the receiver on localhost.",
   install: "go install github.com/paulpham157/sdf/cmd/sdf@latest",
   installPin: "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0",
   releaseUrl: "https://github.com/paulpham157/sdf/releases/tag/v0.1.0",

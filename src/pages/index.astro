@@ -123,7 +123,9 @@ const jsonLd = graph(
         nodes={graphNodes}
         caption="Today the session, its cost, and its commit link are stored separately from the evidence and verdict that sdf verify records. They are not linked yet."
       />
-      <p class="moat">{moat}</p>
+      <p class="moat">
+        {moat.slice(0, moat.lastIndexOf("the docs"))}<a href={site.commitLinkDocsUrl} rel="noopener noreferrer">the docs</a>.
+      </p>
     </div>
   </section>
 

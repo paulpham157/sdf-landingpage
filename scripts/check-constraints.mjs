@@ -89,6 +89,21 @@ assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0"), "Home is missing the v0.1.0 pin");
 assert(includes(home, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Home is missing the v0.1.0 release");
 assert(includes(home, "unless you opt in"), "Home must say content is opt-in");
+assert(includes(home, "listens on localhost for OTLP"), "Home must say OTLP listens on localhost");
+assert(includes(home, "read-only UI on localhost"), "Home must say the UI is on localhost");
+assert(
+  includes(home, "An optional bearer token can guard OTLP writes."),
+  "Home must say an optional bearer token can guard OTLP writes",
+);
+assert(
+  includes(home, "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit"),
+  "Home must link the commit-link rules in the product docs",
+);
+assert(
+  includes(home, "https://github.com/paulpham157/sdf/tree/main/docs"),
+  "Home footer must link the product docs",
+);
+assert(includes(onePager, "needs Go 1.26 or newer"), "One-pager install must keep the Go 1.26 requirement");
 assert(includes(home, "Token counts"), "Home must say token counts are stored");
 assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Pricing must lead with the local install");
 assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
