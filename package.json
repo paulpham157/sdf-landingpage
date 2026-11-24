@@ -14,9 +14,7 @@
     "check:copy": "node scripts/check-constraints.mjs",
     "check:jsonld": "node scripts/check-jsonld.mjs",
     "deploy": "node scripts/deploy.mjs",
-    "attach-domain": "node scripts/attach-domain.mjs",
     "test:deploy": "node --test scripts/deploy.test.mjs",
-    "test:attach-domain": "node --test scripts/attach-domain.test.mjs",
     "test:env-file": "node --test scripts/env-file.test.mjs"
   },
   "dependencies": {

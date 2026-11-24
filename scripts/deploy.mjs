@@ -6,12 +6,12 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 
-// Same project name as infra/cloudflare. The upload does not read Terraform.
+// Cloudflare Pages project uploaded by npm run deploy.
 export const PAGES_PROJECT = "sdf-landing";
 export const PRODUCTION_BRANCH = "main";
 export const DIST_DIR = "dist";
 
-// Pages branch names are the same shape the Terraform variable already allows.
+// Pages branch names.
 const BRANCH_NAME = /^[A-Za-z0-9._/-]+$/;
 
 export function uploadPlan({ branch, dirty }) {
