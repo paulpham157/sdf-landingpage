@@ -38,7 +38,7 @@ write(
   "",
 );
 for (const step of steps) {
-  write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body} ${step.today}`);
+  write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body}`);
 }
 write("", "## Commitments", "");
 for (const pillar of pillars) {

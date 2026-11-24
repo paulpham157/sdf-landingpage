@@ -118,5 +118,54 @@ const ogImage = image
       <slot />
     </main>
     <Footer />
+    <script>
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+      function scrollPaddingTop() {
+        const parsed = Number.parseFloat(getComputedStyle(document.documentElement).scrollPaddingTop);
+        return Number.isFinite(parsed) ? parsed : 0;
+      }
+
+      function scrollToTarget(target: HTMLElement) {
+        const top = Math.max(0, target.getBoundingClientRect().top + window.scrollY - scrollPaddingTop());
+        if (reduceMotion.matches) {
+          window.scrollTo({ top, behavior: "auto" });
+          return;
+        }
+        const start = window.scrollY;
+        const delta = top - start;
+        const duration = 260;
+        const started = performance.now();
+        const frame = (now: number) => {
+          const progress = Math.min(1, (now - started) / duration);
+          const eased = 1 - (1 - progress) ** 2;
+          window.scrollTo(0, start + delta * eased);
+          if (progress < 1) requestAnimationFrame(frame);
+        };
+        requestAnimationFrame(frame);
+      }
+
+      document.addEventListener("click", (event) => {
+        if (
+          event.defaultPrevented ||
+          event.button !== 0 ||
+          event.metaKey ||
+          event.ctrlKey ||
+          event.shiftKey ||
+          event.altKey
+        ) {
+          return;
+        }
+        const link = event.target instanceof Element ? event.target.closest("a[href]") : null;
+        if (!(link instanceof HTMLAnchorElement) || (link.target && link.target !== "_self")) return;
+        const url = new URL(link.href, location.href);
+        if (url.origin !== location.origin || url.pathname !== location.pathname || url.hash.length < 2) return;
+        const target = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+        if (!target) return;
+        event.preventDefault();
+        if (location.hash !== url.hash) history.pushState(null, "", `${url.pathname}${url.search}${url.hash}`);
+        scrollToTarget(target);
+      });
+    </script>
   </body>
 </html>

@@ -28,6 +28,7 @@ function isCurrent(href: string) {
     <a class="brand" href="/" aria-current={pathname === "/" ? "page" : undefined}>
       <Seal />
       <span class="brand-text">
+        <span class="brand-short" aria-hidden="true">SDF</span>
         <span class="brand-name">Software Decision Fabric</span>
         <span class="brand-tag">{site.headerTagline}</span>
       </span>
@@ -44,6 +45,7 @@ function isCurrent(href: string) {
     <details class="nav-disclosure">
       <summary class="nav-summary">Menu</summary>
       <nav class="primary-nav" aria-label="Primary">
+        <a class="menu-cta" href="/#today">{hero.primaryCta}</a>
         {
           links.map((link) => (
             <a href={link.href} aria-current={isCurrent(link.href)} rel={link.external ? "noopener noreferrer" : undefined}>
@@ -56,3 +58,18 @@ function isCurrent(href: string) {
     <a class="button header-cta" href="/#today">{hero.primaryCta}</a>
   </div>
 </header>
+
+<script>
+  const menu = document.querySelector(".nav-disclosure");
+  if (menu instanceof HTMLDetailsElement) {
+    menu.addEventListener("click", (event) => {
+      const link = event.target instanceof Element ? event.target.closest("a") : null;
+      if (link) menu.open = false;
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape" || !menu.open) return;
+      menu.open = false;
+      menu.querySelector("summary")?.focus();
+    });
+  }
+</script>

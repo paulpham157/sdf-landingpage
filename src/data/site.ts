@@ -24,6 +24,9 @@ export const site = {
   /** Commit-link rules. Heading exists in docs/outcomes.md. */
   commitLinkDocsUrl:
     "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit",
+  /** Accepted and unknown-cost rules. Heading exists in docs/outcomes.md. */
+  outcomeDocsUrl:
+    "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#pull-requests-and-ci",
 } as const;
 
 /** Public name of the wedge metric. Do not paraphrase this on the site. */
@@ -32,7 +35,7 @@ export const wedgeMetric = "Cost per Accepted Outcome";
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "A local OpenTelemetry collector and decision ledger for coding agents. It runs on your machine, records the telemetry they already export, and does not launch, route, or sandbox them. It links sessions to commits and shows Cost per Accepted Outcome from merged pull requests. The independent referee loop is planned.",
+    "SDF is a local OpenTelemetry collector for coding agents. It runs on your machine and records the telemetry they already export. It does not launch, route, or sandbox them. It links sessions to commits and shows Cost per Accepted Outcome from merged pull requests. The independent referee loop is planned.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Get started",
@@ -41,7 +44,7 @@ export const hero = {
 
 export const problem = {
   heading: "“Task complete” is a claim, not a result.",
-  body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token, but the question that matters goes unanswered: did it work?",
+  body: "Copilot, Cursor, Devin, and Factory each grade their own work. You pay per seat or per token and still can't tell what worked.",
   coverage:
     "sdf init supports Claude Code, Codex, OpenCode v2, Pi (through the community pi-otel extension), Qwen, Grok, Gemini, and Copilot CLI. Tool-call arguments from Qwen Code and Gemini CLI are dropped before anything is stored. Cursor, Devin, Factory, and Copilot outside the CLI have no SDF adapter.",
   agents: ["Copilot", "Cursor", "Devin", "Factory"] as const,
@@ -59,33 +62,25 @@ export const steps = [
     id: "01",
     title: "Declare",
     status: "partial" as Status,
-    body: "Declare the objective and acceptance criteria, linked to the business goal.",
-    today:
-      "Today: before an agent starts, sdf task declare records a task's checks and the files they depend on, hashed. sdf decision add records a decision or hypothesis. Linking a task to a business goal is planned.",
+    body: "Before an agent starts, sdf task declare records the task's checks and the files they depend on. Linking a task to a business goal is planned.",
   },
   {
     id: "02",
     title: "Route",
     status: "planned" as Status,
-    body: "Route the task to any agent you already use. Bring your own subscriptions or keys.",
-    today:
-      "Today: SDF does not launch or route agents. You run them as usual, and sdf init prints the settings that point their telemetry at SDF.",
+    body: "Routing a task to an agent you already use is planned. Today SDF does not launch or route agents: you run them as usual, and sdf init prints the settings that point their telemetry at SDF.",
   },
   {
     id: "03",
     title: "Verify",
     status: "partial" as Status,
-    body: "SDF runs independent checks the agent can't forge, and ties PASS to the exact code revision.",
-    today:
-      "Today: sdf verify runs a declared task's checks against one commit, from trusted copies in a fresh checkout, and prints the evidence and a PASS, FAIL, or ERROR. A GitHub Action runs it on pull requests. Running it on every attempt automatically is planned.",
+    body: "sdf verify runs a declared task's checks from trusted copies in a fresh checkout of one commit, and prints PASS, FAIL, or ERROR with the evidence. A GitHub Action runs it on pull requests. Running it on every attempt is planned.",
   },
   {
     id: "04",
     title: "Record",
     status: "partial" as Status,
-    body: "Planned: every attempt, its cost, and its evidence land in a Decision Graph you can audit. Shipping now: session cost and commit links, decision records you link to sessions and commits, and an optional hash-chained ledger.",
-    today:
-      "Today: a local SQLite file stores token counts, duration, computed cost, commit or pull request links, and the decision records you write. Prompt, response, tool, and error text is dropped unless you opt in. No UI or API route writes or deletes. An optional hash-chained ledger can record tasks, evidence, and verdicts. Linking that evidence to sessions and cost is planned.",
+    body: "Sessions, token counts, computed cost, commit links, and your decision records go into one local SQLite file. If a commit link isn't certain, the session stays unlinked. An optional hash-chained ledger records tasks, evidence, and verdicts. Linking that evidence to sessions and cost in an auditable Decision Graph is planned.",
   },
 ] as const;
 
@@ -107,17 +102,28 @@ export const pillars = [
     body: "We don't sell an agent, so we have no reason to grade one up.",
   },
   {
-    title: "Independently verifiable",
-    status: "planned" as Status,
-    body: "Evidence that is re-runnable and revision-bound, so security and finance can check it without trusting us or the agent. Today you can summarize the local telemetry again, and sdf verify re-runs a declared task's checks against a commit. Re-running them for every attempt is planned.",
+    title: "Cost per Accepted Outcome",
+    body: "Compare agents on what merged, not on seats or tokens. Connect GitHub so merge status is known. If anything the figure needs is missing, it says unknown instead of guessing.",
   },
   {
-    title: "Cost per Accepted Outcome",
-    body: "Compare agents on what you actually got: Cost per Accepted Outcome, not seats or tokens. The local UI from sdf serve shows it overall and per agent. Connect GitHub so merge status is known. Without that, the figure stays unknown.",
-    note: verifiedAttempt,
-    outcome: costPerAcceptedOutcome,
+    title: "Stays on your machine",
+    body: "Data goes into local SQLite, with no outside SaaS. Prompt, response, tool, and error text is dropped unless you opt in.",
   },
 ] as const;
+
+/** Replaces the formal definitions on the homepage. The link label is separate so it is not sliced out of the sentence. */
+export const pillarDocs = {
+  before: "What counts as accepted, and when the figure is unknown, is spelled out in ",
+  linkLabel: "the docs",
+  after: ".",
+} as const;
+
+/** Sits under the four steps. The link label is separate so it is not sliced out of the sentence. */
+export const stepDocs = {
+  before: "The exact commit-link rules are in ",
+  linkLabel: "the docs",
+  after: ".",
+} as const;
 
 export const pricingIntro = {
   lede: "Planned pricing: per workspace and per verified outcome, never per seat.",
@@ -226,7 +232,7 @@ export const onePager = {
 
 export const closing = {
   heading: "Become a design partner",
-  body: "We're onboarding 3 to 5 platform teams already running two or more agents. Measure Cost per Accepted Outcome before and after SDF. Apply to be a design partner.",
+  body: "We're onboarding 3 to 5 platform teams already running two or more agents. Measure Cost per Accepted Outcome before and after SDF.",
 } as const;
 
 /**
@@ -295,10 +301,10 @@ export const graphNodes = [
 
 export const shipsToday = {
   heading: "What you can run today",
-  body: "v0.1.0 is open source (Apache 2.0) and runs on your machine, with no outside SaaS. sdf serve listens on localhost, stores sessions in one SQLite file, and serves a read-only page. It does not launch, route, or sandbox agents. It only listens. Prompt, response, tool, and error text is dropped unless you opt in, and token counts are stored so cost can be computed. Authentication is off by default. Keep the receiver on localhost.",
+  body: "v0.1.0 is open source under Apache 2.0. sdf serve listens on localhost and serves a read-only page. Authentication is off by default, so keep the receiver on localhost.",
   install: "go install github.com/paulpham157/sdf/cmd/sdf@latest",
   installPin: "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0",
   releaseUrl: "https://github.com/paulpham157/sdf/releases/tag/v0.1.0",
   run: ["sdf serve", "sdf summary"],
-  note: "Building from source, including go install, needs Go 1.26 or newer. Prebuilt archives for Linux, macOS, and Windows are on the v0.1.0 release.",
+  note: "go install builds from source and needs Go 1.26 or newer.",
 } as const;
