@@ -48,8 +48,8 @@ const jsonLd = graph(
         <p class="lede">{hero.subhead}</p>
         <p class="buyer">{hero.buyer}</p>
         <div class="cta-row">
-          <a class="button" href="/design-partners">{hero.primaryCta}</a>
-          <a class="button button-secondary" href="/sample-evidence-report">{hero.secondaryCta}</a>
+          <a class="button" href="/#today">{hero.primaryCta}</a>
+          <a class="button button-secondary" href={site.repo} rel="noopener noreferrer">{hero.secondaryCta}</a>
         </div>
       </div>
       <aside class="stub" aria-label="Illustrative evidence stub, not a customer result">
@@ -104,7 +104,7 @@ const jsonLd = graph(
     <div class="wrap">
       <p class="kicker">§ 02. How it works</p>
       <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF records what they did today, and can check a commit against a declared task from the command line. Running that on every attempt is planned. Each step says what runs today.</p>
+      <p class="lede tight">Your agents stay in place. SDF records what they did, and can check a commit against a declared task from the command line. Running that on every attempt is planned.</p>
       <ol class="steps">
         {
           steps.map((step) => (
@@ -173,7 +173,7 @@ const jsonLd = graph(
       <h2 id="today-title">{shipsToday.heading}</h2>
       <p class="lede tight">{shipsToday.body}</p>
       <p class="lede tight">{problem.coverage}</p>
-      <pre class="install"><code>{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}</code></pre>
+      <pre class="install"><code><!--email_off-->{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}<!--/email_off--></code></pre>
       <p class="step-today">{shipsToday.note}</p>
       <p>
         <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>

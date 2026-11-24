@@ -76,8 +76,37 @@ assert(
 assert(includes(home, "This row is not the list of SDF adapters."), "Home agent row can be read as the adapter list");
 assert(includes(home, "toy fixture"), "Home mock must say it is a toy fixture");
 assert(includes(home, 'href="/blog"'), "Home is missing the blog link");
-assert(includes(home, "Become a design partner"), "Home is missing the primary CTA");
-assert(includes(home, "See a sample Evidence Report"), "Home is missing the secondary CTA");
+assert(includes(home, "Become a design partner"), "Home is missing the § 06 design-partner heading");
+assert(includes(home, "Apply to be a design partner"), "Home is missing the § 06 design-partner link");
+const headerBlocks = pages.map((page) => ({
+  file: page.file,
+  header: page.html.match(/<header class="site-header">[\s\S]*?<\/header>/)?.[0] ?? "",
+}));
+for (const page of headerBlocks) {
+  assert(page.header.includes('class="button header-cta" href="/#today"'), `${page.file} header CTA must go to /#today`);
+  assert(includes(page.header, ">Get started<"), `${page.file} header button must say Get started`);
+  assert(!includes(page.header, "Become a design partner"), `${page.file} header still has the design-partner button`);
+  assert(
+    includes(page.header, 'href="https://github.com/paulpham157/sdf/tree/main/docs"'),
+    `${page.file} header is missing the Docs link`,
+  );
+  const navOrder = [...page.header.matchAll(/>([^<]+)<\/a>/g)].map((match) => match[1].trim());
+  const sampleAt = navOrder.indexOf("Sample report");
+  const docsAt = navOrder.indexOf("Docs");
+  const githubAt = navOrder.indexOf("GitHub");
+  assert(sampleAt !== -1 && docsAt === sampleAt + 1 && githubAt === docsAt + 1, `${page.file} nav order must be Sample report, Docs, GitHub`);
+  assert(navOrder.filter((label) => label === "Docs").length === 2, `${page.file} Docs must be in the bar and the menu`);
+}
+const heroCta = home.match(/<div class="cta-row">([\s\S]*?)<\/div>/)?.[1] ?? "";
+assert(heroCta.includes('href="/#today"') && includes(heroCta, "Get started"), "Hero primary must be Get started → /#today");
+assert(
+  heroCta.includes('href="https://github.com/paulpham157/sdf"') && includes(heroCta, "View on GitHub"),
+  "Hero secondary must be View on GitHub",
+);
+assert(!heroCta.includes("sample-evidence-report"), "Hero must not keep the sample-report button");
+assert(includes(home, 'href="/sample-evidence-report"'), "Sample report must stay in the nav");
+const closeCta = [...home.matchAll(/<div class="cta-row">([\s\S]*?)<\/div>/g)].at(-1)?.[1] ?? "";
+assert(closeCta.includes('href="/design-partners"') && includes(closeCta, "Apply to be a design partner"), "§ 06 design-partner CTA must stay");
 assert(includes(home, "Declare the objective and acceptance criteria"), "Home is missing step 1");
 assert(includes(home, "Vendor-neutral"), "Home is missing the vendor-neutral pillar");
 assert(
@@ -89,12 +118,27 @@ assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0"), "Home is missing the v0.1.0 pin");
 assert(includes(home, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Home is missing the v0.1.0 release");
 assert(includes(home, "unless you opt in"), "Home must say content is opt-in");
-assert(includes(home, "listens on localhost for OTLP"), "Home must say OTLP listens on localhost");
-assert(includes(home, "read-only UI on localhost"), "Home must say the UI is on localhost");
+assert(includes(home, "sdf serve listens on localhost, stores sessions in one SQLite file, and serves a read-only page."), "Home shipping copy drifted");
+assert(includes(home, "Authentication is off by default. Keep the receiver on localhost."), "Home must keep the localhost receiver reminder");
+assert(!includes(home, "listens on localhost for OTLP"), "Home must not put the OTLP receiver detail back in the shipping paragraph");
+assert(!includes(home, "optional bearer token"), "Home must not put the bearer-token detail back in the shipping paragraph");
+assert(!includes(home, "read-only UI on localhost"), "Home shipping copy still uses the old UI sentence");
+assert(includes(home, "summarize the local telemetry again"), "Independently verifiable pillar drifted");
+assert(!includes(home, "summarize local telemetry again"), "Independently verifiable pillar is missing the article");
+assert(includes(home, "Connect GitHub so merge status is known. Without that, the figure stays unknown."), "Cost pillar drifted");
+assert(includes(home, "linked to a commit by a fixed order of rules, or left unlinked"), "Attempt detail drifted");
+assert(!includes(home, "commit trailer"), "Attempt detail still lists the link rules");
+assert(!includes(home, "from the OpenTelemetry each one exports"), "Coverage paragraph still has the export clause");
+assert(!includes(home, "Each step says what runs today."), "How-it-works lede still has the extra sentence");
+assert(includes(home, "This is headed toward"), "Moat opening drifted");
+assert(!includes(home, "the layer underneath"), "Moat still has the old layer sentence");
+assert(!includes(home, "either way"), "either way must stay out of the homepage");
+assert(includes(home, "the evidence and verdict that sdf verify records"), "Decision Graph caption drifted");
 assert(
-  includes(home, "An optional bearer token can guard OTLP writes."),
-  "Home must say an optional bearer token can guard OTLP writes",
+  includes(home, "Building from source, including go install, needs Go 1.26 or newer. Prebuilt archives for Linux, macOS, and Windows are on the v0.1.0 release."),
+  "Home install note drifted",
 );
+assert(!includes(home, "Cost per Accepted Outcome is unknown without --github"), "The install note still repeats the unknown-cost conditions");
 assert(
   includes(home, "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit"),
   "Home must link the commit-link rules in the product docs",
@@ -103,7 +147,36 @@ assert(
   includes(home, "https://github.com/paulpham157/sdf/tree/main/docs"),
   "Home footer must link the product docs",
 );
-assert(includes(onePager, "needs Go 1.26 or newer"), "One-pager install must keep the Go 1.26 requirement");
+assert(
+  includes(
+    onePager,
+    "Run SDF today with v0.1.0, Apache 2.0, on your machine: go install github.com/paulpham157/sdf/cmd/sdf@latest, or go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0. Prebuilt archives: https://github.com/paulpham157/sdf/releases/tag/v0.1.0. Building from source, including go install, needs Go 1.26 or newer.",
+  ),
+  "One-pager install copy drifted",
+);
+assert(!includes(onePager, "or pin @v0.1.0"), "One-pager must spell out the pinned go install command");
+assert(includes(onePager, "Become a design partner"), "One-pager Ask must keep the design-partner button");
+
+function emailOffBlocks(html) {
+  return html.match(/<!--email_off-->[\s\S]*?<!--\/email_off-->/g) ?? [];
+}
+
+function assertInstallProtected(html, label) {
+  const blocks = emailOffBlocks(html);
+  assert(
+    blocks.some((block) => block.includes("go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0")),
+    `${label} must keep sdf@v0.1.0 inside Cloudflare's email_off markers`,
+  );
+  assert(
+    blocks.every((block) => !block.includes("design-partners@softwaredecisionfabric.tech")),
+    `${label} must not disable obfuscation for the contact address`,
+  );
+  assert(!html.includes("/cdn-cgi/l/email-protection"), `${label} must not rewrite the install command`);
+}
+
+assertInstallProtected(home, "Home");
+assertInstallProtected(pricing, "Pricing");
+assertInstallProtected(onePager, "One-pager");
 assert(includes(home, "Token counts"), "Home must say token counts are stored");
 assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Pricing must lead with the local install");
 assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
