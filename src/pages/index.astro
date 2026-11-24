@@ -19,7 +19,7 @@ import {
 import { graph, webPage } from "../lib/seo";
 
 const title = "SDF — Know which agent work actually shipped";
-const description = `SDF is building the independent referee for coding agents. Today it is an open-source local collector that links agent sessions to commits and shows ${wedgeMetric} from merged pull requests.`;
+const description = `${site.tagline} It links agent sessions to commits and shows ${wedgeMetric} from merged pull requests. The independent referee loop is planned.`;
 
 const jsonLd = graph(
   {
@@ -43,7 +43,7 @@ const jsonLd = graph(
   <section class="hero">
     <div class="wrap hero-grid">
       <div>
-        <p class="kicker">Independent referee</p>
+        <p class="kicker">Open source · v0.1.0</p>
         <h1>{hero.title}</h1>
         <p class="lede">{hero.subhead}</p>
         <p class="buyer">{hero.buyer}</p>
@@ -87,7 +87,8 @@ const jsonLd = graph(
       <h2 id="problem-title">{problem.heading}</h2>
       <p class="statement">{problem.body}</p>
       <p class="lede tight">{problem.coverage}</p>
-      <ul class="agent-row">
+      <p class="agent-row-label">These products grade their own work. This row is not the list of SDF adapters.</p>
+      <ul class="agent-row" aria-label="Products that grade their own work. Not the SDF adapter list.">
         {
           problem.agents.map((name) => (
             <li>
@@ -162,9 +163,13 @@ const jsonLd = graph(
       <p class="kicker">§ 04 — Shipping today</p>
       <h2 id="today-title">{shipsToday.heading}</h2>
       <p class="lede tight">{shipsToday.body}</p>
-      <pre class="install"><code>{[shipsToday.install, ...shipsToday.run].join("\n")}</code></pre>
+      <pre class="install"><code>{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}</code></pre>
       <p class="step-today">{shipsToday.note}</p>
-      <p><a class="repo-link" href={site.repo} rel="noopener noreferrer">Source, docs, and setup per agent on GitHub</a></p>
+      <p>
+        <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>
+        {" · "}
+        <a class="repo-link" href={site.repo} rel="noopener noreferrer">Source, docs, and setup per agent on GitHub</a>
+      </p>
     </div>
   </section>
 

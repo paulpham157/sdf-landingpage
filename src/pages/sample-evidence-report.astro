@@ -145,16 +145,16 @@ const breadcrumbs = [
     <section class="report-block">
       <h2>Cost record</h2>
       <p>
-        Planned: tokens, time, and invoice cost stored on the attempt. Today sdf stores tokens, duration, the cost the agent reported, and a cost computed from a public price table on each session; there is no attempt record and no invoice import. This sample leaves the amounts blank. SDF prices are not set, and a mock must not invent a result.
+        The mock leaves amounts blank. What ships today stores token counts, duration, and a computed cost from a public price table on each session. Prompt, response, tool, and error text is dropped before storing unless you opt in with --store-content. There is no attempt record and no invoice import. Cost per Accepted Outcome is that computed cost for sessions whose linked pull request merged. SDF prices are not set, and a mock must not invent a result.
       </p>
       <dl class="cost-blank">
         <div>
           <dt>Agent-reported usage</dt>
-          <dd>Recorded, not shown</dd>
+          <dd>Token counts recorded, not shown</dd>
         </div>
         <div>
           <dt>Attempt cost</dt>
-          <dd>Planned: filled from your own agent invoice</dd>
+          <dd>Computed from token counts, not from an invoice</dd>
         </div>
         <div>
           <dt>Cost per Accepted Outcome</dt>

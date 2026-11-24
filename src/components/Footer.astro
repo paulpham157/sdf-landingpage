@@ -1,6 +1,6 @@
 ---
 import Mailto from "./Mailto.astro";
-import { site } from "../data/site";
+import { shipsToday, site } from "../data/site";
 ---
 
 <footer class="site-footer">
@@ -8,6 +8,13 @@ import { site } from "../data/site";
     <div>
       <p class="footer-name">Software Decision Fabric</p>
       <p class="footer-tag">{site.tagline}</p>
+      <p class="footer-install"><code>{shipsToday.install}</code></p>
+      <p>
+        <a href={site.repo} rel="noopener noreferrer">GitHub repository</a>
+      </p>
+      <p>
+        <a href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>
+      </p>
       <p class="footer-status">{site.status}</p>
     </div>
     <nav aria-label="Footer">

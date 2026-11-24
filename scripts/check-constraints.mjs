@@ -49,7 +49,13 @@ for (const page of pages) {
   assert(!page.html.includes("accepted task"), `${page.file} still says accepted task`);
   assert(!page.html.includes("cost per accepted outcome"), `${page.file} uses a lowercase paraphrase of Cost per Accepted Outcome`);
   assert(!page.html.includes("Hosted Pro"), `${page.file} renames Hosted Team`);
-  assert(includes(page.html, "toy fixture"), `${page.file} does not mention the toy fixture`);
+  assert(!includes(page.html, "No release binaries"), `${page.file} still says release binaries are unpublished`);
+  assert(!includes(page.html, "stores tokens"), `${page.file} says the product stores tokens`);
+  assert(!includes(page.html, "never stores tokens"), `${page.file} says the product never stores tokens`);
+  assert(!includes(page.html, "Live today only on a toy fixture"), `${page.file} still says the product is live only on a toy fixture`);
+  assert(includes(page.html, "https://github.com/paulpham157/sdf"), `${page.file} is missing the GitHub repository link`);
+  assert(includes(page.html, 'href="/favicon.ico"'), `${page.file} is missing the favicon.ico link`);
+  assert(includes(page.html, 'href="/favicon.svg"'), `${page.file} is missing the favicon.svg link`);
   assert(includes(page.html, "design-partners@softwaredecisionfabric.tech"), `${page.file} is missing the contact address`);
   assert(!includes(page.html, "Placeholder mailbox"), `${page.file} still marks the mailbox as a placeholder`);
   assert(!includes(page.html, "testimonial"), `${page.file} contains a testimonial claim`);
@@ -63,7 +69,12 @@ for (const page of pages) {
 }
 
 assert(includes(home, "Know which agent work actually shipped."), "Home is missing the hero headline");
-assert(includes(home, "independent referee for coding agents"), "Home is missing the subhead");
+assert(
+  includes(home, "A local OpenTelemetry collector and decision ledger for coding agents."),
+  "Home is missing the official tagline",
+);
+assert(includes(home, "This row is not the list of SDF adapters."), "Home agent row can be read as the adapter list");
+assert(includes(home, "toy fixture"), "Home mock must say it is a toy fixture");
 assert(includes(home, 'href="/blog"'), "Home is missing the blog link");
 assert(includes(home, "Become a design partner"), "Home is missing the primary CTA");
 assert(includes(home, "See a sample Evidence Report"), "Home is missing the secondary CTA");
@@ -75,14 +86,21 @@ assert(
 );
 assert(includes(home, "Planned"), "Home must label unshipped steps as Planned");
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Home is missing the real install path");
-assert(includes(home, "merged GitHub pull request"), "Home must say accepted means merged");
+assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0"), "Home is missing the v0.1.0 pin");
+assert(includes(home, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Home is missing the v0.1.0 release");
+assert(includes(home, "--store-content"), "Home must say content is opt-in");
+assert(includes(home, "Token counts"), "Home must say token counts are stored");
+assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Pricing must lead with the local install");
+assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
+assert(includes(home, "linked GitHub pull request merged"), "Home must say accepted means a merged pull request");
+assert(includes(home, "Accepted means merged"), "Home must say accepted means merged");
 assert(includes(pricing, "Planned: SSO (SAML/OIDC), SCIM"), "Pricing must label SSO as planned");
 const verifiedAttempt =
   "A verified Attempt is a recorded run whose evidence was checked independently of the agent that produced it, against criteria that run did not get to choose.";
 assert(home.includes(verifiedAttempt), "Home is missing the verified Attempt sentence");
 assert(pricing.includes(verifiedAttempt), "Pricing is missing the verified Attempt sentence");
 const costPerAcceptedOutcome =
-  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked commit landed in a merged GitHub pull request, divided by how many such sessions there are. It is unknown, not zero, when any session has no known outcome, an accepted session has no known cost, the same commit is linked to more than one accepted session, or nothing merged. It is never a cost per seat, or per agent claiming a task is done.";
+  "Cost per Accepted Outcome is the computed cost of the agent sessions whose linked GitHub pull request merged, divided by how many such sessions there are. It is unknown, not zero, without --github, or when cost, outcome, or a unique merge is missing: any session has no known outcome, an accepted session has no known cost, the same commit is linked to more than one accepted session, or nothing merged. It is not read from an invoice, and it is not acceptance by a named principal. It is never a cost per seat, or per agent claiming a task is done.";
 assert(home.includes(costPerAcceptedOutcome), "Home is missing the Cost per Accepted Outcome sentence");
 assert(pricing.includes(costPerAcceptedOutcome), "Pricing is missing the Cost per Accepted Outcome sentence");
 assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
@@ -118,12 +136,17 @@ assert(includes(pricing, '"@type":"FAQPage"'), "Pricing FAQ is missing FAQPage s
 assert(includes(pricing, "Why not per seat?"), "Pricing is missing the FAQ");
 assert(includes(pricing, "SSO (SAML/OIDC), SCIM"), "Pricing is missing Enterprise identity");
 
-assert(includes(onePager, "SDF: the independent referee for coding agents"), "One-pager headline drifted");
+assert(
+  includes(onePager, "SDF: a local OpenTelemetry collector and decision ledger for coding agents"),
+  "One-pager headline drifted",
+);
 assert(onePager.includes("Cost per Accepted Outcome"), "One-pager is missing Cost per Accepted Outcome");
 assert(!onePager.includes("$"), "One-pager must not carry dollar figures");
 assert(!includes(onePager, "OpenHands"), "One-pager must not present market anchors");
 
 assert(includes(sample, "not a customer report"), "Sample report is not clearly labeled");
+assert(includes(sample, "toy fixture"), "Sample report must say it is a toy fixture");
+assert(includes(sample, "token counts"), "Sample report must say token counts");
 assert(includes(sample, "SAMPLE-TOY-001"), "Sample report is missing its specimen id");
 assert(includes(sample, "sample-c0ffee1"), "Sample report is missing the specimen revision");
 assert(!sample.includes("$"), "Sample report must not invent dollar amounts");
@@ -180,12 +203,17 @@ const llms = readFileSync(join(dist, "llms.txt"), "utf8");
 const llmsFull = readFileSync(join(dist, "llms-full.txt"), "utf8");
 for (const file of [llms, llmsFull]) {
   assert(file.includes("Cost per Accepted Outcome"), "llms text dropped the metric name");
+  assert(file.includes("go install github.com/paulpham157/sdf/cmd/sdf@latest"), "llms text is missing the install line");
   assert(file.includes("Hosted Team"), "llms text dropped Hosted Team");
   assert(!file.includes("Hosted Pro"), "llms text renamed the hosted tier");
   assert(file.includes("design-partners@softwaredecisionfabric.tech"), "llms text is missing the contact address");
   assert(!/placeholder mailbox/i.test(file), "llms text still calls the mailbox a placeholder");
   assert(!file.includes("testimonial"), "llms text invented social proof");
 }
+assert(llms.includes("Route is Planned"), "llms.txt still uses the old step count");
+assert(llms.includes("Declare, Verify, and Record are partly shipped"), "llms.txt must say which steps are partly shipped");
+assert(!llms.includes("three planned, one partly shipped"), "llms.txt still says three steps are planned");
+assert(llmsFull.includes("https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "llms-full is missing the v0.1.0 release");
 assert(llmsFull.includes("https://www.openhands.dev/pricing"), "llms-full is missing the OpenHands source");
 assert(llmsFull.includes("https://factory.com/pricing"), "llms-full is missing the Factory source");
 assert(llmsFull.includes("https://aws.amazon.com/marketplace/pp/prodview-vn4wpn7u4afrq"), "llms-full is missing the Ona source");

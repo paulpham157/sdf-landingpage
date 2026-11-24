@@ -1,5 +1,6 @@
 ---
 import Seal from "./Seal.astro";
+import { site } from "../data/site";
 
 const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 
@@ -26,7 +27,7 @@ function isCurrent(href: string) {
       <Seal />
       <span class="brand-text">
         <span class="brand-name">Software Decision Fabric</span>
-        <span class="brand-tag">Independent referee</span>
+        <span class="brand-tag">{site.tagline}</span>
       </span>
     </a>
     <nav class="primary-nav primary-nav-bar" aria-label="Primary">
@@ -37,6 +38,7 @@ function isCurrent(href: string) {
           </a>
         ))
       }
+      <a href={site.repo} rel="noopener noreferrer">GitHub</a>
     </nav>
     <details class="nav-disclosure">
       <summary class="nav-summary">Menu</summary>
@@ -48,6 +50,7 @@ function isCurrent(href: string) {
             </a>
           ))
         }
+        <a href={site.repo} rel="noopener noreferrer">GitHub</a>
       </nav>
     </details>
     {
