@@ -29,7 +29,7 @@ npm exec wrangler -- login
 npm exec wrangler -- pages project create sdf-landing --production-branch main
 ```
 
-Do not run `pages project create` from an agent session. Wrangler 4.158.0 can create a Worker instead of a Pages project when `sdf-landing` is missing. `npm run deploy` only uploads when that project already exists. A clean `main` checkout is production; any other branch is a preview. The command prints the project's `pages.dev` URL. It does not attach the custom domain, read Terraform, or use R2.
+Do not run `pages project create` from an agent session. Wrangler 4.158.0 can create a Worker instead of a Pages project when `sdf-landing` is missing. `npm run deploy` only uploads when that project already exists. A clean `main` checkout is production; any other branch is a preview. The command prints the project's `pages.dev` URL. It does not attach the custom domain. `npm run deploy` does not read Terraform state and does not use an R2 bucket. `npm run deploy` không đọc Terraform và không dùng bucket R2.
 
 Project settings, DNS, and the optional custom domain are documented in [`infra/cloudflare/README.md`](infra/cloudflare/README.md). Response headers are in [`public/_headers`](public/_headers).
 
