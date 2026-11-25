@@ -14,8 +14,10 @@ import "./asset-path";
  * A scene that cannot be parsed is copied to `scene.corrupt-<timestamp>` as
  * `{ raw, files }` and removed from `scene` in that same transaction. It is
  * not replaced with a blank document. If that copy fails, autosave stays off
- * so the raw value remains under `scene`. While any corrupt backup exists,
- * later saves do not delete `file:*` keys, including after a reload.
+ * so the raw value remains under `scene`. Later saves still delete image
+ * keys that are not in the new scene. An id stored inside a corrupt backup
+ * is kept, so that unreadable drawing stays recoverable without retaining
+ * every image this browser ever stored.
  *
  * Multi-tab: last write wins. There is no lock, version, or broadcast.
  */

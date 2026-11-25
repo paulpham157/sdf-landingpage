@@ -77,31 +77,56 @@ function libraryEmptyState(code) {
   return code.replaceAll(LIBRARY_EMPTY, "Select an item on canvas to add it here.");
 }
 
-const appliedPatches = { libraryEmptyState: false, disableLibraryPublish: false };
+const patchesByEnvironment = new Map();
+
+function patchState(environmentName) {
+  const key = environmentName || "default";
+  let state = patchesByEnvironment.get(key);
+  if (!state) {
+    state = { libraryEmptyState: false, disableLibraryPublish: false };
+    patchesByEnvironment.set(key, state);
+  }
+  return state;
+}
+
+function isExcalidrawModule(path) {
+  return path.includes("@excalidraw/excalidraw") || path.includes("@excalidraw_excalidraw");
+}
 
 function excalidrawSelfHosted() {
   return {
     name: "excalidraw-self-hosted",
     enforce: "pre",
+    buildStart() {
+      const state = patchState(this.environment?.name);
+      state.libraryEmptyState = false;
+      state.disableLibraryPublish = false;
+    },
     transform(code, id) {
       const path = id.split("?")[0];
-      if (!path.includes("@excalidraw/excalidraw")) return null;
+      if (!isExcalidrawModule(path)) return null;
+      const state = patchState(this.environment?.name);
       if (path.endsWith("chunk-K2UTITRG.js")) return stripFontFallback(code);
       if (path.endsWith("chunk-ZUYEQ4TG.js")) return stripRemoteConfig(code);
-      // Match the source by content so a renamed prod or dev chunk still patches.
-      if (code.includes(LIBRARY_EMPTY)) {
-        appliedPatches.libraryEmptyState = true;
-        return libraryEmptyState(code);
+      let next = code;
+      let changed = false;
+      // One dev prebundle can contain both targets. Patch each by content.
+      if (next.includes(LIBRARY_EMPTY)) {
+        state.libraryEmptyState = true;
+        next = libraryEmptyState(next);
+        changed = true;
       }
-      if (PUBLISH_REQUEST.test(code)) {
-        appliedPatches.disableLibraryPublish = true;
-        return disableLibraryPublish(code);
+      if (PUBLISH_REQUEST.test(next)) {
+        state.disableLibraryPublish = true;
+        next = disableLibraryPublish(next);
+        changed = true;
       }
-      return null;
+      return changed ? next : null;
     },
     closeBundle() {
       if (this.environment?.name && this.environment.name !== "client") return;
-      const missing = Object.entries(appliedPatches)
+      const state = patchState(this.environment?.name);
+      const missing = Object.entries(state)
         .filter(([, applied]) => !applied)
         .map(([name]) => name);
       if (missing.length) {
@@ -137,6 +162,11 @@ export default defineConfig({
   },
   vite: {
     plugins: [excalidrawSelfHosted()],
+    optimizeDeps: {
+      // Serve the package source in dev so the transform sees dist/dev files
+      // instead of a prebundle that skips the plugin.
+      exclude: ["@excalidraw/excalidraw"],
+    },
     build: {
       // Astro inlines script chunks under this byte limit. Zero keeps them as
       // external /_astro/*.js files so script-src can stay 'self'.

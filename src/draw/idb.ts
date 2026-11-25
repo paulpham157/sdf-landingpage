@@ -135,7 +135,8 @@ export function idbWrite(
  * The presence check runs in this same readwrite transaction, so a cache from
  * another tab cannot skip an image that tab deleted.
  * When `deleteMissingFiles` is false, file keys are left in place.
- * A `scene.corrupt-*` backup also keeps every file key, including after reload.
+ * A `scene.corrupt-*` backup protects only the file ids stored in that record.
+ * Every other missing id is deleted, so a later edit does not keep unused images.
  */
 export function idbSaveDrawing(
   scene: string,
@@ -154,23 +155,47 @@ export function idbSaveDrawing(
       const keysRequest = store.getAllKeys();
       keysRequest.onsuccess = () => {
         const present = new Set<string>();
-        let corruptBackup = false;
+        const corruptKeys: string[] = [];
         for (const key of keysRequest.result) {
           if (typeof key !== "string") continue;
           if (key.startsWith(FILE_KEY_PREFIX)) present.add(key.slice(FILE_KEY_PREFIX.length));
-          else if (key.startsWith(CORRUPT_KEY_PREFIX)) corruptBackup = true;
+          else if (key.startsWith(CORRUPT_KEY_PREFIX)) corruptKeys.push(key);
         }
         for (const [id, file] of Object.entries(files)) {
           if (!present.has(id)) store.put(file, `${FILE_KEY_PREFIX}${id}`);
         }
-        if (options.deleteMissingFiles && !corruptBackup) {
-          for (const id of options.known) {
-            if (!Object.prototype.hasOwnProperty.call(files, id) && present.has(id)) {
-              store.delete(`${FILE_KEY_PREFIX}${id}`);
+        const writeScene = (protectedIds: Set<string>) => {
+          if (options.deleteMissingFiles) {
+            for (const id of options.known) {
+              if (
+                !Object.prototype.hasOwnProperty.call(files, id) &&
+                present.has(id) &&
+                !protectedIds.has(id)
+              ) {
+                store.delete(`${FILE_KEY_PREFIX}${id}`);
+              }
             }
           }
+          store.put(scene, SCENE_KEY);
+        };
+        if (!options.deleteMissingFiles || corruptKeys.length === 0) {
+          writeScene(new Set());
+          return;
         }
-        store.put(scene, SCENE_KEY);
+        const protectedIds = new Set<string>();
+        let pending = corruptKeys.length;
+        for (const key of corruptKeys) {
+          const recordRequest = store.get(key);
+          recordRequest.onsuccess = () => {
+            const record = recordRequest.result as { files?: Record<string, unknown> } | null;
+            const recordFiles = record && typeof record === "object" ? record.files : null;
+            if (recordFiles && typeof recordFiles === "object") {
+              for (const id of Object.keys(recordFiles)) protectedIds.add(id);
+            }
+            pending -= 1;
+            if (pending === 0) writeScene(protectedIds);
+          };
+        }
       };
     } catch (error) {
       reject(error);

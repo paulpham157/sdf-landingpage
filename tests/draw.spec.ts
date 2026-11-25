@@ -425,13 +425,19 @@ test("a corrupt saved scene is kept and offered for download", async ({ page }) 
   expect((stored.image as { dataURL?: string } | undefined)?.dataURL).toBe(image.dataURL);
 });
 
-test("a reload and later save still leave the corrupt scene images recoverable", async ({ page }) => {
+test("a reload keeps backup images and deletes images that are not in the backup", async ({ page }) => {
   const raw = '{"elements":[this is not json';
   const image = {
     mimeType: "image/png",
     id: "img-kept",
     dataURL: "data:image/png;base64,bbbb",
     created: 2,
+  };
+  const extra = {
+    mimeType: "image/png",
+    id: "img-extra",
+    dataURL: "data:image/png;base64,cccc",
+    created: 3,
   };
   await page.goto("/");
   await page.evaluate(async ({ value, file }) => {
@@ -459,9 +465,27 @@ test("a reload and later save still leave the corrupt scene images recoverable",
     .poll(async () => {
       const stored = await readStoredScene(page);
       const backup = stored.backups[0] as { raw?: string; files?: Record<string, { dataURL?: string }> } | undefined;
-      return parsedScene(stored.scene) !== null && backup?.files?.["img-kept"]?.dataURL === image.dataURL;
+      return (
+        parsedScene(stored.scene) !== null &&
+        backup?.files?.["img-kept"]?.dataURL === image.dataURL &&
+        backup?.files?.["img-extra"] === undefined
+      );
     })
     .toBe(true);
+  await page.evaluate(async (file) => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("sdf-draw");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("kv", "readwrite");
+      tx.objectStore("kv").put(file, `file:${file.id}`);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  }, extra);
   await page.reload();
   await expect(page.locator(".excalidraw")).toBeVisible();
   await drawRectangle(page);
@@ -473,7 +497,9 @@ test("a reload and later save still leave the corrupt scene images recoverable",
     (record) => (record as { raw?: string }).raw === raw,
   ) as { raw?: string; files?: Record<string, { dataURL?: string }> } | undefined;
   expect(stored.files["file:img-kept"]?.dataURL).toBe(image.dataURL);
+  expect(stored.files["file:img-extra"]).toBeUndefined();
   expect(backup?.files?.["img-kept"]?.dataURL).toBe(image.dataURL);
+  expect(backup?.files?.["img-extra"]).toBeUndefined();
 });
 
 test("the not saved notice stays readable on a phone", async ({ page }, testInfo) => {
