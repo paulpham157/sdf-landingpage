@@ -474,32 +474,44 @@ code {
   gap: clamp(1.5rem, 4vw, 3.5rem);
 }
 
-.hero-copy,
-.hero-proof {
-  min-width: 0;
-}
-
-.hero-proof .proof {
-  margin-top: 0.85rem;
-}
-
-/* Laptop and desktop: the checked-commit proof fills the unused right side.
-   The verify line needs the full 1120px wrap, so the split waits until the
-   viewport can hold that wrap (including a classic scrollbar). */
+/* Laptop and desktop: keep section copy at a readable measure and put the
+   existing proof (terminal, cost table, install command) in the open column.
+   Below this width the sections stack in source order. */
 @media (min-width: 1160px) {
-  .hero-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-    align-items: center;
-    gap: 1.75rem;
+  .section-balance {
+    display: grid;
+    grid-template-columns: minmax(0, 25rem) minmax(0, 1fr);
+    column-gap: 2.25rem;
+    align-items: start;
   }
 
-  .hero h1 {
-    font-size: clamp(2.7rem, 3.4vw, 3.15rem);
+  .section-balance > .kicker,
+  .section-balance > h2,
+  .section-balance > .proof-caption,
+  .section-balance > .docs-line {
+    grid-column: 1;
   }
 
-  .hero-proof .proof,
-  .hero-proof .proof-caption {
+  .section-balance > .proof-caption,
+  .section-balance > .docs-line {
+    max-width: 36rem;
+    margin-top: 0.85rem;
+  }
+
+  .section-balance > .proof,
+  .section-balance > .install {
+    grid-column: 2;
+    grid-row: 1 / span 4;
     max-width: none;
+    min-width: 0;
+    margin-top: 0;
+  }
+
+  .section-balance > .install,
+  .section-balance .install.terminal {
+    overflow-x: visible;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
   }
 }
 
@@ -683,6 +695,39 @@ code {
   max-width: 14ch;
 }
 
+@media (min-width: 1160px) {
+  .close-grid > div {
+    display: grid;
+    grid-template-columns: minmax(0, 18rem) minmax(0, 28rem);
+    column-gap: 3rem;
+    row-gap: 0.85rem;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .close-grid .kicker {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .close-grid h2 {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .close-grid .lede {
+    grid-column: 2;
+    grid-row: 2;
+    margin-top: 0;
+  }
+
+  .close-grid .cta-row {
+    grid-column: 2;
+    grid-row: 3;
+    margin-top: 0;
+  }
+}
+
 .close .text-link:focus-visible,
 .close .button:focus-visible {
   outline-color: #f3c7b6;
@@ -695,6 +740,32 @@ code {
 .page-hero h1 {
   font-size: clamp(2.3rem, 5vw, 3.8rem);
   max-width: 20ch;
+}
+
+/* 404 is a short page. Tighten it enough that 1280×800 and 1366×768 fit
+   without scrolling. The footer still sits flush via the body flex column. */
+.page-missing {
+  padding-block: 1.35rem 0.85rem;
+}
+
+.page-missing .kicker {
+  margin-bottom: 0.45rem;
+}
+
+.page-missing h1 {
+  font-size: clamp(2.05rem, 4vw, 2.7rem);
+}
+
+.page-missing h1::after {
+  margin-top: 0.7rem;
+}
+
+.page-missing .lede {
+  margin-top: 0.75rem;
+}
+
+.page-missing .cta-row {
+  margin-top: 1rem;
 }
 
 .scroll-hint {
@@ -1273,15 +1344,15 @@ textarea {
 
 .footer-install {
   max-width: 100%;
+  min-width: 0;
   margin-top: 0.7rem;
-  overflow-x: auto;
 }
 
 .footer-install code {
-  display: inline-block;
-  overflow-wrap: normal;
+  font-size: 0.8125rem;
+  overflow-wrap: break-word;
   word-break: normal;
-  white-space: nowrap;
+  white-space: normal;
 }
 
 .footer-note {
@@ -1903,6 +1974,21 @@ textarea {
   font-size: 0.95rem;
   color: var(--ink-soft);
   max-width: 42rem;
+}
+
+.section-balance > .proof-caption {
+  margin-top: 1.5rem;
+}
+
+.section-balance > .proof {
+  margin-top: 0;
+}
+
+@media (min-width: 1160px) {
+  .section-balance > .proof-caption,
+  .section-balance > .docs-line {
+    margin-top: 0.85rem;
+  }
 }
 
 .proof-label {
