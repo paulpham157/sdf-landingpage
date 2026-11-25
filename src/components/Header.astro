@@ -64,41 +64,85 @@ function isCurrent(href: string) {
   const menu = document.querySelector(".nav-disclosure");
   const backdrop = document.querySelector(".nav-backdrop");
   if (menu instanceof HTMLDetailsElement) {
+    let lockedScrollY = 0;
+    let lockedGutter = 0;
+    let scrollLocked = false;
+    const lockScroll = () => {
+      if (scrollLocked) return;
+      const root = document.documentElement;
+      lockedGutter = Math.max(0, window.innerWidth - root.clientWidth);
+      const bodyWidth = window.innerWidth - lockedGutter;
+      lockedScrollY = window.scrollY;
+      scrollLocked = true;
+      root.style.setProperty("--scrollbar-comp", `${lockedGutter}px`);
+      const body = document.body;
+      body.style.position = "fixed";
+      body.style.top = `-${lockedScrollY}px`;
+      body.style.left = "0";
+      body.style.width = `${bodyWidth}px`;
+    };
+    const unlockScroll = () => {
+      if (!scrollLocked) return;
+      const y = lockedScrollY;
+      scrollLocked = false;
+      lockedGutter = 0;
+      const root = document.documentElement;
+      root.style.removeProperty("--scrollbar-comp");
+      const body = document.body;
+      body.style.position = "";
+      body.style.top = "";
+      body.style.left = "";
+      body.style.width = "";
+      root.getBoundingClientRect();
+      window.scrollTo(0, y);
+    };
     const setOpen = (open: boolean) => {
-      document.documentElement.classList.toggle("menu-open", open);
+      const compact = window.matchMedia("(max-width: 1040px)").matches;
+      const lock = open && compact;
+      if (lock) lockScroll();
+      document.documentElement.classList.toggle("menu-open", lock);
       if (backdrop instanceof HTMLButtonElement) backdrop.hidden = !open;
+      if (!lock) unlockScroll();
+    };
+    const closeMenu = () => {
+      menu.open = false;
+      setOpen(false);
     };
     const summary = () => menu.querySelector("summary");
     const header = menu.closest(".site-header");
     menu.addEventListener("toggle", () => setOpen(menu.open));
     menu.addEventListener("click", (event) => {
       const link = event.target instanceof Element ? event.target.closest("a") : null;
-      if (link) menu.open = false;
+      if (link) closeMenu();
     });
     document.addEventListener(
       "click",
       (event) => {
         if (!menu.open) return;
         if (!(event.target instanceof Node) || menu.contains(event.target)) return;
-        menu.open = false;
         const clickedLink = event.target instanceof Element ? event.target.closest("a") : null;
-        if (!clickedLink) summary()?.focus();
+        closeMenu();
+        if (!clickedLink) summary()?.focus({ preventScroll: true });
       },
       true,
     );
     document.addEventListener("focusin", (event) => {
       if (!menu.open || !(event.target instanceof Node)) return;
       if (header?.contains(event.target)) return;
-      menu.open = false;
+      closeMenu();
     });
     document.addEventListener("keydown", (event) => {
       if (event.key !== "Escape" || !menu.open) return;
-      menu.open = false;
-      summary()?.focus();
+      closeMenu();
+      summary()?.focus({ preventScroll: true });
     });
     const compactNav = window.matchMedia("(max-width: 1040px)");
     compactNav.addEventListener("change", () => {
-      if (!compactNav.matches) menu.open = false;
+      if (!compactNav.matches) closeMenu();
+    });
+    window.addEventListener("resize", () => {
+      if (!scrollLocked) return;
+      document.body.style.width = `${window.innerWidth - lockedGutter}px`;
     });
   }
 </script>

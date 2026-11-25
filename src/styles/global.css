@@ -143,10 +143,7 @@ a:visited {
   transform: none;
 }
 
-#main:focus,
-#main:focus-visible,
-section:focus,
-section:focus-visible {
+[tabindex="-1"]:focus:not(:focus-visible) {
   outline: none;
 }
 
@@ -1361,9 +1358,10 @@ textarea {
 }
 
 @media (max-width: 1040px) {
-  html.menu-open,
-  html.menu-open body {
+  html.menu-open {
     overflow: hidden;
+    scrollbar-gutter: auto;
+    padding-right: var(--scrollbar-comp, 0px);
   }
 
   .site-header {
@@ -1440,13 +1438,15 @@ textarea {
     gap: 0 1rem;
     position: absolute;
     left: 0;
-    right: 0;
+    right: auto;
     top: 100%;
-    width: auto;
+    width: calc(100% + var(--scrollbar-comp, 0px));
+    max-width: none;
     margin-top: 0;
     background: var(--paper);
     border-bottom: 1px solid var(--rule);
     padding: 0.5rem 1.25rem;
+    box-sizing: border-box;
     z-index: 1;
   }
 }
