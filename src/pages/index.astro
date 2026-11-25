@@ -46,7 +46,7 @@ const verifyPre = [
 <BaseLayout title={title} description={description} path="/" jsonLd={jsonLd}>
   <section class="hero">
     <div class="wrap hero-grid">
-      <div class="hero-copy">
+      <div>
         <p class="kicker">Open source · v0.1.0</p>
         <h1>{hero.title}</h1>
         <p class="lede">{hero.subhead}</p>
@@ -55,29 +55,32 @@ const verifyPre = [
           <a class="button button-secondary" href={site.repo} rel="noopener noreferrer">{hero.secondaryCta}</a>
         </div>
       </div>
-      <section class="hero-proof" id="how-it-works" aria-labelledby="verify-title">
-        <p class="kicker">§ 01. Proof: a checked commit</p>
-        <h2 id="verify-title">{homeVerify.title}</h2>
-        <figure class="proof">
-          <figcaption class="proof-caption">
-            <span class="proof-label">{homeVerify.label}</span>{` ${homeVerify.caption}`}
-          </figcaption>
-          <pre class="install terminal"><code set:html={`<!--email_off-->${verifyPre}<!--/email_off-->`} /></pre>
-          <p class="step-today">{homeVerify.footnote}</p>
-          <a class="repo-link" href={homeVerify.linkUrl} rel="noopener noreferrer">{homeVerify.linkLabel}</a>
-        </figure>
-      </section>
+    </div>
+  </section>
+
+  <section class="section band" id="how-it-works" aria-labelledby="verify-title">
+    <div class="wrap section-balance">
+      <p class="kicker">§ 01. Proof: a checked commit</p>
+      <h2 id="verify-title">{homeVerify.title}</h2>
+      <p class="proof-caption" id="verify-caption">
+        <span class="proof-label">{homeVerify.label}</span>{` ${homeVerify.caption}`}
+      </p>
+      <figure class="proof" aria-labelledby="verify-caption">
+        <pre class="install terminal"><code set:html={`<!--email_off-->${verifyPre}<!--/email_off-->`} /></pre>
+        <p class="step-today">{homeVerify.footnote}</p>
+        <a class="repo-link" href={homeVerify.linkUrl} rel="noopener noreferrer">{homeVerify.linkLabel}</a>
+      </figure>
     </div>
   </section>
 
   <section class="section" aria-labelledby="cost-title">
-    <div class="wrap">
+    <div class="wrap section-balance">
       <p class="kicker">§ 02. Proof: cost that won't guess</p>
       <h2 id="cost-title">{homeCost.title}</h2>
-      <figure class="proof">
-        <figcaption class="proof-caption">
-          <span class="proof-label">{homeCost.label}</span>{` ${homeCost.caption}`}
-        </figcaption>
+      <p class="proof-caption" id="cost-caption">
+        <span class="proof-label">{homeCost.label}</span>{` ${homeCost.caption}`}
+      </p>
+      <figure class="proof" aria-labelledby="cost-caption">
         <table class="checks proof-table" aria-labelledby="cost-title">
           <caption class="sr-only">Sample session costs</caption>
           <thead>
@@ -106,7 +109,7 @@ const verifyPre = [
   </section>
 
   <section class="section band" id="today" aria-labelledby="today-title">
-    <div class="wrap">
+    <div class="wrap section-balance">
       <p class="kicker">§ 03. Get started</p>
       <h2 id="today-title">{homeInstall.heading}</h2>
       <pre class="install"><code><!--email_off-->{homeInstall.lines.join("\n")}<!--/email_off--></code></pre>
