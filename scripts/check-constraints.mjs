@@ -75,9 +75,34 @@ assert(
 );
 assert(!includes(home, "This row is not the list of SDF adapters."), "Home agent row was removed");
 assert(!includes(home, "toy fixture"), "Home specimen was removed");
-assert(includes(home, "§ 01. Why SDF"), "Home § 01 kicker drifted");
-assert(includes(home, "Stays on your machine"), "Home is missing the localhost point");
-assert(includes(home, "Data goes into local SQLite, with no outside SaaS."), "Localhost point drifted");
+assert(includes(home, "§ 01. How it works"), "Home § 01 kicker drifted");
+assert(!includes(home, "§ 01. Why SDF"), "Why SDF must leave the homepage");
+assert(!includes(home, "§ 02. How it works"), "How it works is § 01");
+assert(!includes(home, "§ 03. Shipping today"), "Shipping today must leave the homepage");
+assert(!includes(home, "§ 04. Design partners"), "Design partners is § 05");
+assert(includes(home, "§ 05. Design partners"), "Home § 05 kicker drifted");
+const homeKickers = [
+  "§ 01. How it works",
+  "§ 02. Proof: a checked commit",
+  "§ 03. Proof: cost that won't guess",
+  "§ 04. Get started",
+  "§ 05. Design partners",
+];
+let kickerAt = -1;
+for (const kicker of homeKickers) {
+  const next = home.indexOf(kicker);
+  assert(next > kickerAt, `Home kicker missing or out of order: ${kicker}`);
+  kickerAt = next;
+}
+assert(includes(home, "It runs on your machine."), "Hero must say SDF runs on your machine");
+assert(
+  includes(
+    home,
+    "SDF records the telemetry your coding agents already export, links sessions to commits, and checks a commit against a task you declared. It runs on your machine. It does not launch, route, or sandbox agents.",
+  ),
+  "Hero lede drifted",
+);
+assert(!includes(home, "VP Engineering"), "Hero buyer line must leave the homepage");
 assert(includes(home, 'href="/blog"'), "Home is missing the blog link");
 assert(includes(home, "Become a design partner"), "Home is missing the § 04 design-partner heading");
 assert(includes(home, "Apply to be a design partner"), "Home is missing the § 04 design-partner link");
@@ -110,41 +135,110 @@ assert(!heroCta.includes("sample-evidence-report"), "Hero must not keep the samp
 assert(includes(home, 'href="/sample-evidence-report"'), "Sample report must stay in the nav");
 const closeCta = [...home.matchAll(/<div class="cta-row">([\s\S]*?)<\/div>/g)].at(-1)?.[1] ?? "";
 assert(closeCta.includes('href="/design-partners"') && includes(closeCta, "Apply to be a design partner"), "§ 04 design-partner CTA must stay");
-assert(includes(home, "sdf task declare records the task"), "Home is missing the Declare line");
-assert(includes(home, "Routing a task to an agent you already use is planned."), "Home Route line drifted");
-assert(includes(home, "Your agents stay in place. SDF records what they did."), "How-it-works lede drifted");
-assert(includes(home, "Vendor-neutral"), "Home is missing the vendor-neutral pillar");
+const homeMain = home.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)?.[1] ?? "";
+assert(homeMain.length > 0, "Home is missing main");
+assert(
+  includes(homeMain, "Declare the checks. Run your agent as usual. Verify the commit. Read the cost."),
+  "How it works line drifted",
+);
+assert(!includes(homeMain, "sdf task declare records the task"), "Declare card must leave the homepage");
+assert(!includes(homeMain, "Routing a task to an agent you already use is planned."), "Route card must leave the homepage");
+assert(!includes(homeMain, "Your agents stay in place. SDF records what they did."), "Old how-it-works lede must leave");
+assert(!includes(homeMain, "Vendor-neutral"), "Why SDF pillars must leave the homepage");
+assert(!includes(homeMain, "referee"), "The referee loop must leave the homepage body");
+assert(home.includes('id="how-it-works"'), "How it works must keep its nav id");
 assert(
   includes(home, "onboarding 3 to 5 platform teams already running two or more agents"),
   "Home is missing the closing CTA",
 );
 assert(includes(home, "Planned"), "Home must label unshipped steps as Planned");
 assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Home is missing the real install path");
-assert(includes(home, "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0"), "Home is missing the v0.1.0 pin");
+assert(!includes(home, "sdf@v0.1.0"), "Homepage install must not pin @v0.1.0; that line lives in docs and on pricing");
+assert(includes(home, "sdf serve"), "Home install is missing sdf serve");
+assert(includes(home, "sdf init claude-code --write"), "Home install is missing sdf init");
+assert(includes(home, "sdf summary"), "Home install is missing sdf summary");
 assert(includes(home, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Home is missing the v0.1.0 release");
-assert(includes(home, "unless you opt in"), "Home must say content is opt-in");
+assert(!includes(homeMain, "unless you opt in"), "Opt-in content wording leaves the homepage for the docs");
 assert(
-  includes(home, "v0.1.0 is open source under Apache 2.0. sdf serve listens on localhost and serves a read-only page. Authentication is off by default, so keep the receiver on localhost."),
-  "Home shipping copy drifted",
+  !includes(
+    homeMain,
+    "v0.1.0 is open source under Apache 2.0. sdf serve listens on localhost and serves a read-only page. Authentication is off by default, so keep the receiver on localhost.",
+  ),
+  "Shipping-today body must leave the homepage",
 );
+assert(
+  includes(
+    home,
+    "Leave sdf serve running in its own terminal, and restart your agent after sdf init. go install needs Go 1.26 or newer. No Go? Download a ",
+  ),
+  "Install note drifted",
+);
+assert(includes(home, "Agent setup, plus the localhost and auth notes, is in "), "Install docs line drifted");
 assert(!includes(home, "listens on localhost for OTLP"), "Home must not put the OTLP receiver detail back in the shipping paragraph");
 assert(!includes(home, "optional bearer token"), "Home must not put the bearer-token detail back in the shipping paragraph");
 assert(!includes(home, "read-only UI on localhost"), "Home shipping copy still uses the old UI sentence");
-assert(includes(home, "it says unknown instead of guessing"), "Cost point drifted");
-assert(includes(home, "the session stays unlinked."), "Record line must keep the unlinked rule");
+assert(includes(home, "Cost per Accepted Outcome says unknown until it knows."), "Cost heading drifted");
+assert(
+  includes(
+    home,
+    "With --github, a session counts as accepted when its linked pull request merged. If an outcome, a cost, or a unique merge is missing, the figure stays unknown.",
+  ),
+  "Cost footnote must state the outcome, cost, and unique-merge rule",
+);
+assert(
+  !includes(homeMain, "Run it with --github, and sessions whose linked pull request merged get a figure."),
+  "Cost footnote must not say --github alone produces a figure",
+);
+assert(includes(home, ">unlinked<"), "Cost table must show unlinked outcomes");
+assert(!includes(homeMain, "the session stays unlinked."), "Commit-link caveat moves off the homepage");
 assert(!includes(home, "commit trailer"), "Homepage must not list the commit-link rules");
 assert(!includes(home, "from the OpenTelemetry each one exports"), "Coverage paragraph still has the export clause");
 assert(!includes(home, "This is headed toward"), "Homepage moat was removed");
 assert(!includes(home, "either way"), "either way must stay out of the homepage");
-assert(includes(home, "The exact commit-link rules are in "), "Commit-link docs line drifted");
-assert(includes(home, "is spelled out in "), "Accepted-definition docs line drifted");
-assert(includes(home, "<code>go install</code> builds from source and needs Go 1.26 or newer."), "Home install note drifted");
+assert(!includes(homeMain, "The exact commit-link rules are in "), "Commit-link docs line leaves the homepage");
+assert(!includes(homeMain, "is spelled out in "), "Accepted-definition docs line leaves the homepage");
+assert(includes(home, "go install needs Go 1.26 or newer."), "Home install note drifted");
+assert(!includes(home, "<code>go install</code> builds from source and needs Go 1.26 or newer."), "Old install note must leave");
 assert(!includes(home, "Cost per Accepted Outcome is unknown without --github"), "The install note still repeats the unknown-cost conditions");
 assert(home.includes('id="today"'), "Install section must keep id today");
 assert(
-  includes(home, "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit"),
-  "Home must link the commit-link rules in the product docs",
+  !includes(homeMain, "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit"),
+  "Commit-link anchor leaves the homepage for the docs index",
 );
+assert(
+  includes(home, "https://github.com/paulpham157/sdf/blob/main/docs/verify.md"),
+  "Home must link the verify docs",
+);
+assert(includes(home, "We wrote both commits by hand"), "Verify caption must say the commits were written by hand");
+assert(includes(home, "the first uses linear backoff and fails the test"), "Verify caption must name the FAIL cause");
+assert(includes(home, "the second uses exponential backoff and passes"), "Verify caption must name the PASS cause");
+assert(includes(home, "From real sdf summary output (v0.1.0), set as a table."), "Cost caption must say the table is reformatted");
+assert(includes(home, 'class="proof-label"'), "Proof blocks need the Toy repo and Example data chips");
+assert(includes(home, ">Toy repo<"), "Verify block must be labeled Toy repo");
+assert(includes(home, ">Example data<"), "Cost block must be labeled Example data");
+assert(!includes(home, "status-badge"), "Proof chips must not use the planned status badge");
+assert(includes(home, "sdf verify 461ddeb… --task retry-backoff --task-ref 478bd0f…"), "Verify FAIL command drifted");
+assert(includes(home, "sdf verify 040181e… --task retry-backoff --task-ref 478bd0f…"), "Verify PASS command drifted");
+assert(includes(home, "sha256:ec48838d…"), "Verify FAIL hash drifted");
+assert(includes(home, "sha256:134a6e62…"), "Verify PASS hash drifted");
+assert(includes(home, '<strong class="verdict verdict-fail">FAIL</strong>'), "FAIL must be text, not color alone");
+assert(includes(home, '<strong class="verdict">PASS</strong>'), "PASS must be text, not color alone");
+assert(
+  includes(home, '  <span class="reason">CHECK_FAILED: unit: exit 1, expected 0</span>'),
+  "CHECK_FAILED must keep the two-space indent from the run",
+);
+assert(
+  includes(home, "cost_per_accepted_outcome_usd: unknown (3 sessions have no known outcome)"),
+  "Cost per Accepted Outcome line drifted",
+);
+assert(includes(home, "sample-claude-1"), "Cost table is missing the Claude sample");
+assert(includes(home, "sample-codex-conv-1"), "Cost table is missing the Codex sample");
+assert(includes(home, "sample-gemini-1"), "Cost table is missing the Gemini sample");
+assert(includes(home, "$0.00055"), "Computed cost must stay unrounded");
+assert(includes(home, ">unknown<"), "Unknown cost must stay the word unknown");
+assert(!includes(home, ">—<") && !includes(home, ">–<"), "Unknown must not be tidied into a dash");
+assert(includes(home, "Each verdict is tied to one commit and carries eight evidence records."), "Verify footnote drifted");
+assert(includes(home, "Running it on every attempt is planned."), "Verify on every attempt must stay labeled planned");
 assert(
   includes(home, "https://github.com/paulpham157/sdf/tree/main/docs"),
   "Home footer must link the product docs",
@@ -163,23 +257,27 @@ function emailOffBlocks(html) {
   return html.match(/<!--email_off-->[\s\S]*?<!--\/email_off-->/g) ?? [];
 }
 
-function assertInstallProtected(html, label) {
+function assertEmailOff(html, label, needle) {
   const blocks = emailOffBlocks(html);
   assert(
-    blocks.some((block) => block.includes("go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0")),
-    `${label} must keep sdf@v0.1.0 inside Cloudflare's email_off markers`,
+    blocks.some((block) => block.includes(needle)),
+    `${label} must keep ${needle} inside Cloudflare's email_off markers`,
   );
   assert(
     blocks.every((block) => !block.includes("design-partners@softwaredecisionfabric.tech")),
     `${label} must not disable obfuscation for the contact address`,
   );
-  assert(!html.includes("/cdn-cgi/l/email-protection"), `${label} must not rewrite the install command`);
+  assert(!html.includes("/cdn-cgi/l/email-protection"), `${label} must not rewrite a protected command`);
 }
 
-assertInstallProtected(home, "Home");
-assertInstallProtected(pricing, "Pricing");
-assertInstallProtected(onePager, "One-pager");
-assert(includes(home, "Token counts"), "Home must say token counts are stored");
+assertEmailOff(home, "Home", "go install github.com/paulpham157/sdf/cmd/sdf@latest");
+assertEmailOff(home, "Home", "sha256:ec48838d…");
+assertEmailOff(home, "Home", "sha256:134a6e62…");
+assertEmailOff(home, "Home", "cost_per_accepted_outcome_usd: unknown (3 sessions have no known outcome)");
+assert(emailOffBlocks(home).length >= 3, "Home must protect the verify block, the cost line, and the install block");
+assertEmailOff(pricing, "Pricing", "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0");
+assertEmailOff(onePager, "One-pager", "go install github.com/paulpham157/sdf/cmd/sdf@v0.1.0");
+assert(!includes(homeMain, "Token counts"), "Token-count wording leaves the homepage");
 assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest"), "Pricing must lead with the local install");
 assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
 assert(includes(pricing, "linked GitHub pull request merged"), "Pricing must say accepted means a merged pull request");
@@ -199,7 +297,11 @@ assert(pricing.includes(costPerAcceptedOutcome), "Pricing is missing the Cost pe
 assert(home.includes("Cost per Accepted Outcome"), "Home is missing Cost per Accepted Outcome");
 assert(!home.toLowerCase().includes("acceptable outcome"), "Home still says acceptable outcome");
 assert(!home.includes("accepted task"), "Home still says accepted task");
-assert(!home.includes("$"), "Home must not contain dollar amounts");
+const homeDollars = home.match(/\$\d[\d.]*/g) ?? [];
+assert(
+  homeDollars.length === 1 && homeDollars[0] === "$0.00055",
+  `Home dollar amounts must be only the sample computed cost $0.00055, found ${homeDollars.join(", ") || "none"}`,
+);
 assert(!includes(home, "OpenHands"), "Home must not show market-anchor prices");
 assert(!/\bOna\b/.test(home), "Home must not show the Ona anchor");
 
@@ -303,8 +405,23 @@ for (const file of [llms, llmsFull]) {
   assert(!/placeholder mailbox/i.test(file), "llms text still calls the mailbox a placeholder");
   assert(!file.includes("testimonial"), "llms text invented social proof");
 }
-assert(llms.includes("Route is Planned"), "llms.txt still uses the old step count");
-assert(llms.includes("Declare, Verify, and Record are partly shipped"), "llms.txt must say which steps are partly shipped");
+assert(
+  llms.includes("Declare the checks. Run your agent as usual. Verify the commit. Read the cost."),
+  "llms.txt must use the homepage how-it-works line",
+);
+assert(!llms.includes("the four steps"), "llms.txt still describes the old four homepage steps");
+assert(!llms.includes("Route is Planned"), "llms.txt still marks Route on the homepage summary");
+assert(llms.includes("Declare, verify, and record are partly shipped."), "llms.txt must say which steps are partly shipped");
+assert(llmsFull.includes("cost_per_accepted_outcome_usd: unknown (3 sessions have no known outcome)"), "llms-full is missing the cost line");
+assert(llmsFull.includes("sha256:ec48838d…"), "llms-full is missing the verify FAIL hash");
+assert(llmsFull.includes("We wrote both commits by hand"), "llms-full verify caption drifted");
+assert(
+  llmsFull.includes(
+    "With --github, a session counts as accepted when its linked pull request merged. If an outcome, a cost, or a unique merge is missing, the figure stays unknown.",
+  ),
+  "llms-full cost footnote drifted",
+);
+assert(llmsFull.includes("sdf init claude-code --write"), "llms-full is missing the homepage init command");
 assert(!llms.includes("three planned, one partly shipped"), "llms.txt still says three steps are planned");
 assert(llmsFull.includes("Accepted means merged"), "llms-full must keep the accepted definition");
 assert(llmsFull.includes("## Why SDF"), "llms-full must title the points Why SDF");

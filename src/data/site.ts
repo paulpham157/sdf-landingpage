@@ -35,12 +35,74 @@ export const wedgeMetric = "Cost per Accepted Outcome";
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "SDF is a local OpenTelemetry collector for coding agents. It runs on your machine and records the telemetry they already export. It does not launch, route, or sandbox them. It links sessions to commits and shows Cost per Accepted Outcome from merged pull requests. The independent referee loop is planned.",
+    "SDF records the telemetry your coding agents already export, links sessions to commits, and checks a commit against a task you declared. It runs on your machine. It does not launch, route, or sandbox agents.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Get started",
   secondaryCta: "View on GitHub",
 } as const;
+
+/** Homepage § 01. Other pages do not use this line. */
+export const homeHow =
+  "Declare the checks. Run your agent as usual. Verify the commit. Read the cost.";
+
+/**
+ * Homepage proof, pass 6. Hashes are Product's shortened v0.1.0 run.
+ * The ellipsis is part of the string and must stay.
+ */
+export const homeVerify = {
+  title: "“Task complete” is a claim. Here's a check.",
+  label: "Toy repo",
+  caption:
+    "Real sdf verify output from v0.1.0, on a toy repo we made for this page. We wrote both commits by hand: the first uses linear backoff and fails the test, the second uses exponential backoff and passes. Hashes shortened.",
+  failCommand: "sdf verify 461ddeb… --task retry-backoff --task-ref 478bd0f…",
+  failHash: "sha256:ec48838d…",
+  failReason: "CHECK_FAILED: unit: exit 1, expected 0",
+  passCommand: "sdf verify 040181e… --task retry-backoff --task-ref 478bd0f…",
+  passHash: "sha256:134a6e62…",
+  footnote:
+    "Each verdict is tied to one commit and carries eight evidence records. Running it on every attempt is planned.",
+  linkLabel: "How verify works",
+  linkUrl: "https://github.com/paulpham157/sdf/blob/main/docs/verify.md",
+} as const;
+
+export const homeCost = {
+  title: "Cost per Accepted Outcome says unknown until it knows.",
+  label: "Example data",
+  caption:
+    "From real sdf summary output (v0.1.0), set as a table. Example data: hand-written sample telemetry from the repo's tests, not real sessions.",
+  columns: ["Session", "Agent", "Computed cost", "Outcome"],
+  rows: [
+    ["sample-claude-1", "claude-code", "unknown", "unlinked"],
+    ["sample-codex-conv-1", "codex", "$0.00055", "unlinked"],
+    ["sample-gemini-1", "gemini-cli", "unknown", "unlinked"],
+  ],
+  cpao: "cost_per_accepted_outcome_usd: unknown (3 sessions have no known outcome)",
+  footnote:
+    "With --github, a session counts as accepted when its linked pull request merged. If an outcome, a cost, or a unique merge is missing, the figure stays unknown.",
+  linkLabel: "How it is counted",
+} as const;
+
+/** Homepage install. Pricing still uses `shipsToday`, including the @v0.1.0 pin. */
+export const homeInstall = {
+  heading: "Install it.",
+  lines: [
+    "go install github.com/paulpham157/sdf/cmd/sdf@latest",
+    "sdf serve",
+    "sdf init claude-code --write",
+    "sdf summary",
+  ],
+  beforeArchive:
+    "Leave sdf serve running in its own terminal, and restart your agent after sdf init. go install needs Go 1.26 or newer. No Go? Download a ",
+  archiveLabel: "prebuilt archive",
+  beforeDocs: ". Agent setup, plus the localhost and auth notes, is in ",
+  docsLabel: "the docs",
+  afterDocs: ".",
+} as const;
+
+/** Homepage § 05. The design-partners page keeps the longer `closing.body`. */
+export const homePartners =
+  "We're onboarding 3 to 5 platform teams already running two or more agents.";
 
 export const problem = {
   heading: "“Task complete” is a claim, not a result.",

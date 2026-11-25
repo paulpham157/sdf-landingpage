@@ -4,11 +4,17 @@ import {
   closing,
   faqs,
   hero,
+  homeCost,
+  homeHow,
+  homeInstall,
+  homePartners,
+  homeVerify,
   marketAnchorNote,
   marketAnchors,
   onePager,
   pillars,
   pricingIntro,
+  problem,
   shipsToday,
   site,
   statusLabel,
@@ -34,11 +40,53 @@ write(
   "",
   "## How it works",
   "",
+  homeHow,
+  "",
+  "## Proof: a checked commit",
+  "",
+  `${homeVerify.label}. ${homeVerify.caption}`,
+  `$ ${homeVerify.failCommand}`,
+  `verdict FAIL ${homeVerify.failHash}`,
+  `  ${homeVerify.failReason}`,
+  "",
+  `$ ${homeVerify.passCommand}`,
+  `verdict PASS ${homeVerify.passHash}`,
+  "",
+  homeVerify.footnote,
+  `${homeVerify.linkLabel}: ${homeVerify.linkUrl}`,
+  "",
+  "## Proof: cost that won't guess",
+  "",
+  `${homeCost.label}. ${homeCost.caption}`,
+  homeCost.columns.join(" | "),
+);
+for (const row of homeCost.rows) {
+  write(row.join(" | "));
+}
+write(
+  homeCost.cpao,
+  "",
+  homeCost.footnote,
+  `${homeCost.linkLabel}: ${site.outcomeDocsUrl}`,
+  "",
+  "## Get started",
+  "",
+  ...homeInstall.lines,
+  `${homeInstall.beforeArchive}${homeInstall.archiveLabel}${homeInstall.beforeDocs}${homeInstall.docsLabel}${homeInstall.afterDocs}`,
+  `Release: ${shipsToday.releaseUrl}`,
+  `Docs: ${site.docsUrl}`,
+  "",
+  "## Homepage design partners",
+  "",
+  homePartners,
+  "",
+  "## Steps",
+  "",
 );
 for (const step of steps) {
   write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body}`);
 }
-write("", "## Why SDF", "");
+write("", "## Why SDF", "", problem.coverage, "");
 for (const pillar of pillars) {
   write(`- ${pillar.title}: ${pillar.body}`);
 }

@@ -492,6 +492,10 @@ code {
   border-top: 1px solid var(--rule);
 }
 
+.section.how {
+  padding-block: clamp(2rem, 4vw, 3rem);
+}
+
 .section.first {
   border-top: 0;
   padding-top: 0;
@@ -1826,7 +1830,7 @@ textarea {
 }
 
 .install {
-  max-width: 42rem;
+  max-width: 44rem;
   margin: 1.1rem 0 0;
   overflow-x: auto;
   background: var(--paper-3);
@@ -1841,6 +1845,159 @@ textarea {
   background: none;
   padding: 0;
   border: 0;
+  font-size: 1em;
+}
+
+.proof {
+  max-width: 44rem;
+  margin: 1.5rem 0 0;
+}
+
+.proof-caption {
+  margin: 0 0 0.6rem;
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+  max-width: 42rem;
+}
+
+.proof-label {
+  display: inline-block;
+  margin-right: 0.5rem;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--ink);
+  color: var(--ink);
+  background: var(--paper-3);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  vertical-align: 0.1em;
+}
+
+.proof .step-today {
+  margin-top: 0.8rem;
+}
+
+.proof + .proof {
+  margin-top: 2.25rem;
+}
+
+.install.terminal {
+  max-width: none;
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  padding: 0.9rem 1.1rem;
+  box-shadow: var(--shadow);
+}
+
+.terminal .verdict {
+  font-size: inherit;
+  padding: 0 0.3rem;
+  vertical-align: baseline;
+  letter-spacing: 0.04em;
+}
+
+.verdict-fail {
+  background: var(--stamp-deep);
+  color: #fff8f2;
+}
+
+.terminal .prompt {
+  color: var(--ink-soft);
+  user-select: none;
+}
+
+.terminal .reason {
+  color: var(--stamp-deep);
+}
+
+.install.terminal.cpao {
+  margin-top: 0.75rem;
+  box-shadow: none;
+}
+
+.proof-table {
+  margin-top: 0;
+  background: var(--paper-3);
+  border: 1px solid var(--ink);
+}
+
+.proof-table th,
+.proof-table td {
+  padding: 0.65rem 0.9rem;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+}
+
+.proof-table tbody th {
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .proof-table,
+  .proof-table tbody,
+  .proof-table tr,
+  .proof-table th,
+  .proof-table td {
+    display: block;
+  }
+
+  .proof-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+  }
+
+  .proof-table tr {
+    padding: 0.7rem 0.8rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .proof-table tbody th {
+    padding: 0 0 0.35rem;
+    border: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .proof-table td {
+    display: grid;
+    grid-template-columns: 8rem 1fr;
+    gap: 0.5rem;
+    padding: 0.15rem 0;
+    border: 0;
+  }
+
+  .proof-table td::before {
+    content: attr(data-label);
+    color: var(--ink-soft);
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+}
+
+@media (max-width: 540px) {
+  .install,
+  .install.terminal {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    padding: 0.75rem 0.8rem;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    overflow-x: auto;
+  }
+
+  .install.terminal {
+    box-shadow: 4px 4px 0 var(--ink);
+  }
+
+  .install.terminal.cpao {
+    box-shadow: none;
+  }
 }
 
 .repo-link {
