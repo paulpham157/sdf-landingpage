@@ -29,12 +29,18 @@
 
 html {
   scroll-behavior: auto;
-  scrollbar-gutter: stable;
+  /* stable gutter reserved a column full-bleed bands cannot paint */
+  background: var(--paper);
   --header-height: 4rem;
 }
 
 body {
   margin: 0;
+  display: flex;
+  flex-direction: column;
+  /* 100vh for older browsers; 100dvh tracks mobile browser chrome */
+  min-height: 100vh;
+  min-height: 100dvh;
   background: var(--paper);
   color: var(--ink);
   font-family: var(--sans);
@@ -42,6 +48,10 @@ body {
   font-weight: 430;
   line-height: 1.55;
   text-rendering: geometricPrecision;
+}
+
+main {
+  flex: 1 0 auto;
 }
 
 img,
@@ -1746,9 +1756,15 @@ textarea {
   }
 
   body {
+    display: block;
+    min-height: 0;
     background: white;
     color: black;
     font-size: 11pt;
+  }
+
+  main {
+    flex: none;
   }
 
   .wrap,
