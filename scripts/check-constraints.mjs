@@ -58,6 +58,14 @@ for (const page of pages) {
   assert(includes(page.html, 'href="/favicon.svg"'), `${page.file} is missing the favicon.svg link`);
   assert(includes(page.html, "design-partners@softwaredecisionfabric.tech"), `${page.file} is missing the contact address`);
   assert(!includes(page.html, "Placeholder mailbox"), `${page.file} still marks the mailbox as a placeholder`);
+  assert(
+    !includes(page.html, "This website does not store a message or submit it to a server."),
+    `${page.file} still has the removed footer sentence`,
+  );
+  assert(
+    !includes(page.html, "github.com/paulpham157/sdf/tree/") && !includes(page.html, "github.com/paulpham157/sdf/blob/"),
+    `${page.file} still links the GitHub docs tree or a raw docs file`,
+  );
   assert(!includes(page.html, "testimonial"), `${page.file} contains a testimonial claim`);
   assert(!includes(page.html, "case study"), `${page.file} contains a case study`);
   assert(!includes(page.html, "trusted by"), `${page.file} contains a trusted-by claim`);
@@ -111,8 +119,13 @@ for (const page of headerBlocks) {
   assert(includes(page.header, ">Get started<"), `${page.file} header button must say Get started`);
   assert(!includes(page.header, "Become a design partner"), `${page.file} header still has the design-partner button`);
   assert(
-    includes(page.header, 'href="https://github.com/paulpham157/sdf/tree/main/docs"'),
-    `${page.file} header is missing the Docs link`,
+    includes(page.header, 'href="https://docs.softwaredecisionfabric.tech"'),
+    `${page.file} header Docs link must go to the published docs site`,
+  );
+  assert(
+    !includes(page.header, "github.com/paulpham157/sdf/tree/") &&
+      !includes(page.header, "github.com/paulpham157/sdf/blob/"),
+    `${page.file} header Docs link still points at the GitHub docs tree`,
   );
   const navOrder = [...page.header.matchAll(/>([^<]+)<\/a>/g)].map((match) => match[1].trim());
   const sampleAt = navOrder.indexOf("Sample report");
@@ -211,8 +224,8 @@ assert(
   "Commit-link anchor leaves the homepage for the docs index",
 );
 assert(
-  includes(home, "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/verify.md"),
-  "Home must link the verify docs at the v0.1.0 tag",
+  includes(home, 'href="https://docs.softwaredecisionfabric.tech/verify/"'),
+  "Home must link How verify works to the published verify page",
 );
 assert(includes(home, "We hand-wrote both commits in a toy repo"), "Verify caption must say the commits were written by hand");
 assert(includes(home, "linear backoff fails the test"), "Verify caption must name the FAIL cause");
@@ -251,8 +264,8 @@ assert(
   "Verify footnote drifted",
 );
 assert(
-  includes(home, "https://github.com/paulpham157/sdf/tree/main/docs"),
-  "Home footer must link the product docs",
+  includes(home, 'href="https://docs.softwaredecisionfabric.tech"'),
+  "Home footer must link the published docs site",
 );
 assert(
   includes(
@@ -298,12 +311,16 @@ assert(includes(pricing, "go install github.com/paulpham157/sdf/cmd/sdf@latest")
 assert(includes(pricing, "https://github.com/paulpham157/sdf/releases/tag/v0.1.0"), "Pricing is missing the v0.1.0 release");
 assert(includes(pricing, "linked GitHub pull request merged"), "Pricing must say accepted means a merged pull request");
 assert(
-  includes(home, "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/outcomes.md#pull-requests-and-ci"),
-  "Home must link the accepted and unknown-cost rules at the v0.1.0 tag",
+  includes(home, 'href="https://docs.softwaredecisionfabric.tech/outcomes/#pull-requests-and-ci"'),
+  "Home must link How it is counted to the published Outcomes page",
 );
 assert(
-  includes(home, "https://github.com/paulpham157/sdf/tree/v0.1.0/docs"),
-  "Homepage setup link must point at the v0.1.0 docs",
+  includes(home, 'href="https://docs.softwaredecisionfabric.tech/"'),
+  "Homepage setup link must point at the published docs homepage",
+);
+assert(
+  includes(home, 'href="https://github.com/paulpham157/sdf"'),
+  "Home must keep the GitHub repository link",
 );
 assert(includes(pricing, "Planned: SSO (SAML/OIDC), SCIM"), "Pricing must label SSO as planned");
 const verifiedAttempt =
@@ -424,6 +441,12 @@ for (const file of [llms, llmsFull]) {
   assert(file.includes("design-partners@softwaredecisionfabric.tech"), "llms text is missing the contact address");
   assert(!/placeholder mailbox/i.test(file), "llms text still calls the mailbox a placeholder");
   assert(!file.includes("testimonial"), "llms text invented social proof");
+  assert(
+    !file.includes("This website does not store a message or submit it to a server."),
+    "llms text still has the removed footer sentence",
+  );
+  assert(!file.includes("github.com/paulpham157/sdf/tree/"), "llms text still links the GitHub docs tree");
+  assert(!file.includes("github.com/paulpham157/sdf/blob/"), "llms text still links a raw docs file");
 }
 assert(
   llms.includes("routing is planned."),
