@@ -19,14 +19,14 @@ export const site = {
   status:
     "v0.1.0 is public: an open-source local collector and decision ledger (Apache 2.0) that listens on your machine. Declare, verify, and record are partly shipped. Routing and the hosted referee loop are planned. We are onboarding 3 to 5 design partners.",
   repo: "https://github.com/paulpham157/sdf",
-  /** Product docs directory, linked from the README documentation index. */
-  docsUrl: "https://github.com/paulpham157/sdf/tree/main/docs",
-  /** Commit-link rules. Heading exists in docs/outcomes.md. */
+  /** Published docs. Header, menu, and footer Docs links. */
+  docsUrl: "https://docs.softwaredecisionfabric.tech",
+  /** Commit-link rules. Heading id exists on the published Outcomes page. */
   commitLinkDocsUrl:
-    "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#linking-a-session-to-a-commit",
-  /** Accepted and unknown-cost rules. Heading exists in docs/outcomes.md. */
+    "https://docs.softwaredecisionfabric.tech/outcomes/#linking-a-session-to-a-commit",
+  /** Accepted and unknown-cost rules. Heading id exists on the published Outcomes page. */
   outcomeDocsUrl:
-    "https://github.com/paulpham157/sdf/blob/main/docs/outcomes.md#pull-requests-and-ci",
+    "https://docs.softwaredecisionfabric.tech/outcomes/#pull-requests-and-ci",
 } as const;
 
 /** Public name of the wedge metric. Do not paraphrase this on the site. */
@@ -63,7 +63,7 @@ export const homeVerify = {
   footnote:
     "One commit, eight evidence records. Verifying every attempt, and an independent referee loop, are planned.",
   linkLabel: "How verify works",
-  linkUrl: "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/verify.md",
+  linkUrl: "https://docs.softwaredecisionfabric.tech/verify/",
 } as const;
 
 export const homeCost = {
@@ -81,7 +81,7 @@ export const homeCost = {
   footnote:
     "With --github, accepted means the linked PR merged. Missing outcome, cost, or unique merge: unknown.",
   linkLabel: "How it is counted",
-  linkUrl: "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/outcomes.md#pull-requests-and-ci",
+  linkUrl: "https://docs.softwaredecisionfabric.tech/outcomes/#pull-requests-and-ci",
 } as const;
 
 /** Homepage install. Pricing still uses `shipsToday`, including the @v0.1.0 pin. */
@@ -99,7 +99,8 @@ export const homeInstall = {
   beforeDocs: ". Auth is off by default: keep it on localhost. Apache 2.0. Setup: ",
   docsLabel: "the docs",
   afterDocs: ".",
-  docsUrl: "https://github.com/paulpham157/sdf/tree/v0.1.0/docs",
+  /** Published docs homepage. Its Quickstart is the install guide; /install/ and /agents/ are not. */
+  docsUrl: "https://docs.softwaredecisionfabric.tech/",
 } as const;
 
 /** Homepage design-partner line. The design-partners page keeps the longer `closing.body`. */
