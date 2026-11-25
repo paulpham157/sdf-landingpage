@@ -1,18 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import DecisionChain from "../components/DecisionChain.astro";
 import {
-  acceptedToday,
   closing,
-  graphNodes,
   hero,
-  moat,
+  pillarDocs,
   pillars,
-  pricingIntro,
   problem,
   shipsToday,
   site,
   statusLabel,
+  stepDocs,
   steps,
   wedgeMetric,
 } from "../data/site";
@@ -48,55 +45,32 @@ const jsonLd = graph(
         <p class="lede">{hero.subhead}</p>
         <p class="buyer">{hero.buyer}</p>
         <div class="cta-row">
-          <a class="button" href="/design-partners">{hero.primaryCta}</a>
-          <a class="button button-secondary" href="/sample-evidence-report">{hero.secondaryCta}</a>
+          <a class="button" href="/#today">{hero.primaryCta}</a>
+          <a class="button button-secondary" href={site.repo} rel="noopener noreferrer">{hero.secondaryCta}</a>
         </div>
       </div>
-      <aside class="stub" aria-label="Illustrative evidence stub, not a customer result">
-        <p class="stub-flag"><span>Illustrative</span> Not a result</p>
-        <dl>
-          <div>
-            <dt>Objective</dt>
-            <dd>Ship retry with backoff for webhook delivery, linked to fewer dropped events.</dd>
-          </div>
-          <div>
-            <dt>Acceptance</dt>
-            <dd>Tests cover the failure paths. No new secret. One revision.</dd>
-          </div>
-          <div>
-            <dt>Agent</dt>
-            <dd>Whichever agent you already run. SDF does not supply one.</dd>
-          </div>
-          <div>
-            <dt>Verdict</dt>
-            <dd><strong class="verdict">PASS</strong> tied to revision <code>sample-c0ffee1</code></dd>
-          </div>
-          <div>
-            <dt>Cost</dt>
-            <dd>Recorded on the attempt. No amount is shown in this picture.</dd>
-          </div>
-        </dl>
-        <p class="stub-foot">Format specimen for the planned referee. Not a customer report, and sdf does not produce this report today. The loop is shown only on a toy fixture mock.</p>
-      </aside>
     </div>
   </section>
 
-  <section class="section" id="problem" aria-labelledby="problem-title">
+  <section class="section" aria-labelledby="why-title">
     <div class="wrap">
-      <p class="kicker">§ 01. The problem</p>
-      <h2 id="problem-title">{problem.heading}</h2>
+      <p class="kicker">§ 01. Why SDF</p>
+      <h2 id="why-title">{problem.heading}</h2>
       <p class="statement">{problem.body}</p>
-      <p class="agent-row-label">These products grade their own work. This row is not the list of SDF adapters.</p>
-      <ul class="agent-row" aria-label="Products that grade their own work. Not the SDF adapter list.">
+      <div class="pillars">
         {
-          problem.agents.map((name) => (
-            <li>
-              <span class="agent-name">{name}</span>
-              <span class="agent-mark">Grades its own work</span>
-            </li>
+          pillars.map((pillar, index) => (
+            <article>
+              <p class="step-index">0{index + 1}</p>
+              <h3>{pillar.title}</h3>
+              <p>{pillar.body}</p>
+            </article>
           ))
         }
-      </ul>
+      </div>
+      <p class="docs-line">
+        {pillarDocs.before}<a href={site.outcomeDocsUrl} rel="noopener noreferrer">{pillarDocs.linkLabel}</a>{pillarDocs.after}
+      </p>
     </div>
   </section>
 
@@ -104,7 +78,7 @@ const jsonLd = graph(
     <div class="wrap">
       <p class="kicker">§ 02. How it works</p>
       <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF records what they did today, and can check a commit against a declared task from the command line. Running that on every attempt is planned. Each step says what runs today.</p>
+      <p class="lede tight">Your agents stay in place. SDF records what they did.</p>
       <ol class="steps">
         {
           steps.map((step) => (
@@ -114,88 +88,36 @@ const jsonLd = graph(
                 {step.title} <span class={`status-badge status-${step.status}`}>{statusLabel[step.status]}</span>
               </h3>
               <p>{step.body}</p>
-              <p class="step-today">{step.today}</p>
             </li>
           ))
         }
       </ol>
-      <DecisionChain
-        nodes={graphNodes}
-        caption="Today the session, its cost, and its commit link are stored separately from the evidence and verdict that sdf verify records. They are not linked yet."
-      />
-      <p class="moat">
-        {moat.slice(0, moat.lastIndexOf("the docs"))}<a href={site.commitLinkDocsUrl} rel="noopener noreferrer">the docs</a>.
+      <p class="docs-line">
+        {stepDocs.before}<a href={site.commitLinkDocsUrl} rel="noopener noreferrer">{stepDocs.linkLabel}</a>{stepDocs.after}
       </p>
     </div>
   </section>
 
-  <section class="section" id="commitments" aria-labelledby="pillar-title">
+  <section class="section band" id="today" aria-labelledby="today-title">
     <div class="wrap">
-      <p class="kicker">§ 03. Three commitments</p>
-      <h2 id="pillar-title">Vendor-neutral, verifiable, {wedgeMetric}.</h2>
-      <div class="pillars">
-        {
-          pillars.map((pillar, index) => (
-            <article>
-              <p class="step-index">0{index + 1}</p>
-              <h3>
-                {pillar.title}
-                {"status" in pillar && pillar.status && (
-                  <span class={`status-badge status-${pillar.status}`}>{statusLabel[pillar.status]}</span>
-                )}
-              </h3>
-              <p>{pillar.body}</p>
-            </article>
-          ))
-        }
-      </div>
-      <div class="pillar-definitions">
-        {
-          pillars.map((pillar) => (
-            <>
-              {"note" in pillar && pillar.note && (
-                <p class="pillar-note">
-                  <span class="pillar-note-label">verified Attempt (planned).</span> {pillar.note}
-                </p>
-              )}
-              {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{pillar.outcome}</p>}
-              {"outcome" in pillar && pillar.outcome && <p class="pillar-note">{acceptedToday}</p>}
-            </>
-          ))
-        }
-      </div>
-    </div>
-  </section>
-
-  <section class="section" id="today" aria-labelledby="today-title">
-    <div class="wrap">
-      <p class="kicker">§ 04. Shipping today</p>
+      <p class="kicker">§ 03. Shipping today</p>
       <h2 id="today-title">{shipsToday.heading}</h2>
       <p class="lede tight">{shipsToday.body}</p>
+      <pre class="install"><code><!--email_off-->{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}<!--/email_off--></code></pre>
+      <p class="step-today"><code>{shipsToday.note.command}</code>{shipsToday.note.after}</p>
       <p class="lede tight">{problem.coverage}</p>
-      <pre class="install"><code>{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}</code></pre>
-      <p class="step-today">{shipsToday.note}</p>
       <p>
-        <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">v0.1.0 prebuilt archives</a>
+        <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">Prebuilt archives for Linux, macOS, and Windows</a>
         {" · "}
-        <a class="repo-link" href={site.repo} rel="noopener noreferrer">Source, docs, and setup per agent on GitHub</a>
+        <a class="repo-link" href={site.repo} rel="noopener noreferrer">Setup for each agent on GitHub</a>
       </p>
-    </div>
-  </section>
-
-  <section class="section band" aria-labelledby="price-pointer-title">
-    <div class="wrap price-pointer">
-      <p class="kicker">§ 05. Pricing shape</p>
-      <h2 id="price-pointer-title">{pricingIntro.lede}</h2>
-      <p class="lede tight">{pricingIntro.unpublished}</p>
-      <a class="button button-secondary" href="/pricing">Read the comparison</a>
     </div>
   </section>
 
   <section class="close" aria-labelledby="close-title">
     <div class="wrap close-grid">
       <div>
-        <p class="kicker kicker-light">§ 06. Design partners</p>
+        <p class="kicker kicker-light">§ 04. Design partners</p>
         <h2 id="close-title">{closing.heading}</h2>
         <p class="lede light">{closing.body}</p>
         <div class="cta-row">

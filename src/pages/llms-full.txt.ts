@@ -23,8 +23,6 @@ const write = (...parts: string[]) => lines.push(...parts);
 write(
   `# ${site.name} (${site.shortName})`,
   "",
-  site.tagline,
-  "",
   hero.subhead,
   "",
   site.status,
@@ -38,11 +36,11 @@ write(
   "",
 );
 for (const step of steps) {
-  write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body} ${step.today}`);
+  write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body}`);
 }
-write("", "## Commitments", "");
+write("", "## Why SDF", "");
 for (const pillar of pillars) {
-  write(`- ${pillar.title}${"status" in pillar ? ` (${statusLabel[pillar.status]})` : ""}: ${pillar.body}`);
+  write(`- ${pillar.title}: ${pillar.body}`);
 }
 write(
   "",
@@ -55,7 +53,7 @@ write(
   `Pin: ${shipsToday.installPin}`,
   `Release: ${shipsToday.releaseUrl}`,
   `Run: ${shipsToday.run.join(", ")}`,
-  shipsToday.note,
+  `${shipsToday.note.command}${shipsToday.note.after}`,
   `Source: ${site.repo}`,
 );
 write(
