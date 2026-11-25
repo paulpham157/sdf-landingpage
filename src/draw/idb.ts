@@ -106,7 +106,7 @@ export function idbWrite(
   onComplete?: () => void,
 ): Promise<void> {
   if (!database) {
-    return openDrawDb().then(() => idbWrite(puts, deletes));
+    return openDrawDb().then(() => idbWrite(puts, deletes, onComplete));
   }
   const db = database;
   return new Promise((resolve, reject) => {
@@ -122,6 +122,59 @@ export function idbWrite(
     }
     tx.oncomplete = () => {
       onComplete?.();
+      resolve();
+    };
+    tx.onabort = () => rejectTransaction(tx, reject);
+    tx.onerror = () => rejectTransaction(tx, reject);
+  });
+}
+
+/**
+ * Writes the scene and any image files that are not already in the store.
+ * The presence check runs in this same readwrite transaction, so a cache from
+ * another tab cannot skip an image that tab deleted.
+ * When `deleteMissingFiles` is false, file keys are left in place.
+ */
+export function idbSaveDrawing(
+  scene: string,
+  files: Record<string, unknown>,
+  options: { known: Set<string>; deleteMissingFiles: boolean; onComplete?: () => void },
+): Promise<void> {
+  if (!database) {
+    return openDrawDb().then(() => idbSaveDrawing(scene, files, options));
+  }
+  const db = database;
+  return new Promise((resolve, reject) => {
+    let tx: IDBTransaction;
+    try {
+      tx = db.transaction(DRAW_STORE, "readwrite");
+      const store = tx.objectStore(DRAW_STORE);
+      const keysRequest = store.getAllKeys();
+      keysRequest.onsuccess = () => {
+        const present = new Set<string>();
+        for (const key of keysRequest.result) {
+          if (typeof key === "string" && key.startsWith(FILE_KEY_PREFIX)) {
+            present.add(key.slice(FILE_KEY_PREFIX.length));
+          }
+        }
+        for (const [id, file] of Object.entries(files)) {
+          if (!present.has(id)) store.put(file, `${FILE_KEY_PREFIX}${id}`);
+        }
+        if (options.deleteMissingFiles) {
+          for (const id of options.known) {
+            if (!Object.prototype.hasOwnProperty.call(files, id) && present.has(id)) {
+              store.delete(`${FILE_KEY_PREFIX}${id}`);
+            }
+          }
+        }
+        store.put(scene, SCENE_KEY);
+      };
+    } catch (error) {
+      reject(error);
+      return;
+    }
+    tx.oncomplete = () => {
+      options.onComplete?.();
       resolve();
     };
     tx.onabort = () => rejectTransaction(tx, reject);

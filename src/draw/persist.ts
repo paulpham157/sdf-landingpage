@@ -4,8 +4,10 @@ import "./asset-path";
  *
  * The scene document is `serializeAsJSON(..., "local")`. Image files are stored
  * under separate keys (`file:<id>`) so a stroke does not rewrite every image.
- * Only ids that are not already in `knownFileIds` are written. That set is
- * updated in the transaction's oncomplete, so a failed write is retried.
+ * A save re-checks which file keys are present in that same transaction, and
+ * writes an image again when another tab has deleted it. The cache is updated
+ * in the transaction's oncomplete, so a failed write is retried. A scene that
+ * could not be parsed does not delete the image keys stored beside it.
  * The embedded `files` map is removed from the stored scene string; restore
  * merges the separate keys back in before `restore()`.
  *
@@ -17,13 +19,19 @@ import "./asset-path";
  * Multi-tab: last write wins. There is no lock, version, or broadcast.
  */
 import { restore, serializeAsJSON } from "@excalidraw/excalidraw";
-import { FILE_KEY_PREFIX, SCENE_KEY, idbGet, idbKeys, idbWrite } from "./idb";
+import { FILE_KEY_PREFIX, SCENE_KEY, idbGet, idbKeys, idbSaveDrawing, idbWrite } from "./idb";
 
 const PAPER = "#F6F1E8";
 const INK = "#2F3640";
 
-/** File ids already stored. Lets a pagehide flush start its transaction immediately. */
+/**
+ * File ids this tab last saw in the store. A save still re-checks the store
+ * inside its own transaction before it skips a put. On a corrupt scene this
+ * set is cleared so the blank replacement cannot treat every image as stale.
+ */
 let knownFileIds: Set<string> | null = null;
+/** A corrupt scene must not delete the image keys that were stored beside it. */
+let retainStoredFiles = false;
 
 type SceneElements = Parameters<typeof serializeAsJSON>[0];
 type SceneAppState = Parameters<typeof serializeAsJSON>[1];
@@ -43,6 +51,8 @@ export type LoadedDrawing = {
   storageAvailable: boolean;
   /** Raw scene text when parse or restore threw. Null otherwise. */
   corruptRaw: string | null;
+  /** Image files that were stored beside a scene that could not be opened. */
+  corruptFiles: SceneFiles | null;
   /** False when a write would destroy a scene that could not be preserved. */
   canAutosave: boolean;
 };
@@ -58,16 +68,13 @@ function blankScene(): DrawingInitialData {
   };
 }
 
-function fileKey(id: string) {
-  return `${FILE_KEY_PREFIX}${id}`;
-}
-
 function emptyLoad(storageAvailable: boolean): LoadedDrawing {
   return {
     initialData: blankScene(),
     restored: false,
     storageAvailable,
     corruptRaw: null,
+    corruptFiles: null,
     canAutosave: storageAvailable,
   };
 }
@@ -133,18 +140,47 @@ export async function loadDrawing(): Promise<LoadedDrawing> {
       restored: true,
       storageAvailable: true,
       corruptRaw: null,
+      corruptFiles: null,
       canAutosave: true,
     };
   } catch {
+    knownFileIds = new Set();
+    retainStoredFiles = true;
+    const files = await readFiles().catch(() => ({}) as SceneFiles);
     const preserved = await keepCorrupt(raw);
     return {
       initialData: blankScene(),
       restored: false,
       storageAvailable: true,
       corruptRaw: raw,
+      corruptFiles: files,
       canAutosave: preserved,
     };
   }
+}
+
+/** A download of an unreadable scene, with the stored image files embedded. */
+export function corruptSceneDownload(raw: string, files: SceneFiles): string {
+  const stored = files ?? {};
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>;
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const embedded =
+        parsed.files && typeof parsed.files === "object" ? (parsed.files as SceneFiles) : {};
+      return JSON.stringify({ ...parsed, files: { ...embedded, ...stored } });
+    }
+  } catch {
+    // The saved text is not JSON. Keep it beside the image files.
+  }
+  return JSON.stringify({
+    type: "excalidraw",
+    version: 2,
+    source: "https://softwaredecisionfabric.tech/draw",
+    elements: [],
+    appState: { viewBackgroundColor: PAPER, currentItemStrokeColor: INK },
+    files: stored,
+    corruptScene: raw,
+  });
 }
 
 export function saveDrawing(
@@ -160,24 +196,12 @@ export function saveDrawing(
   parsed.files = {};
   const scene = JSON.stringify(parsed);
   const live = new Set(Object.keys(embedded));
-
-  const write = (known: Set<string>) => {
-    const stale = [...known].filter((id) => !live.has(id)).map((id) => fileKey(id));
-    const puts: [string, unknown][] = [[SCENE_KEY, scene]];
-    for (const [id, file] of Object.entries(embedded)) {
-      if (!known.has(id)) puts.push([fileKey(id), file]);
-    }
-    return idbWrite(puts, stale, () => {
+  const known = knownFileIds ?? new Set<string>();
+  return idbSaveDrawing(scene, embedded, {
+    known,
+    deleteMissingFiles: !retainStoredFiles,
+    onComplete: () => {
       knownFileIds = live;
-    });
-  };
-  if (knownFileIds) return write(knownFileIds);
-  return idbKeys().then((keys) => {
-    const known = new Set(
-      keys
-        .filter((key): key is string => typeof key === "string" && key.startsWith(FILE_KEY_PREFIX))
-        .map((key) => key.slice(FILE_KEY_PREFIX.length)),
-    );
-    return write(known);
+    },
   });
 }

@@ -7,7 +7,13 @@ import "../styles/draw-excalidraw.css";
 // chunks in the first load, so a paste does not fetch anything afterwards.
 import "pica";
 import "image-blob-reduce";
-import { loadDrawing, saveDrawing, type DrawingInitialData } from "../draw/persist";
+import {
+  corruptSceneDownload,
+  loadDrawing,
+  saveDrawing,
+  type DrawingInitialData,
+  type LoadedDrawing,
+} from "../draw/persist";
 
 const SAVE_DELAY_MS = 500;
 
@@ -58,6 +64,7 @@ export default function DrawCanvas() {
   const writeRef = useRef(0);
   const [notSaved, setNotSaved] = useState(false);
   const [corruptRaw, setCorruptRaw] = useState<string | null>(null);
+  const [corruptFiles, setCorruptFiles] = useState<NonNullable<LoadedDrawing["corruptFiles"]>>({});
   const [initialData] = useState<Promise<DrawingInitialData>>(() => loaded.then((result) => result.initialData));
   const setNotSavedRef = useRef(setNotSaved);
   setNotSavedRef.current = setNotSaved;
@@ -99,7 +106,10 @@ export default function DrawCanvas() {
     let live = true;
     void loaded.then((result) => {
       if (!live) return;
-      if (result.corruptRaw) setCorruptRaw(result.corruptRaw);
+      if (result.corruptRaw) {
+        setCorruptRaw(result.corruptRaw);
+        setCorruptFiles(result.corruptFiles ?? {});
+      }
       if (!result.canAutosave) setNotSaved(true);
       // Excalidraw applies initialData in the microtask queued before this one.
       // Waiting a frame keeps that first apply from being written back.
@@ -132,7 +142,10 @@ export default function DrawCanvas() {
               <p>
                 This browser could not open the saved drawing. The original was kept and was not replaced.
               </p>
-              <button type="button" onClick={() => downloadText("drawing-raw.excalidraw", corruptRaw)}>
+              <button
+                type="button"
+                onClick={() => downloadText("drawing-raw.excalidraw", corruptSceneDownload(corruptRaw, corruptFiles))}
+              >
                 Download raw file
               </button>
             </div>

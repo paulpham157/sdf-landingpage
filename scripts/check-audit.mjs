@@ -9,6 +9,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
 
 const allowPath = new URL("./audit-allowlist.json", import.meta.url);
 const allow = existsSync(allowPath) ? JSON.parse(readFileSync(allowPath, "utf8")) : { accepted: [] };
@@ -25,13 +26,32 @@ function run(args) {
   return spawnSync("npm", args, { encoding: "utf8", shell: false });
 }
 
+export function parseAuditReport(stdout) {
+  if (typeof stdout !== "string" || stdout.trim() === "") {
+    throw new Error("npm audit did not return JSON");
+  }
+  let report;
+  try {
+    report = JSON.parse(stdout);
+  } catch {
+    throw new Error("npm audit did not return JSON");
+  }
+  if (!report || typeof report !== "object" || Array.isArray(report)) {
+    throw new Error("npm audit did not return JSON");
+  }
+  return report;
+}
+
+function main() {
 const json = run(["audit", "--omit=dev", "--json"]);
-let report = {};
+let report;
 try {
-  report = JSON.parse(json.stdout || "{}");
-} catch {
+  report = parseAuditReport(json.stdout);
+} catch (error) {
+  console.error(error instanceof Error ? error.message : "npm audit did not return JSON");
   process.stderr.write(json.stderr ?? "");
-  process.exit(json.status ?? 1);
+  process.stdout.write(json.stdout ?? "");
+  process.exit(1);
 }
 
 const highs = [];
@@ -70,3 +90,7 @@ if (lower.length) {
   console.log("Accepted below the high gate (documented in the PR):");
   for (const item of lower) console.log(`- ${item.severity} ${item.name} ${item.ghsa} ${item.title}`);
 }
+}
+
+const invokedDirectly = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (invokedDirectly) main();

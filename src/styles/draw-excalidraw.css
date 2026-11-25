@@ -34,3 +34,10 @@
 .excalidraw [data-testid="lib-dropdown--remove"] {
   display: none !important;
 }
+
+.excalidraw-tooltip {
+  background: #2f3640;
+  color: #f6f1e8;
+  border: 1px solid #c65a2e;
+  font-family: "Source Sans 3 Variable", "Source Sans 3", sans-serif;
+}

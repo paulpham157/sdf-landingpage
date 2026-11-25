@@ -109,7 +109,7 @@ function collectGraph(startUrls, { dynamic = true } = {}) {
     if (!existsSync(file) || !/\.(?:js|css)$/.test(url)) continue;
     const text = readFileSync(file, "utf8");
     const specs = new Set();
-    for (const match of text.matchAll(/(?:from\s*|import\s+)["'](\.\/[^"']+\.(?:js|css|wasm))["']/g)) {
+    for (const match of text.matchAll(/(?:from\s*|import\s*)["'](\.\/[^"']+\.(?:js|css|wasm))["']/g)) {
       specs.add(match[1]);
     }
     if (dynamic) {

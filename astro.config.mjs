@@ -52,6 +52,30 @@ function stripRemoteConfig(code) {
   return next;
 }
 
+const LIBRARY_EMPTY =
+  "Select an item on canvas to add it here, or install a library from the public repository, below.";
+
+function disableLibraryPublish(code) {
+  const publish =
+    /fetch\(`\$\{[A-Za-z0-9_$]+\.VITE_APP_LIBRARY_BACKEND\}\/submit`,\{method:"post",body:[A-Za-z0-9_$]+\}\)/;
+  if (!publish.test(code)) {
+    throw new Error("Excalidraw library publish request was not found");
+  }
+  if (!code.includes("https://libraries.excalidraw.com")) {
+    throw new Error("Excalidraw library site link was not found");
+  }
+  return code
+    .replace(publish, 'Promise.reject(new Error("Library publishing is disabled"))')
+    .replaceAll("https://libraries.excalidraw.com", "#");
+}
+
+function libraryEmptyState(code) {
+  if (!code.includes(LIBRARY_EMPTY)) {
+    throw new Error("Excalidraw library empty-state copy changed");
+  }
+  return code.replaceAll(LIBRARY_EMPTY, "Select an item on canvas to add it here.");
+}
+
 function excalidrawSelfHosted() {
   return {
     name: "excalidraw-self-hosted",
@@ -61,6 +85,8 @@ function excalidrawSelfHosted() {
       if (!path.includes("@excalidraw/excalidraw")) return null;
       if (path.endsWith("chunk-K2UTITRG.js")) return stripFontFallback(code);
       if (path.endsWith("chunk-ZUYEQ4TG.js")) return stripRemoteConfig(code);
+      if (path.endsWith("chunk-6U3AYISY.js")) return libraryEmptyState(code);
+      if (path.endsWith("/dist/prod/index.js")) return disableLibraryPublish(code);
       return null;
     },
   };

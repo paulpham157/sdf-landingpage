@@ -162,11 +162,13 @@ test("draw, paste, export, save, and reload stay on this origin", async ({ page 
   const response = await page.goto("/draw");
   expect(response?.ok()).toBeTruthy();
   await expect(page.locator(".excalidraw")).toBeVisible();
-  await expect(page.locator(".draw-note")).toContainText(
-    "Scratch drawing tool. Not part of SDF. Drawings stay in this browser and are not saved or sent anywhere.",
+  await expect(page).toHaveTitle("Scratch drawing tool (not part of SDF)");
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+    "content",
+    "Scratch drawing tool. Not part of SDF. Drawings are saved only in this browser and are not sent anywhere.",
   );
   await expect(page.locator(".draw-note")).toContainText(
-    "Some features load more files from this site the first time you use them.",
+    "Scratch drawing tool. Not part of SDF. Drawings are saved only in this browser on this device and are not sent anywhere. Clearing your browser data deletes them.",
   );
   const github = page.getByRole("link", { name: "GitHub" });
   await expect(github).toHaveAttribute("target", "_blank");
@@ -300,7 +302,11 @@ test("quota failure shows the not saved notice", async ({ page }, testInfo) => {
   expect((await download).suggestedFilename()).toMatch(/\.excalidraw$/i);
   const noticeBox = await notice.boundingBox();
   const toolBox = await page.getByTestId("toolbar-rectangle").boundingBox();
+  const zoomBox = await page.getByRole("button", { name: "Zoom in" }).boundingBox();
+  const strokeBox = await page.getByText("Stroke", { exact: true }).boundingBox();
   expect(noticeBox && toolBox && noticeBox.y >= toolBox.y + toolBox.height).toBeTruthy();
+  expect(noticeBox && zoomBox && boxesOverlap(noticeBox, zoomBox)).toBe(false);
+  expect(noticeBox && strokeBox && boxesOverlap(noticeBox, strokeBox)).toBe(false);
   await page.screenshot({ path: testInfo.outputPath("draw-not-saved-1440.png"), fullPage: false });
   const csp = await violations(page);
   expect(csp, JSON.stringify(csp, null, 2)).toEqual([]);
@@ -318,6 +324,8 @@ test("browse libraries and publish library are not available", async ({ page }) 
   if ((await menu.count()) > 0) await menu.first().click();
   await expect(page.getByTestId("lib-dropdown--remove")).toBeHidden();
   await expect(page.getByText("Publish library", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Select an item on canvas to add it here.", { exact: true })).toBeVisible();
+  await expect(page.getByText("public repository")).toHaveCount(0);
   const origin = originOf(page.url());
   const leaked = requests.map((request) => request.url()).filter(isNetworkRequest).filter((url) => originOf(url) !== origin);
   const csp = await violations(page);
@@ -325,10 +333,23 @@ test("browse libraries and publish library are not available", async ({ page }) 
   expect(leaked, JSON.stringify(leaked, null, 2)).toEqual([]);
 });
 
+function boxesOverlap(
+  a: { x: number; y: number; width: number; height: number },
+  b: { x: number; y: number; width: number; height: number },
+) {
+  return a.x < b.x + b.width && a.x + a.width > b.x && a.y < b.y + b.height && a.y + a.height > b.y;
+}
+
 test("a corrupt saved scene is kept and offered for download", async ({ page }) => {
   const raw = '{"elements":[this is not json';
+  const image = {
+    mimeType: "image/png",
+    id: "img-kept",
+    dataURL: "data:image/png;base64,aaaa",
+    created: 1,
+  };
   await page.goto("/");
-  await page.evaluate(async (value) => {
+  await page.evaluate(async ({ value, file }) => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open("sdf-draw", 1);
       request.onupgradeneeded = () => {
@@ -339,20 +360,28 @@ test("a corrupt saved scene is kept and offered for download", async ({ page }) 
     });
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction("kv", "readwrite");
-      tx.objectStore("kv").put(value, "scene");
+      const store = tx.objectStore("kv");
+      store.put(value, "scene");
+      store.put(file, `file:${file.id}`);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
     });
     db.close();
-  }, raw);
+  }, { value: raw, file: image });
   await page.goto("/draw");
   const notice = page.getByRole("alert").filter({ hasText: /could not open the saved drawing/i });
   await expect(notice).toBeVisible();
+  await page.waitForTimeout(1200);
   const download = page.waitForEvent("download");
   await notice.getByRole("button", { name: "Download raw file" }).click();
   const file = await download;
   expect(file.suggestedFilename()).toMatch(/\.excalidraw$/i);
-  expect(readFileSync(await file.path(), "utf8")).toBe(raw);
+  const downloaded = JSON.parse(readFileSync(await file.path(), "utf8")) as {
+    corruptScene?: string;
+    files?: Record<string, { dataURL?: string }>;
+  };
+  expect(downloaded.corruptScene).toBe(raw);
+  expect(downloaded.files?.["img-kept"]?.dataURL).toBe(image.dataURL);
   const stored = await page.evaluate(async () => {
     const db = await new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open("sdf-draw");
@@ -373,8 +402,63 @@ test("a corrupt saved scene is kept and offered for download", async ({ page }) 
       request.onerror = () => reject(request.error);
     });
     const corruptKey = keys.find((key) => String(key).startsWith("scene.corrupt-"));
-    return { corrupt: corruptKey ? await read(corruptKey) : null, scene: await read("scene") };
+    return {
+      corrupt: corruptKey ? await read(corruptKey) : null,
+      scene: await read("scene"),
+      image: await read("file:img-kept"),
+    };
   });
   expect(stored.corrupt).toBe(raw);
   expect(stored.scene).not.toBe(raw);
+  expect((stored.image as { dataURL?: string } | undefined)?.dataURL).toBe(image.dataURL);
+});
+
+test("a second tab puts an image back when its cache still thinks the file is stored", async ({ page }) => {
+  await installPageHooks(page);
+  await page.goto("/draw");
+  await expect(page.locator(".excalidraw")).toBeVisible();
+  await drawRectangle(page);
+  await pasteImage(page);
+  await expect
+    .poll(async () => (await readStoredScene(page)).keys.some((key) => key.startsWith("file:")))
+    .toBe(true);
+  const pageB = await page.context().newPage();
+  await pageB.setViewportSize({ width: 1440, height: 900 });
+  await installPageHooks(pageB);
+  await pageB.goto("/draw");
+  await expect(pageB.locator(".excalidraw")).toBeVisible();
+  await expect
+    .poll(async () => (await readStoredScene(pageB)).keys.some((key) => key.startsWith("file:")))
+    .toBe(true);
+  await pageB.waitForTimeout(1000);
+  await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("sdf-draw");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const tx = db.transaction("kv", "readonly");
+      const request = tx.objectStore("kv").getAllKeys();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("kv", "readwrite");
+      const store = tx.objectStore("kv");
+      for (const key of keys) {
+        if (String(key).startsWith("file:")) store.delete(key);
+      }
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  });
+  expect((await readStoredScene(page)).keys.some((key) => key.startsWith("file:"))).toBe(false);
+  await drawRectangle(pageB);
+  await expect
+    .poll(async () => (await readStoredScene(pageB)).keys.some((key) => key.startsWith("file:")))
+    .toBe(true);
+  const restored = await readStoredScene(pageB);
+  expect(Object.values(restored.files).some((file) => file.dataURL?.startsWith("data:image/"))).toBe(true);
 });

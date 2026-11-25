@@ -14,7 +14,7 @@
     "check:copy": "node scripts/check-constraints.mjs",
     "check:jsonld": "node scripts/check-jsonld.mjs",
     "check:draw": "node scripts/check-draw.mjs",
-    "check:audit": "node scripts/check-audit.mjs",
+    "check:audit": "node --test scripts/check-audit.test.mjs && node scripts/check-audit.mjs",
     "test:headers": "node --test scripts/headers.test.mjs",
     "test:draw": "playwright test",
     "deploy": "node scripts/deploy.mjs",

@@ -203,12 +203,20 @@ assert(includes(notFound, 'content="noindex, follow"'), "404 should be noindex")
 const draw = read("draw/index.html");
 assert(includes(draw, 'content="noindex, nofollow"'), "Draw page should be noindex");
 assert(
-  draw.includes("Scratch drawing tool. Not part of SDF. Drawings stay in this browser and are not saved or sent anywhere."),
-  "Draw page must use the product label",
+  draw.includes("<title>Scratch drawing tool (not part of SDF)</title>"),
+  "Draw page title must be the product title",
 );
 assert(
-  draw.includes("Some features load more files from this site the first time you use them."),
-  "Draw page must say some features load more files from this site",
+  draw.includes(
+    'name="description" content="Scratch drawing tool. Not part of SDF. Drawings are saved only in this browser and are not sent anywhere."',
+  ),
+  "Draw page description must be the product description",
+);
+assert(
+  draw.includes(
+    "Scratch drawing tool. Not part of SDF. Drawings are saved only in this browser on this device and are not sent anywhere. Clearing your browser data deletes them.",
+  ),
+  "Draw page must use the product label",
 );
 assert(draw.includes('aria-hidden="true"'), "The font preload span should be hidden from assistive tech");
 
