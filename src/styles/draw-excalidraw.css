@@ -16,5 +16,21 @@
   --color-logo-icon: #c65a2e;
   --color-brand-hover: #b24e27;
   --color-brand-active: #8e3e1c;
+  --color-surface-primary-container: #f3e4d8;
+  --color-on-primary-container: #8e3e1c;
+  --color-slider-track: #e7d3c3;
+  --color-slider-thumb: #c65a2e;
+  --select-highlight-color: #c65a2e;
   --link-color: #8e3e1c;
+}
+
+/* #b8b8b8 on the cream canvas is faint. Use the site ink for the hint line. */
+.excalidraw .HintViewer {
+  color: #3d3d3d;
+}
+
+/* Browse libraries is an external link. Publish library opens the public library flow. */
+.excalidraw .library-menu-browse-button,
+.excalidraw [data-testid="lib-dropdown--remove"] {
+  display: none !important;
 }

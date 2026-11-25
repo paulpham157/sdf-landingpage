@@ -100,7 +100,11 @@ export function idbKeys(): Promise<IDBValidKey[]> {
  * Puts and deletes in one transaction. When the database is already open the
  * transaction starts before this function returns, so pagehide can flush.
  */
-export function idbWrite(puts: [string, unknown][], deletes: string[]): Promise<void> {
+export function idbWrite(
+  puts: [string, unknown][],
+  deletes: string[],
+  onComplete?: () => void,
+): Promise<void> {
   if (!database) {
     return openDrawDb().then(() => idbWrite(puts, deletes));
   }
@@ -116,7 +120,10 @@ export function idbWrite(puts: [string, unknown][], deletes: string[]): Promise<
       reject(error);
       return;
     }
-    tx.oncomplete = () => resolve();
+    tx.oncomplete = () => {
+      onComplete?.();
+      resolve();
+    };
     tx.onabort = () => rejectTransaction(tx, reject);
     tx.onerror = () => rejectTransaction(tx, reject);
   });

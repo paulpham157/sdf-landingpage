@@ -53,9 +53,9 @@ Attach the custom domain in the Cloudflare dashboard. Response headers are in [`
 | `/one-pager` | The same brief on one sheet |
 | `/sample-evidence-report` | Labeled mock Evidence Report |
 | `/design-partners` | Design-partner contact. Opens an email draft |
-| `/draw` | Local drawing canvas. Not the product, not linked from the nav, `noindex`, and omitted from the sitemap |
+| `/draw` | Unlinked internal drawing utility. Not part of SDF, `noindex`, and omitted from the sitemap |
 
-`/draw` is a browser drawing page (Excalidraw). It is not Software Decision Fabric, and it is not a mock of the product. After the page loads, the drawing stays in that browser: nothing is uploaded and the page does not request anything else unless you follow a link. There is no account, no server, and no service worker. The scene is stored in IndexedDB. If two tabs are open, the last write wins. A failed write shows a "Not saved" notice with Save to file. Fonts are copied from the Excalidraw package at build time into `public/excalidraw-assets/` (gitignored, not vendored).
+`/draw` is an unlinked internal utility and is exempt from the rule that this site shows only shipped product behavior or a labeled mock. The page says: "Scratch drawing tool. Not part of SDF. Drawings stay in this browser and are not saved or sent anywhere." Some features load more files from this site the first time you use them. There is no account and no service worker. A copy of the scene is kept in IndexedDB in this browser (last write wins if two tabs are open) and is not sent to a server. A failed write shows a notice that reloading or closing loses the work, and Save to file downloads a .excalidraw file you can open again. Fonts are copied from the Excalidraw package at build time into `public/excalidraw-assets/` (gitignored, not vendored).
 
 ## Content
 

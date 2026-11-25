@@ -72,8 +72,16 @@ function forbidden(calls) {
   assert.equal(calls.some((call) => call.args.includes("create")), false);
 }
 
-test("build failure does not upload", () => {
+test("audit failure does not upload", () => {
   const { code, calls } = runDeploy({ failAt: 2 });
+  assert.equal(code, 9);
+  assert.equal(calls.some((call) => call.args.includes("deploy")), false);
+  assert.equal(calls.some((call) => String(call.args.at(-1)).endsWith("check-audit.mjs")), true);
+  forbidden(calls);
+});
+
+test("build failure does not upload", () => {
+  const { code, calls } = runDeploy({ failAt: 3 });
   assert.equal(code, 9);
   assert.equal(wranglerCalls(calls).length, 1);
   assert.deepEqual(wranglerCalls(calls)[0].args.slice(1), pagesListArgs());
@@ -82,7 +90,7 @@ test("build failure does not upload", () => {
 });
 
 test("copy check failure does not upload", () => {
-  const { code, calls } = runDeploy({ failAt: 3 });
+  const { code, calls } = runDeploy({ failAt: 4 });
   assert.equal(code, 9);
   assert.equal(calls.some((call) => call.args.includes("deploy")), false);
   assert.equal(calls.some((call) => String(call.args.at(-1)).endsWith("check-constraints.mjs")), true);
@@ -90,7 +98,7 @@ test("copy check failure does not upload", () => {
 });
 
 test("jsonld check failure does not upload", () => {
-  const { code, calls } = runDeploy({ failAt: 4 });
+  const { code, calls } = runDeploy({ failAt: 5 });
   assert.equal(code, 9);
   assert.equal(calls.some((call) => call.args.includes("deploy")), false);
   assert.equal(calls.some((call) => String(call.args.at(-1)).endsWith("check-jsonld.mjs")), true);
@@ -200,7 +208,7 @@ test("project name and check order stay fixed", () => {
   assert.equal(plan.args.includes("--force"), false);
   assert.deepEqual(
     deploySteps("/repo").map(([, args]) => args.at(-1).split("/").at(-1)),
-    ["build", "check-constraints.mjs", "check-jsonld.mjs", "check-draw.mjs"],
+    ["check-audit.mjs", "build", "check-constraints.mjs", "check-jsonld.mjs", "check-draw.mjs"],
   );
   assert.equal(redact(`see ${token}`, envWithSecret()).includes(token), false);
 });

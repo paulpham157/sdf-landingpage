@@ -1,5 +1,6 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
+import { cspSourceProblems, effectiveHeaders, hasCspToken, headerValue, parseHeaders } from "./headers.mjs";
 
 const root = new URL("..", import.meta.url).pathname;
 const dist = join(root, "dist");
@@ -201,14 +202,20 @@ const notFound = read("404.html");
 assert(includes(notFound, 'content="noindex, follow"'), "404 should be noindex");
 const draw = read("draw/index.html");
 assert(includes(draw, 'content="noindex, nofollow"'), "Draw page should be noindex");
-assert(includes(draw, "This is not the Software Decision Fabric product."), "Draw page must say it is not the product");
-assert(includes(draw, "Nothing is uploaded."), "Draw page must say the drawing is not uploaded");
-assert(includes(draw, "the last write wins"), "Draw page must document last-write-wins");
+assert(
+  draw.includes("Scratch drawing tool. Not part of SDF. Drawings stay in this browser and are not saved or sent anywhere."),
+  "Draw page must use the product label",
+);
+assert(
+  draw.includes("Some features load more files from this site the first time you use them."),
+  "Draw page must say some features load more files from this site",
+);
+assert(draw.includes('aria-hidden="true"'), "The font preload span should be hidden from assistive tech");
 
 const robots = readFileSync(join(dist, "robots.txt"), "utf8");
 assert(includes(robots, "sitemap-index.xml"), "robots.txt is missing the sitemap");
 assert(includes(robots, "Disallow: /404"), "robots.txt should keep the 404 out of the crawl");
-assert(includes(robots, "Disallow: /draw"), "robots.txt should keep the drawing page out of the crawl");
+assert(!robots.includes("Disallow: /draw"), "robots.txt should not Disallow /draw; the page sends X-Robots-Tag");
 assert(!/User-agent: (?!\*)/.test(robots), "robots.txt should not privilege a named crawler");
 
 const headers = readFileSync(join(dist, "_headers"), "utf8");
@@ -217,12 +224,26 @@ assert(includes(headers, "script-src 'self'"), "CSP should allow only same-origi
 assert(includes(headers, "style-src 'self'"), "CSP should allow only same-origin styles");
 assert(includes(headers, "form-action 'self' mailto:"), "CSP should allow the mailto form");
 assert(includes(headers, "frame-ancestors 'none'"), "CSP should deny framing");
-const policies = [...headers.matchAll(/^[^#\n]*Content-Security-Policy:\s*(.+)$/gm)].map((match) => match[1]);
-assert(policies.length > 0, "Missing a Content-Security-Policy value");
-for (const policy of policies) {
-  assert(!/(?<![\w-])unsafe-inline(?![\w-])/.test(policy), "CSP should not need unsafe-inline");
-  assert(!/(?<![\w-])unsafe-eval(?![\w-])/.test(policy), "CSP should not need unsafe-eval");
+const headerRules = parseHeaders(headers);
+assert(headerRules.some((rule) => rule.headers.some((header) => header.name === "Content-Security-Policy")), "Missing Content-Security-Policy");
+for (const rule of headerRules) {
+  for (const header of rule.headers) {
+    if (header.detach) continue;
+    assert(!hasCspToken(header.value, "unsafe-inline"), `${rule.path} ${header.name} uses unsafe-inline`);
+    assert(!hasCspToken(header.value, "unsafe-eval"), `${rule.path} ${header.name} uses unsafe-eval`);
+    if (header.name.toLowerCase() === "content-security-policy") {
+      for (const problem of cspSourceProblems(header.value)) failures.push(`${rule.path} CSP ${problem}`);
+    }
+  }
 }
+for (const path of ["/draw", "/draw/", "/draw/index.html"]) {
+  const values = headerValue(effectiveHeaders(headerRules, path), "X-Robots-Tag");
+  assert(values.length === 1 && values[0] === "noindex, nofollow", `${path} should send X-Robots-Tag: noindex, nofollow`);
+}
+assert(
+  headerValue(effectiveHeaders(headerRules, "/"), "X-Robots-Tag").length === 0,
+  "The site home should not send X-Robots-Tag",
+);
 
 const llms = readFileSync(join(dist, "llms.txt"), "utf8");
 const llmsFull = readFileSync(join(dist, "llms-full.txt"), "utf8");

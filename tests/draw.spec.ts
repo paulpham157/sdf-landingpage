@@ -1,9 +1,6 @@
-import { mkdirSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { expect, test, type Page, type Request } from "@playwright/test";
 import { effectiveHeaders, headerValue, parseHeaders } from "../scripts/headers.mjs";
-
-const artifacts = "/opt/cursor/artifacts";
-mkdirSync(artifacts, { recursive: true });
 
 type Violation = { directive: string; blocked: string; sample: string };
 
@@ -139,28 +136,48 @@ test("headers from wrangler match the built _headers file", async ({ page }) => 
   const rules = parseHeaders(readFileSync("dist/_headers", "utf8"));
   const home = await page.request.get("/");
   const draw = await page.request.get("/draw");
+  const nested = await page.request.get("/draw/index.html");
   const homeCsp = home.headers()["content-security-policy"];
   const drawCsp = draw.headers()["content-security-policy"];
   expect(headerValue(effectiveHeaders(rules, "/"), "Content-Security-Policy")).toEqual([homeCsp]);
   expect(headerValue(effectiveHeaders(rules, "/draw"), "Content-Security-Policy")).toEqual([drawCsp]);
+  expect(headerValue(effectiveHeaders(rules, "/draw/index.html"), "Content-Security-Policy")).toEqual([
+    nested.headers()["content-security-policy"],
+  ]);
   expect(draw.headers()["x-content-type-options"]).toBe("nosniff");
   expect(draw.headers()["x-frame-options"]).toBe("DENY");
   expect(draw.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(draw.headers()["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(draw.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+  expect(nested.headers()["cross-origin-opener-policy"]).toBe("same-origin");
+  expect(nested.headers()["x-robots-tag"]).toBe("noindex, nofollow");
+  expect(home.headers()["x-robots-tag"]).toBeUndefined();
+  expect(home.headers()["cross-origin-opener-policy"]).toBeUndefined();
   expect(homeCsp).not.toContain("blob:");
   expect((drawCsp.match(/default-src/g) ?? []).length).toBe(1);
 });
 
-test("draw, paste, export, save, and reload stay on this origin", async ({ page }) => {
+test("draw, paste, export, save, and reload stay on this origin", async ({ page }, testInfo) => {
   const requests = await installPageHooks(page);
   const response = await page.goto("/draw");
   expect(response?.ok()).toBeTruthy();
   await expect(page.locator(".excalidraw")).toBeVisible();
-  await page.screenshot({ path: `${artifacts}/draw-empty-1440.png`, fullPage: false });
+  await expect(page.locator(".draw-note")).toContainText(
+    "Scratch drawing tool. Not part of SDF. Drawings stay in this browser and are not saved or sent anywhere.",
+  );
+  await expect(page.locator(".draw-note")).toContainText(
+    "Some features load more files from this site the first time you use them.",
+  );
+  const github = page.getByRole("link", { name: "GitHub" });
+  await expect(github).toHaveAttribute("target", "_blank");
+  await expect(github).toHaveAttribute("rel", /noopener/);
+  await expect(github).toHaveAttribute("rel", /noreferrer/);
+  await page.screenshot({ path: testInfo.outputPath("draw-empty-1440.png"), fullPage: false });
   const mark = await waitUntilQuiet(page, requests);
   const origin = originOf(page.url());
 
   await drawRectangle(page);
-  await page.screenshot({ path: `${artifacts}/draw-drawing-1440.png`, fullPage: false });
+  await page.screenshot({ path: testInfo.outputPath("draw-drawing-1440.png"), fullPage: false });
   await pasteImage(page);
 
   await page.getByTestId("main-menu-trigger").click();
@@ -196,6 +213,20 @@ test("draw, paste, export, save, and reload stay on this origin", async ({ page 
   await page.waitForTimeout(500);
 
   await page.waitForTimeout(800);
+  await page.evaluate(() => {
+    const recorded: string[] = [];
+    (window as unknown as { __puts?: string[] }).__puts = recorded;
+    const original = IDBObjectStore.prototype.put;
+    IDBObjectStore.prototype.put = function (value: unknown, key?: IDBValidKey) {
+      recorded.push(String(key));
+      return original.call(this, value, key as IDBValidKey);
+    };
+  });
+  await drawRectangle(page);
+  await page.waitForTimeout(900);
+  const puts = await page.evaluate(() => (window as unknown as { __puts?: string[] }).__puts ?? []);
+  expect(puts.some((key) => key === "scene")).toBe(true);
+  expect(puts.some((key) => key.startsWith("file:"))).toBe(false);
   const beforeReload = await readStoredScene(page);
   const beforeElements = liveElements(beforeReload.scene);
   expect(beforeElements.some((element) => element.type === "rectangle")).toBe(true);
@@ -247,7 +278,7 @@ test("offline after load still draws without requests", async ({ page, context }
   expect(after, JSON.stringify(after, null, 2)).toEqual([]);
 });
 
-test("quota failure shows the not saved notice", async ({ page }) => {
+test("quota failure shows the not saved notice", async ({ page }, testInfo) => {
   const requests = await installPageHooks(page);
   await page.goto("/draw");
   await expect(page.locator(".excalidraw")).toBeVisible();
@@ -261,11 +292,89 @@ test("quota failure shows the not saved notice", async ({ page }) => {
   const notice = page.getByRole("alert");
   await expect(notice).toBeVisible();
   await expect(notice).toContainText(/not saved/i);
+  await expect(notice).toContainText(/reloading or closing/i);
+  await expect(notice).toContainText(/\.excalidraw/i);
   await expect(notice.getByRole("button", { name: "Save to file" })).toBeVisible();
   const download = page.waitForEvent("download");
   await notice.getByRole("button", { name: "Save to file" }).click();
   expect((await download).suggestedFilename()).toMatch(/\.excalidraw$/i);
-  await page.screenshot({ path: `${artifacts}/draw-not-saved-1440.png`, fullPage: false });
+  const noticeBox = await notice.boundingBox();
+  const toolBox = await page.getByTestId("toolbar-rectangle").boundingBox();
+  expect(noticeBox && toolBox && noticeBox.y >= toolBox.y + toolBox.height).toBeTruthy();
+  await page.screenshot({ path: testInfo.outputPath("draw-not-saved-1440.png"), fullPage: false });
   const csp = await violations(page);
   expect(csp, JSON.stringify(csp, null, 2)).toEqual([]);
+});
+
+test("browse libraries and publish library are not available", async ({ page }) => {
+  const requests = await installPageHooks(page);
+  await page.goto("/draw");
+  await expect(page.locator(".excalidraw")).toBeVisible();
+  await page.getByTitle("Library").click();
+  const browse = page.locator(".library-menu-browse-button");
+  await expect(browse).toHaveCount(1);
+  await expect(browse).toBeHidden();
+  const menu = page.getByTestId("dropdown-menu-button");
+  if ((await menu.count()) > 0) await menu.first().click();
+  await expect(page.getByTestId("lib-dropdown--remove")).toBeHidden();
+  await expect(page.getByText("Publish library", { exact: true })).toHaveCount(0);
+  const origin = originOf(page.url());
+  const leaked = requests.map((request) => request.url()).filter(isNetworkRequest).filter((url) => originOf(url) !== origin);
+  const csp = await violations(page);
+  expect(csp, JSON.stringify(csp, null, 2)).toEqual([]);
+  expect(leaked, JSON.stringify(leaked, null, 2)).toEqual([]);
+});
+
+test("a corrupt saved scene is kept and offered for download", async ({ page }) => {
+  const raw = '{"elements":[this is not json';
+  await page.goto("/");
+  await page.evaluate(async (value) => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("sdf-draw", 1);
+      request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains("kv")) request.result.createObjectStore("kv");
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("kv", "readwrite");
+      tx.objectStore("kv").put(value, "scene");
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  }, raw);
+  await page.goto("/draw");
+  const notice = page.getByRole("alert").filter({ hasText: /could not open the saved drawing/i });
+  await expect(notice).toBeVisible();
+  const download = page.waitForEvent("download");
+  await notice.getByRole("button", { name: "Download raw file" }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/\.excalidraw$/i);
+  expect(readFileSync(await file.path(), "utf8")).toBe(raw);
+  const stored = await page.evaluate(async () => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("sdf-draw");
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const read = (key: IDBValidKey) =>
+      new Promise<unknown>((resolve, reject) => {
+        const tx = db.transaction("kv", "readonly");
+        const request = tx.objectStore("kv").get(key);
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+    const keys = await new Promise<IDBValidKey[]>((resolve, reject) => {
+      const tx = db.transaction("kv", "readonly");
+      const request = tx.objectStore("kv").getAllKeys();
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    const corruptKey = keys.find((key) => String(key).startsWith("scene.corrupt-"));
+    return { corrupt: corruptKey ? await read(corruptKey) : null, scene: await read("scene") };
+  });
+  expect(stored.corrupt).toBe(raw);
+  expect(stored.scene).not.toBe(raw);
 });

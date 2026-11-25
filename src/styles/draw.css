@@ -14,9 +14,10 @@ body.draw-body {
   min-height: 100%;
   background: #f6f1e8;
   color: #2f3640;
-  font-family: "Source Sans 3", "Segoe UI", sans-serif;
-  font-size: 1rem;
-  line-height: 1.45;
+  font-family: "Source Sans 3 Variable", "Source Sans 3", "Segoe UI", sans-serif;
+  font-size: 1.0625rem;
+  font-weight: 430;
+  line-height: 1.55;
 }
 
 /* The canvas UI uses Assistant 600 only after a menu opens. Paint it on first
@@ -56,22 +57,21 @@ body.draw-body {
   align-items: baseline;
   padding: 0.55rem 0.9rem 0.45rem;
   border-bottom: 1px solid #d9cfc0;
-  background: #fbf7f1;
+  background: #f6f1e8;
+  line-height: 1.55;
 }
 
 .draw-back {
   color: #8e3e1c;
-  font-weight: 650;
+  font-family: "Fraunces Variable", "Iowan Old Style", Palatino, serif;
+  font-weight: 560;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
   text-decoration: none;
 }
 
 .draw-back:hover {
   text-decoration: underline;
-}
-
-.draw-kicker {
-  margin: 0;
-  font-weight: 650;
 }
 
 .draw-note {
@@ -105,13 +105,18 @@ body.draw-body {
   width: 100%;
 }
 
-.draw-unsaved {
+.draw-notices {
   position: absolute;
   z-index: 100000;
-  top: 0.75rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(36rem, calc(100% - 1.5rem));
+  left: 0.75rem;
+  bottom: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(28rem, calc(100% - 1.5rem));
+}
+
+.draw-unsaved {
   box-sizing: border-box;
   background: #fff8f4;
   color: #2f3640;

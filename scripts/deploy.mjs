@@ -88,6 +88,7 @@ export function redact(text, env = {}) {
 
 export function deploySteps(cwd) {
   return [
+    [process.execPath, [join(cwd, "scripts/check-audit.mjs")]],
     [process.execPath, [join(cwd, "node_modules/astro/bin/astro.mjs"), "build"]],
     [process.execPath, [join(cwd, "scripts/check-constraints.mjs")]],
     [process.execPath, [join(cwd, "scripts/check-jsonld.mjs")]],

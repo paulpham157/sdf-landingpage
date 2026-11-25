@@ -1,0 +1,4 @@
+{
+  "note": "Host names that may remain in /draw JavaScript. Each entry needs host and reason. An empty list fails the build on any scanned host.",
+  "accepted": []
+}

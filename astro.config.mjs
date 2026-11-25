@@ -4,40 +4,94 @@ import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
 import { copyExcalidrawAssets } from "./scripts/copy-excalidraw-assets.mjs";
 
-const FONT_FALLBACK = "return r.push(new URL(n,jn.ASSETS_FALLBACK_URL)),r";
+const REMOTE_HOST =
+  /esm\.sh|unpkg\.com|jsdelivr\.net|json\.excalidraw\.com|firebase(?:app|io)\.com|sentry\.io|wss:\/\//;
 
-// Excalidraw appends an esm.sh URL to every FontFace. Chromium requests that
-// URL even when the self-hosted file is listed first. Drop the append so the
-// drawing page never names a remote host.
-function excalidrawSelfHostedFonts() {
+// FontFace appends an esm.sh URL after the self-hosted file. Chromium requests
+// every source, so the append has to go. Match the call by its content and
+// fail the build when this package no longer contains that call.
+function stripFontFallback(code) {
+  const push =
+    /return\s+(\w+)\.push\(new URL\(\w+,\s*\w+\.ASSETS_FALLBACK_URL\)\),\s*\1/g;
+  let rewritten = 0;
+  let next = code.replace(push, (_match, name) => {
+    rewritten += 1;
+    return `return ${name}`;
+  });
+  next = next.replace(/https:\/\/esm\.sh\//g, () => {
+    rewritten += 1;
+    return "/excalidraw-assets/";
+  });
+  if (rewritten === 0) {
+    throw new Error("Excalidraw font fallback was not rewritten");
+  }
+  if (REMOTE_HOST.test(next)) {
+    throw new Error("Excalidraw font chunk still names a remote host");
+  }
+  return next;
+}
+
+// Collab, AI, and the library backend are compiled in as URLs. Blank them so
+// the drawing bundle does not name those hosts. The library control is hidden.
+function stripRemoteConfig(code) {
+  let rewritten = 0;
+  let next = code.replace(/VITE_APP_FIREBASE_CONFIG:(?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*')/, () => {
+    rewritten += 1;
+    return 'VITE_APP_FIREBASE_CONFIG:"{}"';
+  });
+  next = next.replace(/https:\/\/[^"'`\\]+/g, () => {
+    rewritten += 1;
+    return "";
+  });
+  if (rewritten === 0) {
+    throw new Error("Excalidraw env chunk was not rewritten");
+  }
+  if (REMOTE_HOST.test(next)) {
+    throw new Error("Excalidraw env chunk still names a remote host");
+  }
+  return next;
+}
+
+function excalidrawSelfHosted() {
   return {
-    name: "excalidraw-self-hosted-fonts",
+    name: "excalidraw-self-hosted",
     enforce: "pre",
     transform(code, id) {
       const path = id.split("?")[0];
-      if (!path.endsWith("chunk-K2UTITRG.js") || !path.includes("@excalidraw/excalidraw")) return null;
-      if (!code.includes(FONT_FALLBACK)) {
-        throw new Error("Excalidraw font fallback changed; the CDN URL would be requested");
-      }
-      return code.replace(FONT_FALLBACK, "return r");
+      if (!path.includes("@excalidraw/excalidraw")) return null;
+      if (path.endsWith("chunk-K2UTITRG.js")) return stripFontFallback(code);
+      if (path.endsWith("chunk-ZUYEQ4TG.js")) return stripRemoteConfig(code);
+      return null;
     },
   };
 }
 
-// `npm run deploy` calls `astro build` directly, so the copy cannot live only
-// in an npm prebuild hook. The hook still runs for `npm run build` and `npm run dev`.
-copyExcalidrawAssets();
+// Copy once per process. `astro dev` and `astro build` both load this config,
+// including `npm run deploy`, which calls `astro build` directly.
+let assetsCopied = false;
+function excalidrawAssets() {
+  return {
+    name: "excalidraw-assets",
+    hooks: {
+      "astro:config:setup"() {
+        if (assetsCopied) return;
+        assetsCopied = true;
+        copyExcalidrawAssets();
+      },
+    },
+  };
+}
 
 export default defineConfig({
   site: "https://softwaredecisionfabric.tech",
   trailingSlash: "never",
   build: {
     format: "directory",
-    // Keep styles in files so Content-Security-Policy does not need style 'unsafe-inline'.
+    // Keep styles in files so Content-Security-Policy does not need inline styles.
     inlineStylesheets: "never",
   },
   vite: {
-    plugins: [excalidrawSelfHostedFonts()],
+    plugins: [excalidrawSelfHosted()],
     build: {
       // Astro inlines script chunks under this byte limit. Zero keeps them as
       // external /_astro/*.js files so script-src can stay 'self'.
@@ -45,6 +99,7 @@ export default defineConfig({
     },
   },
   integrations: [
+    excalidrawAssets(),
     mdx(),
     sitemap({
       filter: (page) => {

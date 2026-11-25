@@ -35,15 +35,19 @@ const uiOptions = {
   },
 } as const;
 
-function downloadScene(api: DrawApi) {
-  const json = serializeAsJSON(api.getSceneElements(), api.getAppState(), api.getFiles(), "local");
-  const blob = new Blob([json], { type: "application/vnd.excalidraw+json" });
+function downloadText(filename: string, body: string) {
+  const blob = new Blob([body], { type: "application/vnd.excalidraw+json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "drawing.excalidraw";
+  link.download = filename;
   link.click();
   window.setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
+function downloadScene(api: DrawApi) {
+  const json = serializeAsJSON(api.getSceneElements(), api.getAppState(), api.getFiles(), "local");
+  downloadText("drawing.excalidraw", json);
 }
 
 export default function DrawCanvas() {
@@ -53,12 +57,14 @@ export default function DrawCanvas() {
   const allowSaveRef = useRef(false);
   const writeRef = useRef(0);
   const [notSaved, setNotSaved] = useState(false);
+  const [corruptRaw, setCorruptRaw] = useState<string | null>(null);
   const [initialData] = useState<Promise<DrawingInitialData>>(() => loaded.then((result) => result.initialData));
   const setNotSavedRef = useRef(setNotSaved);
   setNotSavedRef.current = setNotSaved;
 
   const flushRef = useRef<() => Promise<void>>(async () => {});
   flushRef.current = async () => {
+    if (!allowSaveRef.current) return;
     if (timerRef.current !== null) {
       window.clearTimeout(timerRef.current);
       timerRef.current = null;
@@ -93,11 +99,12 @@ export default function DrawCanvas() {
     let live = true;
     void loaded.then((result) => {
       if (!live) return;
-      if (!result.storageAvailable) setNotSaved(true);
+      if (result.corruptRaw) setCorruptRaw(result.corruptRaw);
+      if (!result.canAutosave) setNotSaved(true);
       // Excalidraw applies initialData in the microtask queued before this one.
       // Waiting a frame keeps that first apply from being written back.
       requestAnimationFrame(() => {
-        if (live) allowSaveRef.current = true;
+        if (live && result.canAutosave) allowSaveRef.current = true;
       });
     });
     const onHide = () => {
@@ -118,18 +125,35 @@ export default function DrawCanvas() {
 
   return (
     <div className="draw-host">
-      {notSaved ? (
-        <div className="draw-unsaved" role="alert">
-          <p>Not saved in this browser. The drawing is still on this page.</p>
-          <button
-            type="button"
-            onClick={() => {
-              const api = apiRef.current;
-              if (api) downloadScene(api);
-            }}
-          >
-            Save to file
-          </button>
+      {corruptRaw || notSaved ? (
+        <div className="draw-notices">
+          {corruptRaw ? (
+            <div className="draw-unsaved" role="alert">
+              <p>
+                This browser could not open the saved drawing. The original was kept and was not replaced.
+              </p>
+              <button type="button" onClick={() => downloadText("drawing-raw.excalidraw", corruptRaw)}>
+                Download raw file
+              </button>
+            </div>
+          ) : null}
+          {notSaved ? (
+            <div className="draw-unsaved" role="alert">
+              <p>
+                This drawing is not saved in this browser. Reloading or closing this page loses it. Save to file
+                downloads a .excalidraw file you can open again.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const api = apiRef.current;
+                  if (api) downloadScene(api);
+                }}
+              >
+                Save to file
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
       <Excalidraw

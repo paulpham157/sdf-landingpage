@@ -1,4 +1,5 @@
 {
-  "gzipBytes": 2495361,
-  "note": "Gzip of every JS and CSS file reachable from /draw, including Excalidraw dynamic imports (locales, diagram chunks, and the font subsetter)."
+  "gzipBytes": 2496017,
+  "initialGzipBytes": 460335,
+  "note": "gzipBytes is every JS and CSS file reachable from /draw, including dynamic imports (locales, diagram chunks, and the font subsetter). initialGzipBytes is the static import graph from the /draw HTML only: linked assets plus import/from specifiers, not the Vite dynamic dependency map. Both ceilings are 10% over these counts."
 }
