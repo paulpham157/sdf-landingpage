@@ -1,17 +1,15 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import {
-  closing,
   hero,
-  pillarDocs,
-  pillars,
-  problem,
+  homeCost,
+  homeInstall,
+  homePartners,
+  homePartnersCta,
+  homeVerify,
   shipsToday,
-  site,
-  statusLabel,
-  stepDocs,
-  steps,
   wedgeMetric,
+  site,
 } from "../data/site";
 import { graph, webPage } from "../lib/seo";
 
@@ -34,6 +32,15 @@ const jsonLd = graph(
   },
   webPage({ title, description, path: "/" }),
 );
+
+const verifyPre = [
+  `<span class="prompt">$ </span>${homeVerify.failCommand}`,
+  `verdict <strong class="verdict verdict-fail">FAIL</strong> ${homeVerify.failHash}`,
+  `  <span class="reason">${homeVerify.failReason}</span>`,
+  "",
+  `<span class="prompt">$ </span>${homeVerify.passCommand}`,
+  `verdict <strong class="verdict">PASS</strong> ${homeVerify.passHash}`,
+].join("\n");
 ---
 
 <BaseLayout title={title} description={description} path="/" jsonLd={jsonLd}>
@@ -43,7 +50,6 @@ const jsonLd = graph(
         <p class="kicker">Open source · v0.1.0</p>
         <h1>{hero.title}</h1>
         <p class="lede">{hero.subhead}</p>
-        <p class="buyer">{hero.buyer}</p>
         <div class="cta-row">
           <a class="button" href="/#today">{hero.primaryCta}</a>
           <a class="button button-secondary" href={site.repo} rel="noopener noreferrer">{hero.secondaryCta}</a>
@@ -52,64 +58,63 @@ const jsonLd = graph(
     </div>
   </section>
 
-  <section class="section" aria-labelledby="why-title">
+  <section class="section band" id="how-it-works" aria-labelledby="verify-title">
     <div class="wrap">
-      <p class="kicker">§ 01. Why SDF</p>
-      <h2 id="why-title">{problem.heading}</h2>
-      <p class="statement">{problem.body}</p>
-      <div class="pillars">
-        {
-          pillars.map((pillar, index) => (
-            <article>
-              <p class="step-index">0{index + 1}</p>
-              <h3>{pillar.title}</h3>
-              <p>{pillar.body}</p>
-            </article>
-          ))
-        }
-      </div>
-      <p class="docs-line">
-        {pillarDocs.before}<a href={site.outcomeDocsUrl} rel="noopener noreferrer">{pillarDocs.linkLabel}</a>{pillarDocs.after}
-      </p>
+      <p class="kicker">§ 01. Proof: a checked commit</p>
+      <h2 id="verify-title">{homeVerify.title}</h2>
+      <figure class="proof">
+        <figcaption class="proof-caption">
+          <span class="proof-label">{homeVerify.label}</span>{` ${homeVerify.caption}`}
+        </figcaption>
+        <pre class="install terminal"><code set:html={`<!--email_off-->${verifyPre}<!--/email_off-->`} /></pre>
+        <p class="step-today">{homeVerify.footnote}</p>
+        <a class="repo-link" href={homeVerify.linkUrl} rel="noopener noreferrer">{homeVerify.linkLabel}</a>
+      </figure>
     </div>
   </section>
 
-  <section class="section" id="how-it-works" aria-labelledby="how-title">
+  <section class="section" aria-labelledby="cost-title">
     <div class="wrap">
-      <p class="kicker">§ 02. How it works</p>
-      <h2 id="how-title">How it works</h2>
-      <p class="lede tight">Your agents stay in place. SDF records what they did.</p>
-      <ol class="steps">
-        {
-          steps.map((step) => (
-            <li>
-              <span class="step-index">{step.id}</span>
-              <h3>
-                {step.title} <span class={`status-badge status-${step.status}`}>{statusLabel[step.status]}</span>
-              </h3>
-              <p>{step.body}</p>
-            </li>
-          ))
-        }
-      </ol>
-      <p class="docs-line">
-        {stepDocs.before}<a href={site.commitLinkDocsUrl} rel="noopener noreferrer">{stepDocs.linkLabel}</a>{stepDocs.after}
-      </p>
+      <p class="kicker">§ 02. Proof: cost that won't guess</p>
+      <h2 id="cost-title">{homeCost.title}</h2>
+      <figure class="proof">
+        <figcaption class="proof-caption">
+          <span class="proof-label">{homeCost.label}</span>{` ${homeCost.caption}`}
+        </figcaption>
+        <table class="checks proof-table" aria-labelledby="cost-title">
+          <caption class="sr-only">Sample session costs</caption>
+          <thead>
+            <tr>
+              {homeCost.columns.map((column) => <th scope="col">{column}</th>)}
+            </tr>
+          </thead>
+          <tbody>
+            {
+              homeCost.rows.map((row) => (
+                <tr>
+                  <th scope="row">{row[0]}</th>
+                  <td data-label="Agent">{row[1]}</td>
+                  <td data-label="Computed cost">{row[2]}</td>
+                  <td data-label="Outcome">{row[3]}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+        <pre class="install terminal cpao"><code><!--email_off-->{homeCost.cpao}<!--/email_off--></code></pre>
+        <p class="step-today">{homeCost.footnote}</p>
+        <a class="repo-link" href={homeCost.linkUrl} rel="noopener noreferrer">{homeCost.linkLabel}</a>
+      </figure>
     </div>
   </section>
 
   <section class="section band" id="today" aria-labelledby="today-title">
     <div class="wrap">
-      <p class="kicker">§ 03. Shipping today</p>
-      <h2 id="today-title">{shipsToday.heading}</h2>
-      <p class="lede tight">{shipsToday.body}</p>
-      <pre class="install"><code><!--email_off-->{[shipsToday.install, shipsToday.installPin, ...shipsToday.run].join("\n")}<!--/email_off--></code></pre>
-      <p class="step-today"><code>{shipsToday.note.command}</code>{shipsToday.note.after}</p>
-      <p class="lede tight">{problem.coverage}</p>
-      <p>
-        <a class="repo-link" href={shipsToday.releaseUrl} rel="noopener noreferrer">Prebuilt archives for Linux, macOS, and Windows</a>
-        {" · "}
-        <a class="repo-link" href={site.repo} rel="noopener noreferrer">Setup for each agent on GitHub</a>
+      <p class="kicker">§ 03. Get started</p>
+      <h2 id="today-title">{homeInstall.heading}</h2>
+      <pre class="install"><code><!--email_off-->{homeInstall.lines.join("\n")}<!--/email_off--></code></pre>
+      <p class="docs-line">
+        {homeInstall.beforeArchive}<a href={shipsToday.releaseUrl} rel="noopener noreferrer">{homeInstall.archiveLabel}</a>{homeInstall.beforeDocs}<a href={homeInstall.docsUrl} rel="noopener noreferrer">{homeInstall.docsLabel}</a>{homeInstall.afterDocs}
       </p>
     </div>
   </section>
@@ -118,10 +123,10 @@ const jsonLd = graph(
     <div class="wrap close-grid">
       <div>
         <p class="kicker kicker-light">§ 04. Design partners</p>
-        <h2 id="close-title">{closing.heading}</h2>
-        <p class="lede light">{closing.body}</p>
+        <h2 id="close-title">Become a design partner</h2>
+        <p class="lede light">{homePartners}</p>
         <div class="cta-row">
-          <a class="button button-light" href="/design-partners">Apply to be a design partner</a>
+          <a class="button button-light" href="/design-partners">{homePartnersCta}</a>
           <a class="text-link" href="/one-pager">One-page version for a meeting</a>
         </div>
       </div>

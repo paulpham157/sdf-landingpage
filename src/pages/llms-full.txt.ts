@@ -4,11 +4,16 @@ import {
   closing,
   faqs,
   hero,
+  homeCost,
+  homeInstall,
+  homePartners,
+  homeVerify,
   marketAnchorNote,
   marketAnchors,
   onePager,
   pillars,
   pricingIntro,
+  problem,
   shipsToday,
   site,
   statusLabel,
@@ -32,13 +37,51 @@ write(
     ? `${site.email} is a placeholder mailbox. The design-partner form opens an email draft and does not submit to a server.`
     : `${site.email}. The design-partner form opens an email draft and does not submit to a server.`,
   "",
-  "## How it works",
+  "## Proof: a checked commit",
+  "",
+  `${homeVerify.label}. ${homeVerify.caption}`,
+  `$ ${homeVerify.failCommand}`,
+  `verdict FAIL ${homeVerify.failHash}`,
+  `  ${homeVerify.failReason}`,
+  "",
+  `$ ${homeVerify.passCommand}`,
+  `verdict PASS ${homeVerify.passHash}`,
+  "",
+  homeVerify.footnote,
+  `${homeVerify.linkLabel}: ${homeVerify.linkUrl}`,
+  "",
+  "## Proof: cost that won't guess",
+  "",
+  `${homeCost.label}. ${homeCost.caption}`,
+  homeCost.columns.join(" | "),
+);
+for (const row of homeCost.rows) {
+  write(row.join(" | "));
+}
+write(
+  homeCost.cpao,
+  "",
+  homeCost.footnote,
+  `${homeCost.linkLabel}: ${homeCost.linkUrl}`,
+  "",
+  "## Get started",
+  "",
+  ...homeInstall.lines,
+  `${homeInstall.beforeArchive}${homeInstall.archiveLabel}${homeInstall.beforeDocs}${homeInstall.docsLabel}${homeInstall.afterDocs}`,
+  `Release: ${shipsToday.releaseUrl}`,
+  `Docs: ${homeInstall.docsUrl}`,
+  "",
+  "## Homepage design partners",
+  "",
+  homePartners,
+  "",
+  "## Steps",
   "",
 );
 for (const step of steps) {
   write(`- ${step.id} ${step.title} (${statusLabel[step.status]}): ${step.body}`);
 }
-write("", "## Why SDF", "");
+write("", "## Why SDF", "", problem.coverage, "");
 for (const pillar of pillars) {
   write(`- ${pillar.title}: ${pillar.body}`);
 }
