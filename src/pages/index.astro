@@ -46,7 +46,7 @@ const verifyPre = [
 <BaseLayout title={title} description={description} path="/" jsonLd={jsonLd}>
   <section class="hero">
     <div class="wrap hero-grid">
-      <div>
+      <div class="hero-copy">
         <p class="kicker">Open source · v0.1.0</p>
         <h1>{hero.title}</h1>
         <p class="lede">{hero.subhead}</p>
@@ -55,21 +55,18 @@ const verifyPre = [
           <a class="button button-secondary" href={site.repo} rel="noopener noreferrer">{hero.secondaryCta}</a>
         </div>
       </div>
-    </div>
-  </section>
-
-  <section class="section band" id="how-it-works" aria-labelledby="verify-title">
-    <div class="wrap">
-      <p class="kicker">§ 01. Proof: a checked commit</p>
-      <h2 id="verify-title">{homeVerify.title}</h2>
-      <figure class="proof">
-        <figcaption class="proof-caption">
-          <span class="proof-label">{homeVerify.label}</span>{` ${homeVerify.caption}`}
-        </figcaption>
-        <pre class="install terminal"><code set:html={`<!--email_off-->${verifyPre}<!--/email_off-->`} /></pre>
-        <p class="step-today">{homeVerify.footnote}</p>
-        <a class="repo-link" href={homeVerify.linkUrl} rel="noopener noreferrer">{homeVerify.linkLabel}</a>
-      </figure>
+      <section class="hero-proof" id="how-it-works" aria-labelledby="verify-title">
+        <p class="kicker">§ 01. Proof: a checked commit</p>
+        <h2 id="verify-title">{homeVerify.title}</h2>
+        <figure class="proof">
+          <figcaption class="proof-caption">
+            <span class="proof-label">{homeVerify.label}</span>{` ${homeVerify.caption}`}
+          </figcaption>
+          <pre class="install terminal"><code set:html={`<!--email_off-->${verifyPre}<!--/email_off-->`} /></pre>
+          <p class="step-today">{homeVerify.footnote}</p>
+          <a class="repo-link" href={homeVerify.linkUrl} rel="noopener noreferrer">{homeVerify.linkLabel}</a>
+        </figure>
+      </section>
     </div>
   </section>
 
