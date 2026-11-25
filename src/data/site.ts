@@ -35,7 +35,7 @@ export const wedgeMetric = "Cost per Accepted Outcome";
 export const hero = {
   title: "Know which agent work actually shipped.",
   subhead:
-    "SDF records the telemetry your coding agents already export, links sessions to commits, and checks a commit against a task you declared. It runs on your machine. It does not launch, route, or sandbox agents.",
+    "SDF records your coding agents' telemetry, links sessions to commits, and checks commits against tasks you declare. Local only; it doesn't launch or sandbox agents, and routing is planned.",
   buyer:
     "For platform, security, or VP Engineering leaders running two or more coding agents.",
   primaryCta: "Get started",
@@ -51,26 +51,26 @@ export const homeHow =
  * The ellipsis is part of the string and must stay.
  */
 export const homeVerify = {
-  title: "“Task complete” is a claim. Here's a check.",
+  title: "A checked commit.",
   label: "Toy repo",
   caption:
-    "Real sdf verify output from v0.1.0, on a toy repo we made for this page. We wrote both commits by hand: the first uses linear backoff and fails the test, the second uses exponential backoff and passes. Hashes shortened.",
+    "Real sdf v0.1.0 output. We hand-wrote both commits in a toy repo: linear backoff fails the test, exponential passes. Output trimmed to the verdict lines; hashes shortened.",
   failCommand: "sdf verify 461ddeb… --task retry-backoff --task-ref 478bd0f…",
   failHash: "sha256:ec48838d…",
   failReason: "CHECK_FAILED: unit: exit 1, expected 0",
   passCommand: "sdf verify 040181e… --task retry-backoff --task-ref 478bd0f…",
   passHash: "sha256:134a6e62…",
   footnote:
-    "Each verdict is tied to one commit and carries eight evidence records. Running it on every attempt is planned.",
+    "One commit, eight evidence records. Verifying every attempt, and an independent referee loop, are planned.",
   linkLabel: "How verify works",
-  linkUrl: "https://github.com/paulpham157/sdf/blob/main/docs/verify.md",
+  linkUrl: "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/verify.md",
 } as const;
 
 export const homeCost = {
-  title: "Cost per Accepted Outcome says unknown until it knows.",
+  title: "Cost that won't guess.",
   label: "Example data",
   caption:
-    "From real sdf summary output (v0.1.0), set as a table. Example data: hand-written sample telemetry from the repo's tests, not real sessions.",
+    "Real sdf summary output (v0.1.0) on the repo's hand-written test telemetry, not real sessions.",
   columns: ["Session", "Agent", "Computed cost", "Outcome"],
   rows: [
     ["sample-claude-1", "claude-code", "unknown", "unlinked"],
@@ -79,8 +79,9 @@ export const homeCost = {
   ],
   cpao: "cost_per_accepted_outcome_usd: unknown (3 sessions have no known outcome)",
   footnote:
-    "With --github, a session counts as accepted when its linked pull request merged. If an outcome, a cost, or a unique merge is missing, the figure stays unknown.",
+    "With --github, accepted means the linked PR merged. Missing outcome, cost, or unique merge: unknown.",
   linkLabel: "How it is counted",
+  linkUrl: "https://github.com/paulpham157/sdf/blob/v0.1.0/docs/outcomes.md#pull-requests-and-ci",
 } as const;
 
 /** Homepage install. Pricing still uses `shipsToday`, including the @v0.1.0 pin. */
@@ -93,16 +94,18 @@ export const homeInstall = {
     "sdf summary",
   ],
   beforeArchive:
-    "Leave sdf serve running in its own terminal, and restart your agent after sdf init. go install needs Go 1.26 or newer. No Go? Download a ",
+    "Keep sdf serve running and restart your agent after sdf init. Needs Go 1.26+, or grab a ",
   archiveLabel: "prebuilt archive",
-  beforeDocs: ". Agent setup, plus the localhost and auth notes, is in ",
+  beforeDocs: ". Auth is off by default: keep it on localhost. Apache 2.0. Setup: ",
   docsLabel: "the docs",
   afterDocs: ".",
+  docsUrl: "https://github.com/paulpham157/sdf/tree/v0.1.0/docs",
 } as const;
 
-/** Homepage § 05. The design-partners page keeps the longer `closing.body`. */
+/** Homepage design-partner line. The design-partners page keeps the longer `closing.body`. */
 export const homePartners =
-  "We're onboarding 3 to 5 platform teams already running two or more agents.";
+  "Onboarding 3 to 5 platform teams running two or more agents.";
+export const homePartnersCta = "Apply now";
 
 export const problem = {
   heading: "“Task complete” is a claim, not a result.",

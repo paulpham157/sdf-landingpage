@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { hero, homeHow, homeInstall, shipsToday, site } from "../data/site";
+import { hero, homeInstall, shipsToday, site } from "../data/site";
 
 const body = `# ${site.name} (${site.shortName})
 
@@ -9,7 +9,7 @@ This file restates public pages on ${site.url}. It is not a customer list, a pri
 
 ## Pages
 
-- [Home](${site.url}/): ${homeHow} A real sdf verify run fails, then passes, on one declared task. A real sdf summary cost table leaves Cost per Accepted Outcome unknown. Install with the four commands above.
+- [Home](${site.url}/): ${hero.subhead} A checked commit fails, then passes. Cost per Accepted Outcome stays unknown. Install: ${homeInstall.lines.join("; ")}. ${homeInstall.beforeArchive}${homeInstall.archiveLabel}${homeInstall.beforeDocs}${homeInstall.docsLabel}${homeInstall.afterDocs}
 - [Pricing](${site.url}/pricing): Hosted Team and Enterprise. Amounts are not published. OpenHands, Factory, and Ona figures are cited coding-agent list prices, not SDF prices.
 - [One-pager](${site.url}/one-pager): the same brief on one page.
 - [Sample Evidence Report](${site.url}/sample-evidence-report): a labeled mock. Not a customer report.
