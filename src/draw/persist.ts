@@ -11,15 +11,24 @@ import "./asset-path";
  * The embedded `files` map is removed from the stored scene string; restore
  * merges the separate keys back in before `restore()`.
  *
- * A scene that cannot be parsed is copied to `scene.corrupt-<timestamp>` and
- * removed from `scene` in that same transaction. It is not replaced with a
- * blank document. If that copy fails, autosave stays off so the raw value
- * remains under `scene`.
+ * A scene that cannot be parsed is copied to `scene.corrupt-<timestamp>` as
+ * `{ raw, files }` and removed from `scene` in that same transaction. It is
+ * not replaced with a blank document. If that copy fails, autosave stays off
+ * so the raw value remains under `scene`. While any corrupt backup exists,
+ * later saves do not delete `file:*` keys, including after a reload.
  *
  * Multi-tab: last write wins. There is no lock, version, or broadcast.
  */
 import { restore, serializeAsJSON } from "@excalidraw/excalidraw";
-import { FILE_KEY_PREFIX, SCENE_KEY, idbGet, idbKeys, idbSaveDrawing, idbWrite } from "./idb";
+import {
+  CORRUPT_KEY_PREFIX,
+  FILE_KEY_PREFIX,
+  SCENE_KEY,
+  idbGet,
+  idbKeys,
+  idbSaveDrawing,
+  idbWrite,
+} from "./idb";
 
 const PAPER = "#F6F1E8";
 const INK = "#2F3640";
@@ -91,9 +100,9 @@ async function readFiles(): Promise<SceneFiles> {
   return files;
 }
 
-async function keepCorrupt(raw: string): Promise<boolean> {
+async function keepCorrupt(raw: string, files: SceneFiles): Promise<boolean> {
   try {
-    await idbWrite([[`scene.corrupt-${Date.now()}`, raw]], [SCENE_KEY]);
+    await idbWrite([[`${CORRUPT_KEY_PREFIX}${Date.now()}`, { raw, files }]], [SCENE_KEY]);
     return true;
   } catch {
     return false;
@@ -147,7 +156,7 @@ export async function loadDrawing(): Promise<LoadedDrawing> {
     knownFileIds = new Set();
     retainStoredFiles = true;
     const files = await readFiles().catch(() => ({}) as SceneFiles);
-    const preserved = await keepCorrupt(raw);
+    const preserved = await keepCorrupt(raw, files);
     return {
       initialData: blankScene(),
       restored: false,

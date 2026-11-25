@@ -110,22 +110,32 @@ async function readStoredScene(page: Page) {
       request.onerror = () => reject(request.error);
     });
     const files: Record<string, { mimeType?: string; dataURL?: string }> = {};
+    const backups: unknown[] = [];
     for (const key of keys) {
-      if (typeof key !== "string" || !key.startsWith("file:")) continue;
-      const value = await new Promise<{ mimeType?: string; dataURL?: string } | undefined>((resolve, reject) => {
+      if (typeof key !== "string") continue;
+      const value = await new Promise<unknown>((resolve, reject) => {
         const request = store.get(key);
         request.onsuccess = () => resolve(request.result);
         request.onerror = () => reject(request.error);
       });
-      if (value) files[key] = value;
+      if (key.startsWith("file:") && value && typeof value === "object") {
+        files[key] = value as { mimeType?: string; dataURL?: string };
+      } else if (key.startsWith("scene.corrupt-")) backups.push(value);
     }
-    return { keys: keys.map(String), scene: scene ?? "", files };
+    return { keys: keys.map(String), scene: scene ?? "", files, backups };
   });
 }
 
+function parsedScene(scene: string) {
+  try {
+    return JSON.parse(scene) as { elements?: { type?: string; isDeleted?: boolean; fileId?: string }[] };
+  } catch {
+    return null;
+  }
+}
+
 function liveElements(scene: string) {
-  const parsed = JSON.parse(scene) as { elements?: { type?: string; isDeleted?: boolean; fileId?: string }[] };
-  return (parsed.elements ?? []).filter((element) => !element.isDeleted);
+  return (parsedScene(scene)?.elements ?? []).filter((element) => !element.isDeleted);
 }
 
 test.beforeEach(async ({ page }) => {
@@ -408,9 +418,84 @@ test("a corrupt saved scene is kept and offered for download", async ({ page }) 
       image: await read("file:img-kept"),
     };
   });
-  expect(stored.corrupt).toBe(raw);
+  const backup = stored.corrupt as { raw?: string; files?: Record<string, { dataURL?: string }> };
+  expect(backup.raw).toBe(raw);
+  expect(backup.files?.["img-kept"]?.dataURL).toBe(image.dataURL);
   expect(stored.scene).not.toBe(raw);
   expect((stored.image as { dataURL?: string } | undefined)?.dataURL).toBe(image.dataURL);
+});
+
+test("a reload and later save still leave the corrupt scene images recoverable", async ({ page }) => {
+  const raw = '{"elements":[this is not json';
+  const image = {
+    mimeType: "image/png",
+    id: "img-kept",
+    dataURL: "data:image/png;base64,bbbb",
+    created: 2,
+  };
+  await page.goto("/");
+  await page.evaluate(async ({ value, file }) => {
+    const db = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open("sdf-draw", 1);
+      request.onupgradeneeded = () => {
+        if (!request.result.objectStoreNames.contains("kv")) request.result.createObjectStore("kv");
+      };
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    await new Promise<void>((resolve, reject) => {
+      const tx = db.transaction("kv", "readwrite");
+      const store = tx.objectStore("kv");
+      store.put(value, "scene");
+      store.put(file, `file:${file.id}`);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+    db.close();
+  }, { value: raw, file: image });
+  await page.goto("/draw");
+  await expect(page.getByRole("alert").filter({ hasText: /could not open the saved drawing/i })).toBeVisible();
+  await expect
+    .poll(async () => {
+      const stored = await readStoredScene(page);
+      const backup = stored.backups[0] as { raw?: string; files?: Record<string, { dataURL?: string }> } | undefined;
+      return parsedScene(stored.scene) !== null && backup?.files?.["img-kept"]?.dataURL === image.dataURL;
+    })
+    .toBe(true);
+  await page.reload();
+  await expect(page.locator(".excalidraw")).toBeVisible();
+  await drawRectangle(page);
+  await expect
+    .poll(async () => liveElements((await readStoredScene(page)).scene).some((element) => element.type === "rectangle"))
+    .toBe(true);
+  const stored = await readStoredScene(page);
+  const backup = stored.backups.find(
+    (record) => (record as { raw?: string }).raw === raw,
+  ) as { raw?: string; files?: Record<string, { dataURL?: string }> } | undefined;
+  expect(stored.files["file:img-kept"]?.dataURL).toBe(image.dataURL);
+  expect(backup?.files?.["img-kept"]?.dataURL).toBe(image.dataURL);
+});
+
+test("the not saved notice stays readable on a phone", async ({ page }, testInfo) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await installPageHooks(page);
+  await page.goto("/draw");
+  await expect(page.locator(".excalidraw")).toBeVisible();
+  await page.evaluate(() => {
+    IDBObjectStore.prototype.put = function () {
+      throw new DOMException("The quota has been exceeded.", "QuotaExceededError");
+    };
+  });
+  await drawRectangle(page);
+  const notice = page.getByRole("alert");
+  await expect(notice).toBeVisible();
+  const noticeBox = await notice.boundingBox();
+  const footerBox = await page.getByRole("contentinfo").boundingBox();
+  expect(noticeBox).toBeTruthy();
+  expect(footerBox).toBeTruthy();
+  expect(noticeBox!.width).toBeGreaterThan(300);
+  expect(boxesOverlap(noticeBox!, footerBox!)).toBe(false);
+  await page.screenshot({ path: testInfo.outputPath("draw-not-saved-390.png"), fullPage: false });
 });
 
 test("a second tab puts an image back when its cache still thinks the file is stored", async ({ page }) => {

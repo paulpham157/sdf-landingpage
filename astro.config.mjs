@@ -55,17 +55,18 @@ function stripRemoteConfig(code) {
 const LIBRARY_EMPTY =
   "Select an item on canvas to add it here, or install a library from the public repository, below.";
 
+const PUBLISH_REQUEST =
+  /fetch\(\s*`\$\{[A-Za-z0-9_$]+\.VITE_APP_LIBRARY_BACKEND\}\/submit`\s*,\s*\{\s*method:\s*"post"\s*,\s*body:\s*[A-Za-z0-9_$]+\s*\}\s*\)/;
+
 function disableLibraryPublish(code) {
-  const publish =
-    /fetch\(`\$\{[A-Za-z0-9_$]+\.VITE_APP_LIBRARY_BACKEND\}\/submit`,\{method:"post",body:[A-Za-z0-9_$]+\}\)/;
-  if (!publish.test(code)) {
+  if (!PUBLISH_REQUEST.test(code)) {
     throw new Error("Excalidraw library publish request was not found");
   }
   if (!code.includes("https://libraries.excalidraw.com")) {
     throw new Error("Excalidraw library site link was not found");
   }
   return code
-    .replace(publish, 'Promise.reject(new Error("Library publishing is disabled"))')
+    .replace(PUBLISH_REQUEST, 'Promise.reject(new Error("Library publishing is disabled"))')
     .replaceAll("https://libraries.excalidraw.com", "#");
 }
 
@@ -76,6 +77,8 @@ function libraryEmptyState(code) {
   return code.replaceAll(LIBRARY_EMPTY, "Select an item on canvas to add it here.");
 }
 
+const appliedPatches = { libraryEmptyState: false, disableLibraryPublish: false };
+
 function excalidrawSelfHosted() {
   return {
     name: "excalidraw-self-hosted",
@@ -85,9 +88,25 @@ function excalidrawSelfHosted() {
       if (!path.includes("@excalidraw/excalidraw")) return null;
       if (path.endsWith("chunk-K2UTITRG.js")) return stripFontFallback(code);
       if (path.endsWith("chunk-ZUYEQ4TG.js")) return stripRemoteConfig(code);
-      if (path.endsWith("chunk-6U3AYISY.js")) return libraryEmptyState(code);
-      if (path.endsWith("/dist/prod/index.js")) return disableLibraryPublish(code);
+      // Match the source by content so a renamed prod or dev chunk still patches.
+      if (code.includes(LIBRARY_EMPTY)) {
+        appliedPatches.libraryEmptyState = true;
+        return libraryEmptyState(code);
+      }
+      if (PUBLISH_REQUEST.test(code)) {
+        appliedPatches.disableLibraryPublish = true;
+        return disableLibraryPublish(code);
+      }
       return null;
+    },
+    closeBundle() {
+      if (this.environment?.name && this.environment.name !== "client") return;
+      const missing = Object.entries(appliedPatches)
+        .filter(([, applied]) => !applied)
+        .map(([name]) => name);
+      if (missing.length) {
+        this.error(`Excalidraw patch target is missing: ${missing.join(", ")}`);
+      }
     },
   };
 }

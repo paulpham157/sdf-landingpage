@@ -7,6 +7,7 @@ export const DRAW_DB_NAME = "sdf-draw";
 export const DRAW_STORE = "kv";
 export const SCENE_KEY = "scene";
 export const FILE_KEY_PREFIX = "file:";
+export const CORRUPT_KEY_PREFIX = "scene.corrupt-";
 
 const VERSION = 1;
 
@@ -134,6 +135,7 @@ export function idbWrite(
  * The presence check runs in this same readwrite transaction, so a cache from
  * another tab cannot skip an image that tab deleted.
  * When `deleteMissingFiles` is false, file keys are left in place.
+ * A `scene.corrupt-*` backup also keeps every file key, including after reload.
  */
 export function idbSaveDrawing(
   scene: string,
@@ -152,15 +154,16 @@ export function idbSaveDrawing(
       const keysRequest = store.getAllKeys();
       keysRequest.onsuccess = () => {
         const present = new Set<string>();
+        let corruptBackup = false;
         for (const key of keysRequest.result) {
-          if (typeof key === "string" && key.startsWith(FILE_KEY_PREFIX)) {
-            present.add(key.slice(FILE_KEY_PREFIX.length));
-          }
+          if (typeof key !== "string") continue;
+          if (key.startsWith(FILE_KEY_PREFIX)) present.add(key.slice(FILE_KEY_PREFIX.length));
+          else if (key.startsWith(CORRUPT_KEY_PREFIX)) corruptBackup = true;
         }
         for (const [id, file] of Object.entries(files)) {
           if (!present.has(id)) store.put(file, `${FILE_KEY_PREFIX}${id}`);
         }
-        if (options.deleteMissingFiles) {
+        if (options.deleteMissingFiles && !corruptBackup) {
           for (const id of options.known) {
             if (!Object.prototype.hasOwnProperty.call(files, id) && present.has(id)) {
               store.delete(`${FILE_KEY_PREFIX}${id}`);

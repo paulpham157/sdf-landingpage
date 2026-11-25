@@ -78,6 +78,7 @@ body.draw-body {
   margin: 0;
   flex: 1 1 28rem;
   color: #2f3640;
+  text-wrap: balance;
 }
 
 .draw-links {
@@ -114,6 +115,15 @@ body.draw-body {
   flex-direction: column;
   gap: 0.5rem;
   width: min(24rem, calc(100% - 22rem));
+}
+
+@media (max-width: 899px) {
+  .draw-notices {
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 6.75rem;
+    width: auto;
+  }
 }
 
 .draw-unsaved {
